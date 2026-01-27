@@ -1,0 +1,341 @@
+import React, { useState } from 'react';
+import { Home, Mail, Lock, Loader2, AlertCircle, Bot, Zap, ShieldCheck } from 'lucide-react';
+import { api } from '../services/apiService'; // sửa path cho đúng dự án bạn
+
+interface LoginProps {
+  onLogin: () => void;
+}
+
+const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const [email, setEmail] = useState('admin@salesagent.ai'); // dùng làm emailOrUsername
+  const [password, setPassword] = useState('password123');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      await api.login(email, password); // email -> emailOrUsername
+      onLogin();
+    } catch (err: any) {
+      setError(err?.message || 'Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center p-6 relative overflow-hidden bg-slate-950">
+      {/* Background Decor */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 blur-[120px] rounded-full"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full"></div>
+
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white/5 backdrop-blur-xl rounded-[40px] border border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-500">
+
+        {/* Left Side */}
+        <div className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-indigo-600 to-blue-700 relative text-white">
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-10">
+              <div className="bg-white p-2.5 rounded-2xl shadow-xl">
+                <Home className="text-indigo-600 w-7 h-7" />
+              </div>
+              <h1 className="text-2xl font-black tracking-tighter">SalesAgent AI</h1>
+            </div>
+
+            <div className="space-y-8">
+              <h2 className="text-4xl font-black leading-tight">
+                Nền tảng Bán hàng <br />
+                <span className="text-indigo-200">Tự động hóa bằng AI</span>
+              </h2>
+              <p className="text-indigo-100 text-lg font-medium opacity-80 leading-relaxed">
+                Vận hành đội ngũ nhân sự ảo, tối ưu quy trình kinh doanh bất động sản trên hạ tầng Google Cloud.
+              </p>
+
+              <div className="space-y-4 pt-4">
+                {[
+                  { icon: Bot, text: "Lực lượng AI Agent chuyên nghiệp" },
+                  { icon: Zap, text: "Xử lý dữ liệu Real-time với BigQuery" },
+                  { icon: ShieldCheck, text: "Bảo mật chuẩn Google Cloud Platform" }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-4 bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md">
+                    <item.icon className="w-5 h-5 text-indigo-300" />
+                    <span className="text-sm font-bold">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side */}
+        <div className="p-8 md:p-16 flex flex-col justify-center bg-white">
+          <div className="mb-10 lg:hidden flex items-center gap-3">
+            <div className="bg-indigo-600 p-2 rounded-xl text-white">
+              <Home className="w-6 h-6" />
+            </div>
+            <h1 className="text-xl font-black tracking-tight text-gray-900">SalesAgent AI</h1>
+          </div>
+
+          <div className="mb-10">
+            <h3 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Chào mừng trở lại!</h3>
+            <p className="text-gray-500 font-medium">Đăng nhập để quản trị hệ thống SalesAgent AI.</p>
+          </div>
+
+          {error && (
+            <div className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-in slide-in-from-top-2">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
+              <p className="text-xs font-bold uppercase tracking-tight text-red-600">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                Email / Username
+              </label>
+              <div className="relative group">
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-indigo-600 transition-colors" />
+                <input
+                  type="text"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all shadow-inner"
+                  placeholder="email hoặc username"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between items-center ml-1">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Mật khẩu</label>
+                <a href="#" className="text-[10px] font-black text-indigo-600 uppercase hover:underline">
+                  Quên mật khẩu?
+                </a>
+              </div>
+              <div className="relative group">
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-indigo-600 transition-colors" />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all shadow-inner"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-5 bg-indigo-600 text-white rounded-3xl font-black uppercase text-xs tracking-[0.2em] shadow-2xl shadow-indigo-200 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:hover:scale-100"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Đang xác thực...
+                </>
+              ) : (
+                'Bắt đầu làm việc'
+              )}
+            </button>
+          </form>
+
+          <p className="mt-8 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            Hệ thống quản trị nội bộ. <span className="text-red-500">Nghiêm cấm truy cập trái phép.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
+
+// import React, { useState } from 'react';
+// import { Home, Mail, Lock, Loader2, AlertCircle, Bot, Zap, ShieldCheck } from 'lucide-react';
+
+// interface LoginProps {
+//   onLogin: () => void;
+// }
+
+// const Login: React.FC<LoginProps> = ({ onLogin }) => {
+//   const [email, setEmail] = useState('admin@salesagent.ai');
+//   const [password, setPassword] = useState('password123');
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState<string | null>(null);
+
+//   const handleSubmit = (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setLoading(true);
+//     setError(null);
+
+//     // Giả lập xác thực sau 1.5s
+//     setTimeout(() => {
+//       if (email === 'admin@salesagent.ai' && password === 'password123') {
+//         onLogin();
+//       } else {
+//         setError('Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại!');
+//         setLoading(false);
+//       }
+//     }, 1500);
+//   };
+
+//   return (
+//     <div className="min-h-screen w-full flex items-center justify-center p-6 relative overflow-hidden bg-slate-950">
+//       {/* Background Decor */}
+//       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 blur-[120px] rounded-full"></div>
+//       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full"></div>
+      
+//       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white/5 backdrop-blur-xl rounded-[40px] border border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-500">
+        
+//         {/* Left Side: Branding & Info */}
+//         <div className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-indigo-600 to-blue-700 relative text-white">
+//           <div className="relative z-10">
+//             <div className="flex items-center gap-3 mb-10">
+//               <div className="bg-white p-2.5 rounded-2xl shadow-xl">
+//                 <Home className="text-indigo-600 w-7 h-7" />
+//               </div>
+//               <h1 className="text-2xl font-black tracking-tighter">SalesAgent AI</h1>
+//             </div>
+            
+//             <div className="space-y-8">
+//               <h2 className="text-4xl font-black leading-tight">
+//                 Nền tảng Bán hàng <br />
+//                 <span className="text-indigo-200">Tự động hóa bằng AI</span>
+//               </h2>
+//               <p className="text-indigo-100 text-lg font-medium opacity-80 leading-relaxed">
+//                 Vận hành đội ngũ nhân sự ảo, tối ưu quy trình kinh doanh bất động sản trên hạ tầng Google Cloud.
+//               </p>
+              
+//               <div className="space-y-4 pt-4">
+//                 {[
+//                   { icon: Bot, text: "Lực lượng AI Agent chuyên nghiệp" },
+//                   { icon: Zap, text: "Xử lý dữ liệu Real-time với BigQuery" },
+//                   { icon: ShieldCheck, text: "Bảo mật chuẩn Google Cloud Platform" }
+//                 ].map((item, i) => (
+//                   <div key={i} className="flex items-center gap-4 bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md">
+//                     <item.icon className="w-5 h-5 text-indigo-300" />
+//                     <span className="text-sm font-bold">{item.text}</span>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           </div>
+          
+//           <div className="relative z-10 flex items-center gap-4 text-xs font-black uppercase tracking-widest opacity-60">
+//              <span>Vận hành bởi Google Cloud</span>
+//              <div className="flex gap-1.5">
+//                 <div className="w-2 h-2 rounded-full bg-red-400"></div>
+//                 <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+//                 <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+//              </div>
+//           </div>
+
+//           <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
+//              <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+//                 <path d="M0 100 L100 0 L100 100 Z" fill="white" />
+//              </svg>
+//           </div>
+//         </div>
+
+//         {/* Right Side: Login Form */}
+//         <div className="p-8 md:p-16 flex flex-col justify-center bg-white">
+//           <div className="mb-10 lg:hidden flex items-center gap-3">
+//              <div className="bg-indigo-600 p-2 rounded-xl text-white">
+//                 <Home className="w-6 h-6" />
+//              </div>
+//              <h1 className="text-xl font-black tracking-tight text-gray-900">SalesAgent AI</h1>
+//           </div>
+
+//           <div className="mb-10">
+//             <h3 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Chào mừng trở lại!</h3>
+//             <p className="text-gray-500 font-medium">Đăng nhập để quản trị hệ thống SalesAgent AI.</p>
+//           </div>
+
+//           {error && (
+//             <div className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 animate-in slide-in-from-top-2">
+//               <AlertCircle className="w-5 h-5 flex-shrink-0" />
+//               <p className="text-xs font-bold uppercase tracking-tight">{error}</p>
+//             </div>
+//           )}
+
+//           <form onSubmit={handleSubmit} className="space-y-6">
+//             <div className="space-y-2">
+//               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email nội bộ</label>
+//               <div className="relative group">
+//                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-indigo-600 transition-colors" />
+//                 <input 
+//                   type="email" 
+//                   required
+//                   value={email}
+//                   onChange={(e) => setEmail(e.target.value)}
+//                   className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all shadow-inner"
+//                   placeholder="name@salesagent.ai"
+//                 />
+//               </div>
+//             </div>
+
+//             <div className="space-y-2">
+//               <div className="flex justify-between items-center ml-1">
+//                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Mật khẩu</label>
+//                 <a href="#" className="text-[10px] font-black text-indigo-600 uppercase hover:underline">Quên mật khẩu?</a>
+//               </div>
+//               <div className="relative group">
+//                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-indigo-600 transition-colors" />
+//                 <input 
+//                   type="password" 
+//                   required
+//                   value={password}
+//                   onChange={(e) => setPassword(e.target.value)}
+//                   className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all shadow-inner"
+//                   placeholder="••••••••"
+//                 />
+//               </div>
+//             </div>
+
+//             <div className="flex items-center gap-3 py-2">
+//               <input type="checkbox" id="remember" className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+//               <label htmlFor="remember" className="text-xs font-bold text-gray-500 uppercase tracking-tighter cursor-pointer">Ghi nhớ phiên đăng nhập</label>
+//             </div>
+
+//             <button 
+//               type="submit" 
+//               disabled={loading}
+//               className="w-full py-5 bg-indigo-600 text-white rounded-3xl font-black uppercase text-xs tracking-[0.2em] shadow-2xl shadow-indigo-200 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:hover:scale-100"
+//             >
+//               {loading ? (
+//                 <>
+//                   <Loader2 className="w-5 h-5 animate-spin" />
+//                   Đang xác thực...
+//                 </>
+//               ) : (
+//                 'Bắt đầu làm việc'
+//               )}
+//             </button>
+//           </form>
+
+//           <div className="mt-12 pt-8 border-t border-gray-100 text-center">
+//              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Hoặc đăng nhập nhanh với</p>
+//              <div className="flex gap-4">
+//                 <button className="flex-1 flex items-center justify-center gap-3 py-3 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-all">
+//                    <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="Google" />
+//                    <span className="text-xs font-bold text-gray-700">Google Workspace</span>
+//                 </button>
+//              </div>
+//           </div>
+          
+//           <p className="mt-8 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+//             Hệ thống quản trị nội bộ. <span className="text-red-500">Nghiêm cấm truy cập trái phép.</span>
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Login;

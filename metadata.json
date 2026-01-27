@@ -1,0 +1,9 @@
+
+{
+  "name": "SalesAgent AI Platform",
+  "description": "A comprehensive Real Estate Management and Sales platform powered 100% by Google Cloud ecosystem, featuring an AI Agent sales force and integrated Customer Data Platform.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
