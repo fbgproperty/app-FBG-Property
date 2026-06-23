@@ -106,3 +106,248 @@ export interface BillingData {
   cost: number;
   change: number;
 }
+
+// =====================
+// Core DTOs
+// =====================
+export type CustomerDto = {
+  id: string;
+
+  name: string;
+  position?: string | null;
+  company?: string | null;
+  description?: string | null;
+
+  country?: string | null;
+  zip?: string | null;
+  city?: string | null;
+  state?: string | null;
+  address?: string | null;
+
+  status?: string | null;
+  source?: string | null;
+
+  email?: string | null;
+  website?: string | null;
+  phoneNumber?: string | null;
+
+  leadValue?: number | null;
+  tags?: string | null;
+
+  // (khuyến nghị) để hiển thị UI "Ngày tạo"
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  metadataJson?: string | null;
+};
+
+export type PagedResponse<T> = {
+  items: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
+// =====================
+// ViewModels for UI
+// =====================
+export type CustomerVM = {
+  id: string;
+
+  fullName: string; // giữ để UI cũ ít đổi
+  phone?: string;
+  email?: string;
+  source: string;
+  tags?: string;
+
+  // fields bổ sung
+  position?: string;
+  company?: string;
+  statusText?: string;
+  website?: string;
+  leadValue?: number | null;
+  address?: string;
+
+  score: number; // placeholder
+  status: string; // placeholder UI
+  needs?: string; // placeholder UI
+};
+
+// =====================
+// Detail sub-models
+// =====================
+export type LeadVM = {
+  id: string;
+  stage: string;
+  score: number;
+  source: string;
+  projectId?: string | null;
+  unitId?: string | null;
+  createdAt: string;
+  projectName?: string;
+  unitName?: string;
+};
+
+export type ConversationVM = {
+  id: string;
+  channel?: string | null;
+  status: string; // Active/Closed...
+  startedAt: string;
+  lastMessageAt: string;
+  agentId?: string | null;
+};
+
+export type MessageVM = {
+  id: string;
+  conversationId: string;
+  senderType: string; // Customer/Agent/System...
+  senderId?: string | null;
+  content: string;
+  createdAt: string;
+};
+
+export type CustomerEventVM = {
+  id: string;
+  channel: string;
+  eventType: string;
+  eventTime: string;
+  payloadJson?: string | null;
+};
+
+export type CustomerInterestVM = {
+  id: string;
+  level: number;
+  note?: string | null;
+  projectId?: string | null;
+  unitId?: string | null;
+  createdAt: string;
+  projectName?: string;
+  unitName?: string;
+};
+
+// =====================
+// Customer Detail VM
+// =====================
+export type CustomerDetailVM = {
+  id: string;
+
+  name: string;
+  position?: string | null;
+  company?: string | null;
+  description?: string | null;
+
+  country?: string | null;
+  zip?: string | null;
+  city?: string | null;
+  state?: string | null;
+  address?: string | null;
+
+  status?: string | null;
+  source?: string | null;
+
+  email?: string | null;
+  website?: string | null;
+  phoneNumber?: string | null;
+
+  leadValue?: number | null;
+  tags?: string | null;
+
+  createdAt: string;
+  updatedAt?: string | null;
+  metadataJson?: string | null;
+
+  leads: LeadVM[];
+  conversations: ConversationVM[];
+  messages: MessageVM[];
+  events: CustomerEventVM[];
+  interests: CustomerInterestVM[];
+};
+
+// =====================
+// Import result
+// =====================
+export type ImportResult = {
+  total: number;
+  inserted: number;
+  updated: number;
+  skipped: number;
+  errors: number;
+  errorMessages: string[];
+};
+
+// Defined interfaces for ASP.NET Identity Core 8.0 compatibility
+// export interface AspNetUser {
+//   id: string;
+//   userName: string;
+//   email: string;
+//   fullName: string;
+//   emailConfirmed: boolean;
+//   phoneNumberConfirmed?: boolean;
+//   twoFactorEnabled: boolean;
+//   lockoutEnabled?: boolean;
+//   accessFailedCount?: number;
+//   roles: AspNetRole[];
+//   claims: AspNetUserClaim[];
+//   logins?: AspNetUserLogin[];
+//   tokens?: AspNetUserToken[];
+// }
+
+export type AspNetUser = {
+  id: string;
+  userName?: string | null;
+  email?: string | null;
+  fullName?: string | null;
+  phoneNumber?: string | null;   // ✅ thêm
+  emailConfirmed: boolean;
+  twoFactorEnabled: boolean;
+  roles?: Array<{ id: string; name: string }>;
+};
+
+
+export interface AspNetUserLogin {
+  loginProvider: string;
+  providerKey: string;
+  providerDisplayName: string;
+  userId: string;
+}
+
+export interface AspNetUserToken {
+  userId: string;
+  loginProvider: string;
+  name: string;
+  value: string;
+}
+
+export interface AspNetRole {
+  id: string;
+  name: string;
+  claims: AspNetRoleClaim[];
+}
+
+export interface AspNetUserClaim {
+  id: number;
+  userId: string;
+  claimType: string;
+  claimValue: string;
+}
+
+export interface AspNetRoleClaim {
+  id: number;
+  roleId: string;
+  claimType: string;
+  claimValue: string;
+}
+
+// ===== ROLES + PERMISSIONS (RoleClaims) =====
+export type RoleListItem = {
+  id: string;
+  name: string;
+};
+
+export type RoleDetail = {
+  id: string;
+  name: string;
+  permissions: string[];
+};
+
+
+

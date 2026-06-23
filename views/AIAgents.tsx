@@ -476,11 +476,11 @@ const AIAgents: React.FC = () => {
                     </div>
                   </td>
 
-                  <td className="px-8 py-4">
+                  {/* <td className="px-8 py-4">
                     <span className="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-lg uppercase">
                       {agent.role}
                     </span>
-                  </td>
+                  </td> */}
 
                   <td className="px-8 py-4">
                     <div className="flex items-center gap-2">

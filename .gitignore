@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build/deploy caches & env (an toàn khi public)
+.firebase/
+.wrangler/
+.env
+.env.*

@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Pagination from '../components/Pagination';
-import { api } from '../services/apiService';
+import Pagination from '../../../components/Pagination';
+import { api } from '../../../services/apiService';
 import {
   ArrowLeft, MapPin, Bot, Loader2, Info, LayoutGrid, FileText,
   CheckCircle2, XCircle, Edit2, Trash2, PlusCircle,
   CloudUpload, Download, Share2, ShieldCheck, FileImage, Video,
   Zap, Plus, Map as MapIcon, Folder
 } from 'lucide-react';
-import { formatDateTime } from '../components/utils/formatDate';
+import { formatDateTime } from '../../../components/utils/formatDate';
 
 
 
@@ -332,7 +332,7 @@ const ProjectDetail: React.FC = () => {
       <div className="flex items-center gap-1 bg-white p-1 rounded-2xl shadow-sm border border-gray-100 w-fit overflow-x-auto">
         {[
           { id: 'info', label: 'Thông tin chung', icon: Info },
-          { id: 'inventory', label: 'Danh sách sản phẩm', icon: LayoutGrid },
+          { id: 'inventory', label: 'Danh sách Nhà/căn hộ', icon: LayoutGrid },
           { id: 'docs', label: 'Tài liệu & Pháp lý', icon: FileText },
           { id: 'map', label: 'Vị trí', icon: MapIcon }
         ].map((tab) => (

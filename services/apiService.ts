@@ -2,8 +2,27 @@
  * API SERVICE (REAL BACKEND)
  * - Login payload: { emailOrUsername, password }
  * - Response: { accessToken, tokenType, expiresInSeconds, user }
+ *
+ * ✅ Không dùng axios. File này dùng fetch + tự gắn Bearer token (giống interceptor).
+ *
+ * ✅ UPDATED Campaign/CampaignProject/Assignments to NEW API routes:
+ *   - GET    /api/campaigns
+ *   - POST   /api/campaigns
+ *   - PUT    /api/campaigns/{id}/project
+ *   - PATCH  /api/campaigns/{id}/status
+ *   - GET    /api/campaigns/{id}/assignments
+ *   - POST   /api/campaigns/{id}/assignments
+ *   - PATCH  /api/assignments/{id}/status
+ *   - DELETE /api/assignments/{id}
  */
-import { AIAgent } from "../types";
+
+import { AIAgent, AspNetUser, AspNetRole, RoleListItem, RoleDetail } from "../types";
+import { DEMO_MODE, demoFetch } from "./demoBackend";
+
+// =====================
+// TYPES & HELPERS
+// =====================
+
 export type AgentDto = {
   id: string;            // Guid as string
   name: string;
@@ -21,7 +40,10 @@ type AgentConfig = Partial<Pick<
   | "caringCount"
 >> & Record<string, any>;
 
-const DEFAULT_AGENT_FALLBACK: Pick<AIAgent, "role" | "assignedProject" | "successRate" | "interactionsCount" | "caringCount"> = {
+const DEFAULT_AGENT_FALLBACK: Pick<
+  AIAgent,
+  "role" | "assignedProject" | "successRate" | "interactionsCount" | "caringCount"
+> = {
   role: "Tư vấn dự án",
   assignedProject: "",
   successRate: 85,
@@ -43,22 +65,17 @@ function normalizeStatus(status: string): AIAgent["status"] {
   if (s === "active") return "Active";
   if (s === "idle") return "Idle";
   if (s === "optimizing") return "Optimizing";
-  // fallback an toàn để UI không vỡ
-  return "Idle";
+  return "Idle"; // fallback an toàn để UI không vỡ
 }
 
 /** Map backend DTO -> UI model (AIAgent) */
 export function mapDtoToAIAgent(dto: AgentDto): AIAgent {
   const cfg = safeJsonParse<AgentConfig>(dto.configJson) ?? {};
-  // channelsJson bạn có thể parse để dùng sau, hiện UI chưa dùng thì cứ giữ nguyên trong cfg nếu muốn
-  // const channels = safeJsonParse<any>(dto.channelsJson);
-
   return {
     id: dto.id,
     name: dto.name,
     status: normalizeStatus(dto.status),
 
-    // các field UI cần nhưng backend không có -> lấy từ configJson hoặc default
     role: (cfg.role as string) ?? DEFAULT_AGENT_FALLBACK.role,
     assignedProject: (cfg.assignedProject as string) ?? DEFAULT_AGENT_FALLBACK.assignedProject,
     successRate: typeof cfg.successRate === "number" ? cfg.successRate : DEFAULT_AGENT_FALLBACK.successRate,
@@ -85,7 +102,7 @@ export function mapAIAgentToDto(agent: Partial<AIAgent>): AgentDto {
     id,
     name,
     status,
-    channelsJson: null, // nếu bạn có UI cấu hình kênh sau này thì serialize vào đây
+    channelsJson: null,
     configJson: JSON.stringify(config),
   };
 }
@@ -157,8 +174,11 @@ export type ApiProjectDetail = {
   productCount: number;
 };
 
-// apiService.ts
+// =====================
+// LEADS / IMPORT / CUSTOMERS TYPES
+// =====================
 
+// apiService.ts
 export type LeadDto = {
   id: string;
   customerId: string;
@@ -196,24 +216,6 @@ export type ImportCustomersResult = {
   errorMessages: string[];
 };
 
-// ===== Import Google Sheets (Link) =====
-// export type ImportCustomersFromSheetLinkRequest = {
-//   sheetUrl: string;
-//   sheetName: string;
-//   rangeA1: string;
-//   hasHeaderRow?: boolean; // default true
-//   upsert?: boolean;       // default true
-// };
-
-// export type ImportResultDto = {
-//   total: number;
-//   inserted: number;
-//   updated: number;
-//   skipped: number;
-//   errors: number;
-//   errorMessages: string[];
-// };
-
 export type ImportResultDto = {
   total: number;
   inserted: number;
@@ -248,136 +250,66 @@ export type ImportCustomersFromRecordsRequest = {
   skipIfNoPhoneAndEmail: boolean;
 };
 
-export type UpsertCustomerRequest = {
-  fullName: string;
-  phone?: string | null;
-  email?: string | null;
-  source: string;
-  tags?: string | null;
-};
-
-// servicesService.ts
-// export type CampaignDto = {
-//   id: string;
-//   name: string;
-//   status: string;   // Draft | Active | Paused | ...
-//   startAt?: string | null;
-//   endAt?: string | null;
-// };
-
-export type CustomerDetailVM = {
-  id: string;
-  fullName: string;
-  phone?: string | null;
-  email?: string | null;
-  source: string;
-  tags?: string | null;
-  createdAt: string;
-  updatedAt?: string | null;
-  metadataJson?: string | null;
-
-  leads: Array<{
-    id: string;
-    stage: string;
-    score: number;
-    source: string;
-    projectId?: string | null;
-    unitId?: string | null;
-    createdAt: string;
-    updatedAt?: string | null;
-  }>;
-
-  conversations: Array<{
-    id: string;
-    customerId: string;
-    agentId?: string | null;
-    channel?: string | null;
-    startedAt: string;
-    lastMessageAt: string;
-    status: string;
-  }>;
-
-  messages: Array<{
-    id: string;
-    conversationId: string;
-    senderType: string;
-    senderId?: string | null;
-    content: string;
-    createdAt: string;
-  }>;
-
-  events: Array<{
-    id: string;
-    customerId?: string | null;
-    anonymousKey?: string | null;
-    channel: string;
-    eventType: string;
-    eventTime: string;
-    payloadJson?: string | null;
-  }>;
-
-  interests: Array<{
-    id: string;
-    customerId: string;
-    projectId?: string | null;
-    unitId?: string | null;
-    level: number;
-    note?: string | null;
-    createdAt: string;
-  }>;
-};
+// =====================
+// CAMPAIGN / ASSIGNMENTS (UPDATED TYPES FOR NEW API)
+// =====================
 
 export type CreateCampaignRequest = {
   name: string;
-  projectId: string;
-  startAt: string;     // ISO
-  endAt: string;       // ISO
+  projectId: string;        // UI vẫn gửi, apiService sẽ tách ra (create + upsert project)
+  startAt: string | null;   // ISO
+  endAt: string | null;     // ISO
   targetLeads: number;
   limitAiAgent: number;
+
+  // optional new fields
+  stopWhenTargetReached?: boolean | null;
+  scoreThreshold?: number | null;
 };
 
-export type CreateCampaignResponse = {
-  id: string;
-};
-
-// servicesService.ts
-
-export type AgentProjectAssignmentDto = {
-  id: string;
-  agentId: string;
-  projectId?: string | null;
-  campaignId: string;
-  status?: string | null;
-  createdAt: string;
-};
+export type CreateCampaignResponse = { id: string };
 
 export type UpdateCampaignStatusRequest = { status?: string | null };
 
 export type UpdateCampaignRequest = {
   name: string;
-  status?: string | null;
+  status?: string | null;       // UI vẫn gửi, apiService sẽ tách PATCH status
   startAt?: string | null;
   endAt?: string | null;
   targetLeads?: number | null;
   limitAiAgent?: number | null;
+  stopWhenTargetReached?: boolean | null;
+  scoreThreshold?: number | null;
+};
+
+export type CampaignProjectDto = { campaignId: string; projectId: string };
+export type UpsertCampaignProjectRequest = { projectId: string };
+
+// Assignments new routes: status-only update
+export type AgentProjectAssignmentDto = {
+  id: string;
+  agentId: string;
+  projectId?: string | null;
+  campaignId: string;
+  status?: string | null; // "Active" | "Paused" | "Disabled"
+  createdAt: string;
 };
 
 export type CreateAgentProjectAssignmentRequest = {
   agentId: string;
-  // projectId?: string | null;
   campaignId: string;
   status?: string | null;
 };
 
-export type CreateAgentProjectAssignmentResponse = {
-  id: string;
-};
+export type CreateAgentProjectAssignmentResponse = { id: string };
 
 export type UpdateAgentProjectAssignmentRequest = {
-  projectId?: string | null;
-  campaignId?: string | null;
   status?: string | null;
 };
+
+// =====================
+// CAMPAIGN DTO for UI (nếu bạn đang dùng)
+// =====================
 
 export type CampaignDtoApi = {
   Id: string;
@@ -412,18 +344,22 @@ const toArray = <T,>(raw: any): T[] => {
   return [];
 };
 
-const mapCampaignApiToUi = (x: any): CampaignDto => ({
+export const mapCampaignApiToUi = (x: any): CampaignDto => ({
   id: (x.id ?? x.Id ?? '') as string,
   name: (x.name ?? x.Name ?? '') as string,
   status: (x.status ?? x.Status ?? '') as string,
   startAt: (x.startAt ?? x.StartAt ?? null) as any,
   endAt: (x.endAt ?? x.EndAt ?? null) as any,
-  agentsAiActive: Number(x.AgentsAiActive ?? 0),
-  targetLeads: Number(x.TargetLeads ?? 0),
-  currentLeads: Number(x.CurrentLeads ?? 0),
-  limitAiAgent: Number(x.LimitAiAgent ?? 0),
-  progress: Number(x.Progress ?? 0),
+  agentsAiActive: Number(x.agentsAiActive ?? x.AgentsAiActive ?? 0),
+  targetLeads: Number(x.targetLeads ?? x.TargetLeads ?? 0),
+  currentLeads: Number(x.currentLeads ?? x.CurrentLeads ?? 0),
+  limitAiAgent: Number(x.limitAiAgent ?? x.LimitAiAgent ?? 0),
+  progress: Number(x.progress ?? x.Progress ?? 0),
 });
+
+// =====================
+// DASHBOARD TYPES
+// =====================
 
 export type DashboardStats = {
   activeProjects: number;
@@ -470,11 +406,206 @@ type RunAiProcessResponse = {
   steps: AiStep[];
 };
 
+// =====================
+// RAI PROPERTIES TYPES
+// =====================
+
+export type RaiPropertyQuery = {
+  search?: string;
+  source?: string;              // "Internal" | "Vinhomes" | ... | "all"
+  projectId?: string;           // Guid
+  projectExternalId?: number;
+
+  statusLabel?: string;         // "Đang bán" | "Đã bán"...
+  isFeatured?: boolean;
+
+  page?: number;
+  pageSize?: number;
+
+  orderBy?: string;             // "syncedAt" | "createdAt"
+  orderDir?: "asc" | "desc";
+};
+
+export type RaiPropertyDto = {
+  id: string;
+  source: string;
+  externalId: number;
+
+  projectExternalId?: number | null;
+  projectId?: string | null;
+
+  name: string;
+  description?: string | null;
+  location?: string | null;
+
+  imagesJson: string[];         // backend trả mảng (DTO)
+  typeLabel?: string | null;
+  statusLabel?: string | null;
+  isFeatured: boolean;
+
+  numberBedroom?: number | null;
+  numberBathroom?: number | null;
+  numberFloor?: number | null;
+  square?: number | null;
+
+  price?: number | null;
+  priceFormatted?: string | null;
+
+  currencyId?: number | null;
+  currencyTitle?: string | null;
+  currencySymbol?: string | null;
+
+  cityId?: number | null;
+  cityName?: string | null;
+  stateId?: number | null;
+  stateName?: string | null;
+  countryId?: number | null;
+  countryName?: string | null;
+
+  uniqueId?: string | null;
+
+  sourceCreatedAt?: string | null;
+  sourceUpdatedAt?: string | null;
+
+  url?: string | null;
+  slug?: string | null;
+
+  syncedAt: string;
+
+  views?: number;
+};
+
+// PagedResult đúng backend bạn viết (PascalCase)
+export type PagedResult<T> = {
+  Items: T[];
+  Page: number;
+  PageSize: number;
+  Total: number;
+};
+
+export type ImportResult = {
+  total: number;
+  inserted: number;
+  updated: number;
+  skipped: number;
+  errors: number;
+  errorMessages: string[];
+};
+
+const normalizeImportResult = (x: any): ImportResult => {
+  const inserted = Number(x?.inserted ?? 0);
+  const updated = Number(x?.updated ?? 0);
+  const skipped = Number(x?.skipped ?? 0);
+
+  const msgs: string[] =
+    (Array.isArray(x?.errorMessages) && x.errorMessages) ||
+    (Array.isArray(x?.errors) && x.errors) ||
+    [];
+
+  const errors = Number(x?.errors ?? msgs.length);
+  const total = Number(x?.total ?? (inserted + updated + skipped));
+
+  return { total, inserted, updated, skipped, errors, errorMessages: msgs };
+};
+
+export type UpsertCustomerRequest = {
+  name: string;
+
+  position?: string | null;
+  company?: string | null;
+  description?: string | null;
+
+  country?: string | null;
+  zip?: string | null;
+  city?: string | null;
+  state?: string | null;
+  address?: string | null;
+
+  status?: string | null;
+  source?: string | null;
+
+  email?: string | null;
+  website?: string | null;
+  phoneNumber?: string | null;
+
+  leadValue?: number | null;
+  tags?: string | null;
+};
+
+export type CustomerDetailVM = {
+  id: string;
+
+  name: string;
+  position?: string | null;
+  company?: string | null;
+  description?: string | null;
+
+  country?: string | null;
+  zip?: string | null;
+  city?: string | null;
+  state?: string | null;
+  address?: string | null;
+
+  status?: string | null;
+  source?: string | null;
+
+  email?: string | null;
+  website?: string | null;
+  phoneNumber?: string | null;
+
+  leadValue?: number | null;
+  tags?: string | null;
+
+  createdAt: string;
+  updatedAt?: string | null;
+  metadataJson?: string | null;
+
+  leads: any[];
+  conversations: any[];
+  messages: any[];
+  events: any[];
+  interests: any[];
+};
+
+// =====================
+// IDENTITY TYPES
+// =====================
+
+export type CreateUserRequest = {
+  email: string;
+  userName: string;
+  fullName: string;
+  phoneNumber?: string | null;
+  selectedRoleIds?: string[];
+};
+
+export type UpdateUserRequest = {
+  fullName: string;
+  email: string;
+  phoneNumber?: string | null;
+  selectedRoleIds?: string[];
+};
+
+export type UpdateProfileRequest = {
+  fullName: string;
+  email: string;
+};
+
+export type ChangePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+};
+
+// =====================
+// API SERVICE
+// =====================
 
 class ApiService {
-  private baseUrl = 'https://localhost:44370';
-  // private baseUrl = 'http://localhost/api';
-  // private baseUrl = '/api';
+  // Bridge ERPNext trên Cloud Run của FBG (dữ liệu thật từ erp.fbgproperty.vn)
+  private baseUrl = 'https://api-qrgg43xita-as.a.run.app';
+  // private baseUrl = 'https://localhost:44370';
+
   private tokenKey = 'salesagent_access_token';
   private tokenTypeKey = 'salesagent_token_type';
 
@@ -487,10 +618,11 @@ class ApiService {
     if (!accessToken) {
       localStorage.removeItem(this.tokenKey);
       localStorage.removeItem(this.tokenTypeKey);
+      localStorage.removeItem('salesagent_level');
       return;
     }
-    localStorage.setItem(this.tokenKey, accessToken);
-    localStorage.setItem(this.tokenTypeKey, tokenType || 'Bearer');
+    localStorage.setItem(this.tokenKey, String(accessToken));
+    localStorage.setItem(this.tokenTypeKey, "Bearer");
   }
 
   public getAccessToken(): string | null {
@@ -498,9 +630,15 @@ class ApiService {
   }
 
   public getTokenType(): string {
-    return localStorage.getItem(this.tokenTypeKey) || 'Bearer';
+    const t = localStorage.getItem(this.tokenTypeKey);
+    return (t && t.trim()) ? t : 'Bearer';
   }
 
+  /**
+   * ✅ "Interceptor" cho fetch:
+   * - Luôn set Content-Type json (trừ FormData)
+   * - Luôn gắn Authorization: Bearer <token> nếu có
+   */
   private getHeaders(extra?: Record<string, string>): Headers {
     const headers = new Headers({
       'Content-Type': 'application/json',
@@ -509,22 +647,47 @@ class ApiService {
     });
 
     const token = this.getAccessToken();
-    if (token) headers.append('Authorization', `${this.getTokenType()} ${token}`);
-
+    if (token) headers.set("Authorization", `Bearer ${token}`);
     return headers;
   }
 
+  // ✅ Parse error: hỗ trợ Identity trả array [{description}] + ModelState {errors:{...}}
   private async parseError(res: Response): Promise<Error> {
-    let payload: ApiErrorPayload | null = null;
+    let payload: any = null;
+
     try {
-      payload = await res.json();
+      const text = await res.text();
+      try {
+        payload = text ? JSON.parse(text) : null;
+      } catch {
+        payload = text;
+      }
     } catch {
       // ignore
     }
+
+    if (Array.isArray(payload)) {
+      const first = payload[0];
+      const msg = first?.description || first?.message;
+      if (msg) return new Error(msg);
+    }
+
+    if (payload?.errors && typeof payload.errors === "object") {
+      const all: string[] = [];
+      for (const k of Object.keys(payload.errors)) {
+        const arr = payload.errors[k];
+        if (Array.isArray(arr)) all.push(...arr);
+        else if (typeof arr === "string") all.push(arr);
+      }
+      if (all.length) return new Error(all[0]);
+    }
+
     const msg =
       payload?.message ||
       payload?.error ||
+      (typeof payload === "string" && payload.trim() ? payload : null) ||
       `Request failed (${res.status} ${res.statusText})`;
+
     return new Error(msg);
   }
 
@@ -540,13 +703,38 @@ class ApiService {
   }
 
   public async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    // ✅ DEMO MODE: trả dữ liệu mẫu, không gọi backend thật
+    if (DEMO_MODE) {
+      const method = (options.method || 'GET').toString().toUpperCase();
+      let parsedBody: any = undefined;
+      if (typeof options.body === 'string') {
+        try { parsedBody = JSON.parse(options.body); } catch { parsedBody = options.body; }
+      }
+      return demoFetch<T>(method, endpoint, parsedBody);
+    }
+
     const url = this.buildUrl(endpoint);
+
+    const isFormData =
+      typeof FormData !== 'undefined' && options.body instanceof FormData;
+
+    // Nếu là FormData: không ép Content-Type (browser tự set boundary)
+    const headers = isFormData
+      ? (options.headers as HeadersInit | undefined)
+      : this.getHeaders(
+          options.headers ? (options.headers as Record<string, string>) : undefined
+        );
+
+    if (isFormData) {
+      const h = new Headers(headers);
+      h.delete('Content-Type');
+      h.delete('content-type');
+      (options as any).headers = h;
+    }
 
     const res = await fetch(url, {
       ...options,
-      headers: this.getHeaders(
-        options.headers ? (options.headers as Record<string, string>) : undefined
-      ),
+      headers: isFormData ? (options as any).headers : headers,
     });
 
     if (!res.ok) throw await this.parseError(res);
@@ -570,54 +758,86 @@ class ApiService {
     return this.request<T>(endpoint, { method: 'PUT', body: JSON.stringify(data) });
   }
 
+  public patch<T>(endpoint: string, data: any): Promise<T> {
+    return this.request<T>(endpoint, { method: 'PATCH', body: JSON.stringify(data) });
+  }
+
   public delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
 
-  // ===== AUTH =====
+  public postForm<T>(endpoint: string, form: FormData): Promise<T> {
+    return this.request<T>(endpoint, { method: 'POST', body: form });
+  }
 
-  /**
-   * Sửa đúng endpoint backend của bạn nếu khác:
-   * Ví dụ phổ biến: /auth/login hoặc /auth/sign-in
-   */
+  // =====================
+  // AUTH
+  // =====================
+
   public async login(emailOrUsername: string, password: string): Promise<LoginResponse> {
-    const payload: LoginRequest = { emailOrUsername, password };
+    // ✅ DEMO MODE: đăng nhập giả, nhập gì cũng vào
+    if (DEMO_MODE) {
+      const demo: LoginResponse = {
+        accessToken: 'demo-token-' + Date.now(),
+        tokenType: 'Bearer',
+        expiresInSeconds: 86400,
+        user: {
+          id: 'u1',
+          email: emailOrUsername || 'admin@raiagent.vn',
+          username: 'admin',
+          fullName: 'Quản trị viên (Demo)',
+          roles: ['Quản trị viên'],
+        },
+      };
+      this.setAuth(demo.accessToken, demo.tokenType);
+      return demo;
+    }
 
+    const payload: LoginRequest = { emailOrUsername, password };
     const data = await this.post<LoginResponse>('/auth/login', payload);
 
     if (!data?.accessToken) throw new Error('Login API không trả về accessToken.');
 
     this.setAuth(data.accessToken, data.tokenType || 'Bearer');
+    try { localStorage.setItem('salesagent_level', (data.user as any)?.level || 'nhan-vien'); } catch { /* ignore */ }
     return data;
+  }
+
+  public async forgotPassword(email: string): Promise<{ message: string }> {
+    const e = (email || '').trim();
+    if (!e) throw new Error('Vui lòng nhập email');
+
+    return this.request<{ message: string }>(`/auth/password/forgot`, {
+      method: 'POST',
+      body: JSON.stringify({ email: e }),
+    });
   }
 
   public logout() {
     this.setAuth(null, null);
   }
 
+  // =====================
+  // PROJECTS
+  // =====================
+
   public async getProjects(query: ProjectsQuery) {
     const qs = this.buildQuery(query);
-    return this.request<ApiPagedResponse<ApiProjectItem>>(`/projects${qs}`, {
-      method: 'GET',
-    });
+    return this.request<ApiPagedResponse<ApiProjectItem>>(`/projects${qs}`, { method: 'GET' });
   }
 
   public async getProjectDetail(id: string): Promise<ApiProjectDetail> {
     if (!id) throw new Error('Project id is required');
-    return this.request<ApiProjectDetail>(`/projects/${id}`, {
-      method: 'GET',
-    });
+    return this.request<ApiProjectDetail>(`/projects/${id}`, { method: 'GET' });
   }
 
-  public async getCustomers(params: { q?: string; page: number; pageSize: number }) {
-    const sp = new URLSearchParams();
-    if (params.q) sp.set('q', params.q);
-    sp.set('page', String(params.page));
-    sp.set('pageSize', String(params.pageSize));
-  
-    return api.request(`/customers?${sp.toString()}`, { method: 'GET' });
+  public async getProjectsCbx() {
+    return this.request<ApiPagedResponse<ApiProjectItem>>(`/projects`, { method: 'GET' });
   }
-  
+
+  // =====================
+  // LEADS
+  // =====================
 
   public async getLeads(params: {
     stage?: string;
@@ -638,49 +858,35 @@ class ApiService {
     return this.request<ApiPagedResponse<LeadDto>>(`/leads?${sp.toString()}`, { method: 'GET' });
   }
 
+  // =====================
+  // IMPORT CUSTOMERS
+  // =====================
+
   public async importCustomersGoogleSheets(payload: ImportCustomersRequest) {
-    return api.request<ImportCustomersResult>(`/customers/import/google-sheets`, {
+    return this.request<ImportCustomersResult>(`/customers/import/google-sheets`, {
       method: 'POST',
       body: JSON.stringify(payload),
     });
   }
 
   public async importCustomersGoogleForms(payload: ImportCustomersRequest) {
-    return api.request<ImportCustomersResult>(`/customers/import/google-form`, {
+    return this.request<ImportCustomersResult>(`/customers/import/google-form`, {
       method: 'POST',
       body: JSON.stringify(payload),
     });
   }
 
-  // public async importCustomersExcel(payload: { file: File; upsert: boolean; hasHeaderRow: boolean }) {
-  //   const form = new FormData();
-  //   form.append('file', payload.file); // đúng tên field: File
-  //   form.append('upsert', String(payload.upsert));
-  //   form.append('hasHeaderRow', String(payload.hasHeaderRow));
+  public async importCustomersFromDriveCsvLink(driveLink: string, upsert: boolean) {
+    const form = new FormData();
+    form.append('DriveLink', driveLink);
+    form.append('UpsertByEmail', String(upsert));
 
-  //   return api.request<ImportCustomersResult>(`/customers/import/excel`, {
-  //     method: 'POST',
-  //     body: form,
-  //     // lưu ý: api.request phải KHÔNG set Content-Type khi body là FormData
-  //   });
-  // }
-
-  // public async importCustomersFromGoogleSheetsLink(payload: ImportCustomersFromSheetLinkRequest) {
-  //   return api.request<ImportResultDto>(`/customers/import/google-sheets/link`, {
-  //     method: 'POST',
-  //     body: JSON.stringify({
-  //       sheetUrl: payload.sheetUrl,
-  //       sheetName: payload.sheetName,
-  //       rangeA1: payload.rangeA1,
-  //       hasHeaderRow: payload.hasHeaderRow ?? true,
-  //       upsert: payload.upsert ?? true,
-  //     }),
-  //     headers: { 'Content-Type': 'application/json' },
-  //   });
-  // }
+    const res = await this.postForm<any>('/customers/import/csv', form);
+    return normalizeImportResult(res);
+  }
 
   public async importCustomersFromGoogleSheetsLink(payload: ImportCustomersFromSheetLinkRequest) {
-    return api.request<ImportResultDto>(`/customers/import/google-sheets/link`, {
+    return this.request<ImportResultDto>(`/customers/import/google-sheets/link`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -694,130 +900,96 @@ class ApiService {
   }
 
   public async importCustomersFromGoogleForms(payload: ImportCustomersFromRecordsRequest) {
-    return api.request<ImportResultDto>(`/customers/import/google-forms`, {
+    return this.request<ImportResultDto>(`/customers/import/google-forms`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
   }
 
-  // public async importCustomersFromExcel(args: { file: File; upsert: boolean; hasHeaderRow: boolean }) {
-  //   const fd = new FormData();
-  //   // đúng tên field theo swagger: File, Upsert, HasHeaderRow
-  //   fd.append('File', args.file);
-  //   fd.append('Upsert', String(args.upsert));
-  //   fd.append('HasHeaderRow', String(args.hasHeaderRow)); 
-
-  //   // IMPORTANT: không set Content-Type, browser sẽ tự set boundary
-  //   return api.request<ImportResultDto>(`/customers/import/excel`, {
-  //     method: 'POST',
-  //     body: fd,
-  //   });
-  // }
-
   public async importCustomersFromExcel(
-    //baseUrl: string,         // ví dụ: "https://localhost:5001" hoặc "http://localhost:5000"
     file: File,
     upsert = true,
     hasHeaderRow = true,
-    token?: string           // optional nếu bạn có auth (Bearer)
+    token?: string
   ) {
     const fd = new FormData();
-  
-    // ✅ MUST match backend field name exactly: "File"
     fd.append('File', file);
-  
-    // ✅ These are form fields
     fd.append('Upsert', String(upsert));
     fd.append('HasHeaderRow', String(hasHeaderRow));
-  
+
     const res = await fetch(`${this.baseUrl}/customers/import/excel`, {
       method: 'POST',
       body: fd,
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        // ❌ DO NOT set "Content-Type" here
       },
     });
-  
-    // try parse json (backend usually returns json even on error)
+
     const text = await res.text();
     let data: any = null;
     try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-  
+
     if (!res.ok) {
       const err = new Error(`HTTP ${res.status} ${res.statusText}`);
       (err as any).status = res.status;
       (err as any).data = data;
       throw err;
     }
-  
-    return data as {
-      total: number;
-      inserted: number;
-      updated: number;
-      skipped: number;
-      errors: number;
-      errorMessages: string[];
-    };
+
+    return data as ImportResultDto;
+  }
+
+  // =====================
+  // CUSTOMERS CRUD
+  // =====================
+
+  public async getCustomers(params: { q?: string; page: number; pageSize: number }) {
+    const sp = new URLSearchParams();
+    if (params.q) sp.set('q', params.q);
+    sp.set('page', String(params.page));
+    sp.set('pageSize', String(params.pageSize));
+    return this.request(`/customers?${sp.toString()}`, { method: 'GET' });
   }
 
   public async deleteCustomer(id: string) {
-    return api.request<void>(`/customers/${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-    });
+    return this.request<void>(`/customers/${encodeURIComponent(id)}`, { method: 'DELETE' });
   }
 
   public async createCustomer(body: UpsertCustomerRequest) {
-    return api.request<void>(`/customers`, {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
+    return this.request<void>(`/customers`, { method: 'POST', body: JSON.stringify(body) });
   }
 
   public async updateCustomer(id: string, body: UpsertCustomerRequest) {
-    return api.request<void>(`/customers/${encodeURIComponent(id)}`, {
+    return this.request<void>(`/customers/${encodeURIComponent(id)}`, {
       method: 'PUT',
       body: JSON.stringify(body),
     });
   }
 
   public async getCustomerDetail(id: string) {
-    return api.request<CustomerDetailVM>(`/customers/${id}/detail`, { method: 'GET' });
+    return this.request<CustomerDetailVM>(`/customers/${encodeURIComponent(id)}/detail`, { method: 'GET' });
   }
 
-  // public async getAgents() {
-  //   const dtos = await api.request<AgentDto[]>(`/agents`, { method: "GET" });
-  //   return (dtos ?? []).map(mapDtoToAIAgent);
-  // }
+  // =====================
+  // AGENTS
+  // =====================
 
   public async getAgents(): Promise<AIAgent[]> {
-    const res = await api.request<any>(`/agents`, { method: "GET" });
-    // console.log(res);
-
-    // support: trả thẳng mảng hoặc wrapper { items: [...] }
+    const res = await this.request<any>(`/agents`, { method: "GET" });
     const dtos: AgentDto[] = Array.isArray(res) ? res : (res?.items ?? []);
     return dtos.map(mapDtoToAIAgent);
   }
-  
+
   public async createAgent(body: Partial<AIAgent>) {
     const dto = mapAIAgentToDto(body);
-    dto.id = ""; // để backend tự tạo Guid (nếu backend yêu cầu bỏ id thì remove hẳn id)
-    const created = await api.request<AgentDto>(`/agents`, {
+    dto.id = "";
+    const created = await this.request<AgentDto>(`/agents`, {
       method: "POST",
       body: JSON.stringify(dto),
     });
     return mapDtoToAIAgent(created);
   }
-  
-  // public async updateAgent(id: string, body: Partial<AIAgent>) {
-  //   const dto = mapAIAgentToDto({ ...body, id });
-  //   const updated = await api.request<AgentDto>(`/agents/${encodeURIComponent(id)}`, {
-  //     method: "PUT",
-  //     body: JSON.stringify(dto),
-  //   });
-  //   return mapDtoToAIAgent(updated);
-  // }
 
   public async updateAgentStatus(id: string, body: { status: string }) {
     return this.request<void>(`/agents/${encodeURIComponent(id)}/status`, {
@@ -827,167 +999,378 @@ class ApiService {
     });
   }
 
-  public async updateAgent(id: string, body: { name: string; status: string; channelsJson?: string | null; configJson?: string | null }) {
-    return api.request<void>(`/agents/${encodeURIComponent(id)}`, {
+  public async updateAgent(
+    id: string,
+    body: { name: string; status: string; channelsJson?: string | null; configJson?: string | null }
+  ) {
+    return this.request<void>(`/agents/${encodeURIComponent(id)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
   }
-  
+
   public async deleteAgent(id: string) {
-    return api.request<void>(`/agents/${encodeURIComponent(id)}`, {
-      method: "DELETE",
-    });
+    return this.request<void>(`/agents/${encodeURIComponent(id)}`, { method: "DELETE" });
   }
 
+  // =====================
+  // ✅ CAMPAIGNS (NEW API)
+  // =====================
+
+  /** NEW: GET /api/campaigns */
   public async getCampaigns() {
-    return api.request<CampaignDto[]>(`/campaigns`, { method: "GET" });
+    // backend có thể trả [] hoặc {items: []}
+    return this.request<any>(`/campaigns`, { method: "GET" });
   }
 
-  public async getProjectsCbx() {
-    return this.request<ApiPagedResponse<ApiProjectItem>>(`/projects`, {
-      method: 'GET',
-    });
-  }
-
+  /**
+   * NEW flow:
+   * 1) POST /api/campaigns (không gửi projectId)
+   * 2) PUT  /api/campaigns/{id}/project (set project)
+   */
   public async createCampaign(body: CreateCampaignRequest) {
-    return api.request<CreateCampaignResponse>(`/campaigns`, {
+    const created = await this.request<CreateCampaignResponse>(`/campaigns`, {
       method: 'POST',
+      body: JSON.stringify({
+        name: body.name,
+        startAt: body.startAt,
+        endAt: body.endAt,
+        targetLeads: body.targetLeads,
+        limitAiAgent: body.limitAiAgent,
+        stopWhenTargetReached: body.stopWhenTargetReached ?? true,
+        scoreThreshold: body.scoreThreshold ?? null,
+      }),
+    });
+
+    if (body.projectId) {
+      await this.request<void>(`/campaigns/${encodeURIComponent(created.id)}/project`, {
+        method: 'PUT',
+        body: JSON.stringify({ projectId: body.projectId }),
+      });
+    }
+
+    return created;
+  }
+
+  /**
+   * NEW: PUT /api/campaigns/{id} (fields)
+   * status nếu có => PATCH /api/campaigns/{id}/status
+   */
+  public async updateCampaign(id: string, body: UpdateCampaignRequest) {
+    await this.request<void>(`/campaigns/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        name: body.name,
+        startAt: body.startAt ?? null,
+        endAt: body.endAt ?? null,
+        targetLeads: body.targetLeads ?? null,
+        limitAiAgent: body.limitAiAgent ?? null,
+        stopWhenTargetReached: body.stopWhenTargetReached ?? null,
+        scoreThreshold: body.scoreThreshold ?? null,
+      }),
+    });
+
+    if (body.status) {
+      await this.updateCampaignStatus(id, { status: body.status });
+    }
+  }
+
+  /** NEW: PATCH /api/campaigns/{id}/status */
+  public async updateCampaignStatus(id: string, body: UpdateCampaignStatusRequest) {
+    return this.request<void>(`/campaigns/${encodeURIComponent(id)}/status`, {
+      method: 'PATCH',
       body: JSON.stringify(body),
     });
   }
 
-  // public async getCampaignAgents(campaignId: string) {
-  //   return api.request<AgentDto[]>(`/campaigns/${encodeURIComponent(campaignId)}/agents`, {
-  //     method: 'GET',
-  //   });
-  // }
+  // =====================
+  // ✅ CAMPAIGN PROJECT (NEW API)
+  // =====================
 
-  // public async addAgentToCampaign(campaignId: string, agentId: string) {
-  //   return api.request<void>(`/campaigns/${encodeURIComponent(campaignId)}/agents`, {
-  //     method: 'POST',
-  //     body: JSON.stringify({ agentId }),
-  //   });
-  // }
+  public async getCampaignProject(campaignId: string) {
+    return this.request<CampaignProjectDto>(
+      `/campaigns/${encodeURIComponent(campaignId)}/project`,
+      { method: "GET" }
+    );
+  }
 
-  // public async removeAgentFromCampaign(campaignId: string, agentId: string) {
-  //   return api.request<void>(
-  //     `/campaigns/${encodeURIComponent(campaignId)}/agents/${encodeURIComponent(agentId)}`,
-  //     { method: 'DELETE' }
-  //   );
-  // }
+  public async upsertCampaignProject(campaignId: string, projectId: string) {
+    return this.request<void>(
+      `/campaigns/${encodeURIComponent(campaignId)}/project`,
+      { method: "PUT", body: JSON.stringify({ projectId }) }
+    );
+  }
 
-  // public async updateAgent(id: string, body: Partial<AgentDto>) {
-  //   return api.request<void>(`/agents/${encodeURIComponent(id)}`, {
-  //     method: 'PUT',
-  //     body: JSON.stringify(body),
-  //   });
-  // }
+  // =====================
+  // ✅ ASSIGNMENTS (NEW API)
+  // =====================
 
+  /** NEW: GET /api/campaigns/{campaignId}/assignments */
   public async getAssignmentsByCampaign(campaignId: string) {
-    return api.request<AgentProjectAssignmentDto[]>(
-      `/agent-project-assignments?campaignId=${encodeURIComponent(campaignId)}`,
+    return this.request<AgentProjectAssignmentDto[]>(
+      `/campaigns/${encodeURIComponent(campaignId)}/assignments`,
       { method: 'GET' }
     );
   }
 
+  /** NEW: POST /api/campaigns/{campaignId}/assignments */
   public async createAssignment(body: CreateAgentProjectAssignmentRequest) {
-    return api.request<CreateAgentProjectAssignmentResponse>(`/agent-project-assignments`, {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
+    return this.request<CreateAgentProjectAssignmentResponse>(
+      `/campaigns/${encodeURIComponent(body.campaignId)}/assignments`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          agentId: body.agentId,
+          status: body.status ?? "Active",
+        }),
+      }
+    );
   }
 
-  public async updateCampaignStatus(id: string, body: UpdateCampaignStatusRequest) {
-    return api.request<void>(`/campaigns/${encodeURIComponent(id)}/status`, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    });
-  }
-
-  public async updateCampaign(id: string, body: UpdateCampaignRequest) {
-    return api.request<void>(`/campaigns/${encodeURIComponent(id)}`, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    });
-  }
-
+  /** NEW: PATCH /api/assignments/{id}/status */
   public async updateAssignment(id: string, body: UpdateAgentProjectAssignmentRequest) {
-    return api.request<void>(`/agent-project-assignments/${encodeURIComponent(id)}`, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    });
+    return this.request<void>(
+      `/assignments/${encodeURIComponent(id)}/status`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ status: body.status ?? "Paused" }),
+      }
+    );
   }
 
+  /** NEW: DELETE /api/assignments/{id} */
   public async deleteAssignment(id: string) {
-    return api.request<void>(`/agent-project-assignments/${encodeURIComponent(id)}`, {
+    return this.request<void>(`/assignments/${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
   }
 
-  // public async getAIDashboardData() {
-  //   return api.request<{
-  //     stats: {
-  //       activeProjects: number;
-  //       totalLeads: number;
-  //       activeAgents: number;
-  //       revenue: number;
-  //     };
-  //     chartData: Array<{
-  //       name: string;
-  //       leads: number;
-  //     }>;
-  //   }>(`/dashboard/ai`, {
-  //     method: 'GET',
-  //   });
-  // }
-
-  // public async simulateIncomingLeads(count: number) {
-  //   return api.request<
-  //     {
-  //       id: string;
-  //       fullName: string;
-  //       source: string;
-  //       phone: string;
-  //       createdAt: string;
-  //     }[]
-  //   >(
-  //     `/dashboard/simulate-leads?count=${encodeURIComponent(count)}`,
-  //     {
-  //       method: 'POST',
-  //     }
-  //   );
-  // }
+  // =====================
+  // DASHBOARD
+  // =====================
 
   public async getAIDashboardData() {
-    return api.request<DashboardData>(`/dashboard/ai`, { method: 'GET' });
+    return this.request<DashboardData>(`/dashboard/ai`, { method: 'GET' });
   }
-  
+
   public async simulateIncomingLeads(count: number) {
-    return api.request<LeadSimulatedDto[]>(
+    return this.request<LeadSimulatedDto[]>(
       `/dashboard/simulate-leads?count=${encodeURIComponent(count)}`,
       { method: 'POST' }
     );
   }
-  
-  // ✅ bỏ SSE: gọi 1 phát nhận steps rồi giả lập progress/log ở FE
-  public async runAIAgentProcessing(
-    onProgress: (progress: number, msg: string) => void
-  ): Promise<void> {
-    const res = await api.request<RunAiProcessResponse>(`/dashboard/run-ai-process`, {
-      method: 'POST',
-    });
-  
+
+  public async runAIAgentProcessing(onProgress: (progress: number, msg: string) => void): Promise<void> {
+    const res = await this.request<RunAiProcessResponse>(`/dashboard/run-ai-process`, { method: 'POST' });
     for (const s of res.steps) {
       onProgress(s.progress, s.message);
       await new Promise((r) => setTimeout(r, s.delayMs));
     }
   }
 
+  // =====================
+  // RAI PROPERTIES (Houses/Apartments)
+  // =====================
 
-  
-  
+  public async getRaiProperties(query: RaiPropertyQuery) {
+    const qs = this.buildQuery({
+      search: query.search,
+      source: query.source && query.source !== "all" ? query.source : undefined,
+      projectId: query.projectId,
+      projectExternalId: query.projectExternalId,
+      statusLabel: query.statusLabel,
+      isFeatured: query.isFeatured,
+      page: query.page ?? 1,
+      pageSize: query.pageSize ?? 10,
+      orderBy: query.orderBy ?? "syncedAt",
+      orderDir: query.orderDir ?? "desc",
+    });
+
+    return this.request<PagedResult<RaiPropertyDto>>(`/rai-properties${qs}`, { method: "GET" });
+  }
+
+  public async getRaiPropertyDetail(id: string) {
+    if (!id) throw new Error("RaiProperty id is required");
+    return this.request<RaiPropertyDto>(`/rai-properties/${encodeURIComponent(id)}`, { method: "GET" });
+  }
+
+  public async getRaiPropertySources() {
+    return this.request<string[]>(`/rai-properties/sources`, { method: "GET" });
+  }
+
+  public async createRaiProperty(body: Partial<RaiPropertyDto>) {
+    return this.request<RaiPropertyDto>(`/rai-properties`, { method: "POST", body: JSON.stringify(body) });
+  }
+
+  public async updateRaiProperty(id: string, body: Partial<RaiPropertyDto>) {
+    if (!id) throw new Error("RaiProperty id is required");
+    return this.request<RaiPropertyDto>(`/rai-properties/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    });
+  }
+
+  public async deleteRaiProperty(id: string) {
+    if (!id) throw new Error("RaiProperty id is required");
+    return this.request<void>(`/rai-properties/${encodeURIComponent(id)}`, { method: "DELETE" });
+  }
+
+  public async syncRaiProperties(source: string = "all") {
+    return this.request<any>(`/sync/rai/properties`, { method: "POST", body: JSON.stringify({ source }) });
+  }
+
+  public async syncRaiCrmLeads() {
+    return this.request<any>(`/rai-crm/leads`, { method: "POST" });
+  }
+
+  // =====================================================================
+  // ✅ IDENTITY API
+  // =====================================================================
+
+  // --- Users ---
+  public async getUsers(): Promise<AspNetUser[]> {
+    return this.request<AspNetUser[]>(`/users`, { method: "GET" });
+  }
+
+  public async createUser(user: CreateUserRequest) {
+    return this.request<any>(`/users`, {
+      method: "POST",
+      body: JSON.stringify({
+        email: user.email,
+        userName: user.userName,
+        fullName: user.fullName,
+        phoneNumber: user.phoneNumber ?? null,
+        selectedRoleIds: user.selectedRoleIds || [],
+      }),
+    });
+  }
+
+  public async updateUser(id: string, user: UpdateUserRequest & { userName?: string }) {
+    if (!id) throw new Error("User id is required");
+    return this.request<any>(`/users/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        id,
+        fullName: user.fullName,
+        email: user.email,
+        phoneNumber: (user as any).phoneNumber ?? null,
+        selectedRoleIds: user.selectedRoleIds || [],
+      }),
+    });
+  }
+
+  public async deleteUser(id: string) {
+    if (!id) throw new Error("User id is required");
+    return this.request<void>(`/users/${encodeURIComponent(id)}`, { method: "DELETE" });
+  }
+
+  // =====================
+  // ✅ ROLES + PERMISSIONS (RoleClaims)
+  // =====================
+
+  public async getRoles(): Promise<RoleListItem[]> {
+    return this.request<RoleListItem[]>(`/roles`, { method: "GET" });
+  }
+
+  public async getRoleDetail(id: string): Promise<RoleDetail> {
+    if (!id) throw new Error("Role id is required");
+    return this.request<RoleDetail>(`/roles/${encodeURIComponent(id)}`, { method: "GET" });
+  }
+
+  public async createRole(body: { name: string }): Promise<RoleListItem> {
+    return this.request<RoleListItem>(`/roles`, {
+      method: "POST",
+      body: JSON.stringify({ name: body.name }),
+    });
+  }
+
+  public async updateRole(id: string, body: { name: string }): Promise<RoleListItem> {
+    if (!id) throw new Error("Role id is required");
+    return this.request<RoleListItem>(`/roles/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: body.name }),
+    });
+  }
+
+  public async deleteRole(id: string) {
+    if (!id) throw new Error("Role id is required");
+    return this.request<void>(`/roles/${encodeURIComponent(id)}`, { method: "DELETE" });
+  }
+
+  // --- Permissions (RoleClaims: ClaimType="permission") ---
+  public async getRolePermissions(roleId: string): Promise<string[]> {
+    if (!roleId) throw new Error("Role id is required");
+    return this.request<string[]>(
+      `/roles/${encodeURIComponent(roleId)}/permissions`,
+      { method: "GET" }
+    );
+  }
+
+  public async addRolePermission(roleId: string, permission: string) {
+    if (!roleId) throw new Error("Role id is required");
+    const p = (permission || "").trim();
+    if (!p) return;
+
+    return this.request<void>(
+      `/roles/${encodeURIComponent(roleId)}/permissions`,
+      {
+        method: "POST",
+        body: JSON.stringify({ permission: p }),
+      }
+    );
+  }
+
+  public async removeRolePermission(roleId: string, permission: string) {
+    if (!roleId) throw new Error("Role id is required");
+    const p = (permission || "").trim();
+    if (!p) return;
+
+    return this.request<void>(
+      `/roles/${encodeURIComponent(roleId)}/permissions/${encodeURIComponent(p)}`,
+      { method: "DELETE" }
+    );
+  }
+
+  public async replaceRolePermission(roleId: string, oldPermission: string, newPermission: string) {
+    if (!roleId) throw new Error("Role id is required");
+
+    const oldP = (oldPermission || "").trim();
+    const newP = (newPermission || "").trim();
+    if (!oldP || !newP) throw new Error("Old/New permission is required");
+
+    return this.request<void>(
+      `/roles/${encodeURIComponent(roleId)}/permissions`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ oldPermission: oldP, newPermission: newP }),
+      }
+    );
+  }
+
+  // --- Account/Profile ---
+  public async getProfile() {
+    return this.request<any>(`/account/profile`, { method: "GET" });
+  }
+
+  public async updateProfile(data: UpdateProfileRequest) {
+    return this.request<any>(`/account/profile`, {
+      method: "PUT",
+      body: JSON.stringify({
+        fullName: data.fullName,
+        email: data.email,
+      }),
+    });
+  }
+
+  public async changePassword(passwords: ChangePasswordRequest) {
+    return this.request<any>(`/account/change-password`, {
+      method: "POST",
+      body: JSON.stringify(passwords),
+    });
+  }
 }
 
 export const api = new ApiService();
+export { ApiService };
+
