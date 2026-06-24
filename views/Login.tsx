@@ -13,6 +13,8 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { api } from '../services/apiService';
+import { signInWithPopup } from 'firebase/auth';
+import { fbAuth, googleProvider } from '../services/firebase';
 
 interface LoginProps {
   onLogin: () => void;
@@ -77,17 +79,32 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
   };
 
-  const handleSocialLogin = async () => {
+  const handleGoogleLogin = async () => {
     setSocialLoading(true);
     setError(null);
-
     try {
-      // Nếu bạn có API social thật:
-      // await api.raiSocialLogin(email, password);
-      await new Promise((res) => setTimeout(res, 1500));
+      const cred = await signInWithPopup(fbAuth, googleProvider);
+      const user = cred.user;
+      const idToken = await user.getIdToken();
+      // Lưu phiên: token Firebase để gating UI; dữ liệu ERP xác thực bằng bridge-key server-side
+      api.setAuth(idToken, 'Bearer');
+      try {
+        localStorage.setItem('fbg_user', JSON.stringify({ email: user.email, name: user.displayName, photo: user.photoURL }));
+        if (user.email) localStorage.setItem('fbg_owner', user.email.split('@')[0]);
+        localStorage.setItem('salesagent_level', 'admin');
+      } catch { /* ignore */ }
       onLogin();
     } catch (err: any) {
-      setError(err?.message || 'Đăng nhập social thất bại. Vui lòng thử lại!');
+      const code = err?.code || '';
+      if (code === 'auth/operation-not-allowed') {
+        setError('Đăng nhập Google chưa được bật trong Firebase Console. Vui lòng bật provider Google rồi thử lại.');
+      } else if (code === 'auth/unauthorized-domain') {
+        setError('Tên miền app.fbgproperty.vn chưa được thêm vào Authorized domains của Firebase Auth.');
+      } else if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+        setError(null);
+      } else {
+        setError(err?.message || 'Đăng nhập Google thất bại. Vui lòng thử lại!');
+      }
     } finally {
       setSocialLoading(false);
     }
@@ -279,16 +296,16 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
                   <button
                     type="button"
-                    onClick={handleSocialLogin}
+                    onClick={handleGoogleLogin}
                     disabled={loading || socialLoading}
                     className="w-full py-4 border-2 border-slate-100 bg-white text-slate-700 rounded-3xl font-black uppercase text-xs tracking-[0.1em] hover:bg-slate-50 hover:border-indigo-100 transition-all flex items-center justify-center gap-3 disabled:opacity-70"
                   >
                     {socialLoading ? (
                       <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
                     ) : (
-                      <Share2 className="w-5 h-5 text-indigo-500" />
+                      <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
                     )}
-                    Đăng nhập bằng Rai social
+                    Đăng nhập / Đăng ký bằng Google
                   </button>
                 </div>
               )}

@@ -14,6 +14,8 @@ import Billing from './views/Billing';
 import Deployment from './views/Deployment';
 import Login from './views/Login';
 import { api } from './services/apiService'; // <-- sửa path đúng
+import { fbAuth } from './services/firebase';
+import { signOut } from 'firebase/auth';
 import UsersPage from './views/UsersPage';
 import RolesPage from './views/RolesPage';
 import ProfilePage from './views/ProfilePage';
@@ -44,6 +46,8 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     api.logout(); // sẽ remove token
+    signOut(fbAuth).catch(() => {});
+    try { localStorage.removeItem('fbg_user'); localStorage.removeItem('fbg_owner'); } catch { /* ignore */ }
     setIsAuthenticated(false);
   };
 

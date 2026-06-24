@@ -602,13 +602,11 @@ export type ChangePasswordRequest = {
 // =====================
 
 class ApiService {
-  // Bridge ERPNext trên Cloud Run của FBG (dữ liệu thật từ erp.fbgproperty.vn)
-  private baseUrl = 'https://api-qrgg43xita-as.a.run.app';
-  // private baseUrl = 'https://localhost:44370';
-
-  // CDP Unified Bridge của FBG (GCP) — dữ liệu hành vi thật từ Tracardi/ERP
+  // Toàn bộ dữ liệu ERP đi qua Unified Bridge (GCP) — token ERP giữ server-side,
+  // app chỉ gửi X-Bridge-Key. Hết lỗi Unauthorized, không lộ mật khẩu ERP.
   private cdpBaseUrl = 'https://appapi.fbgproperty.vn';
   private cdpBridgeKey = 'fbgbridge_eb36304b60751d2b2532e394';
+  private baseUrl = 'https://appapi.fbgproperty.vn/erp';
 
   private tokenKey = 'salesagent_access_token';
   private tokenTypeKey = 'salesagent_token_type';
@@ -647,6 +645,7 @@ class ApiService {
     const headers = new Headers({
       'Content-Type': 'application/json',
       'X-App-Platform': 'SalesAgent-AI-Platform',
+      'X-Bridge-Key': this.cdpBridgeKey,
       ...(extra || {}),
     });
 
