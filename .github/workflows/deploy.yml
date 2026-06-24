@@ -21,8 +21,8 @@ jobs:
       - id: auth
         uses: google-github-actions/auth@v2
         with:
-          project_id: fbgproperty-hermes
-          workload_identity_provider: projects/33762634116/locations/global/workloadIdentityPools/github-pool/providers/github-provider
-          service_account: firebase-deploy@fbgproperty-hermes.iam.gserviceaccount.com
+          project_id: gen-lang-client-0722799198
+          workload_identity_provider: projects/463824382309/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: firebase-deploy@gen-lang-client-0722799198.iam.gserviceaccount.com
       - name: Deploy to Firebase
-        run: npx -y firebase-tools@latest deploy --only hosting --project fbgproperty-hermes --non-interactive
+        run: npx -y firebase-tools@latest deploy --only hosting --project gen-lang-client-0722799198 --non-interactive
