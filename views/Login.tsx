@@ -88,10 +88,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       const idToken = await user.getIdToken();
       // Lưu phiên: token Firebase để gating UI; dữ liệu ERP xác thực bằng bridge-key server-side
       api.setAuth(idToken, 'Bearer');
+      const email = (user.email || '').toLowerCase();
+      // Phân quyền: @fbgproperty.vn = admin (full), email khác = sale (chỉ chức năng bán hàng)
+      const level = email.endsWith('@fbgproperty.vn') ? 'admin' : 'sale';
       try {
         localStorage.setItem('fbg_user', JSON.stringify({ email: user.email, name: user.displayName, photo: user.photoURL }));
         if (user.email) localStorage.setItem('fbg_owner', user.email.split('@')[0]);
-        localStorage.setItem('salesagent_level', 'admin');
+        localStorage.setItem('salesagent_level', level);
       } catch { /* ignore */ }
       onLogin();
     } catch (err: any) {

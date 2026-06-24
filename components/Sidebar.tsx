@@ -75,10 +75,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   ];
 
   // Phân quyền theo cấp: NV=1 < Quản lý=2 < Giám đốc=3 < Admin=4
-  const RANK: Record<string, number> = { 'nhan-vien': 1, 'quan-ly': 2, 'giam-doc': 3, 'admin': 4 };
-  const myRank = RANK[(typeof localStorage !== 'undefined' && localStorage.getItem('salesagent_level')) || 'nhan-vien'] || 1;
-  const MIN_RANK: Record<string, number> = { '/bat-dong-san': 2, '/ai-agents': 2, '/deployment': 2, '/quang-cao': 2, '/billing': 3, '/identity': 4 };
-  const visibleByLevel = (item: any) => myRank >= (MIN_RANK[item.to] || 1);
+  const RANK: Record<string, number> = { 'sale': 1, 'nhan-vien': 1, 'quan-ly': 2, 'giam-doc': 3, 'admin': 4 };
+  const myLevel = (typeof localStorage !== 'undefined' && localStorage.getItem('salesagent_level')) || 'sale';
+  const myRank = RANK[myLevel] || 1;
+  const isAdmin = myLevel === 'admin';
+  const fbUser: { email?: string; name?: string; photo?: string } = (() => {
+    try { return JSON.parse(localStorage.getItem('fbg_user') || '{}'); } catch { return {}; }
+  })();
+  // Sale (email ngoài @fbgproperty.vn): chỉ thấy chức năng bán hàng
+  const SALE_ALLOWED = new Set(['/dashboard', '/tro-ly-ai', '/bat-dong-san', '/cdp', '/ai-agents', '/ai-prospects', '/leads']);
+  const visibleByLevel = (item: any) => isAdmin || SALE_ALLOWED.has(item.to);
 
   const handleLogoutClick = () => {
     if (window.confirm('Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?')) {
@@ -149,16 +155,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
       <div className="p-4 border-t border-indigo-800 bg-indigo-950/30 space-y-4">
         {/* Thông tin tài khoản người dùng */}
         <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : 'px-2'}`}>
-           <div className="w-10 h-10 rounded-xl bg-indigo-700 border border-indigo-600 flex items-center justify-center text-white font-bold shrink-0 shadow-lg relative group">
-              AD
+           <div className="w-10 h-10 rounded-xl bg-indigo-700 border border-indigo-600 flex items-center justify-center text-white font-bold shrink-0 shadow-lg relative group overflow-hidden">
+              {fbUser.photo ? <img src={fbUser.photo} alt="" className="w-full h-full object-cover" /> : (fbUser.name || 'U').slice(0, 2).toUpperCase()}
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-indigo-900 rounded-full"></div>
            </div>
            {!isCollapsed && (
              <div className="flex-1 overflow-hidden">
-               <p className="text-sm font-bold text-white truncate leading-tight">Quản trị viên</p>
-               <NavLink to="/identity/ho-so-tai-khoan" className="text-[10px] text-indigo-300 hover:text-white font-medium uppercase tracking-wider flex items-center gap-1 transition-colors mt-0.5">
-                 Xem hồ sơ <ChevronRight size={10} />
-               </NavLink>
+               <p className="text-sm font-bold text-white truncate leading-tight">{fbUser.name || fbUser.email || 'Người dùng'}</p>
+               <p className="text-[10px] text-indigo-300 font-medium uppercase tracking-wider mt-0.5">
+                 {isAdmin ? 'Quản trị viên' : 'Nhân viên Sale'}
+               </p>
              </div>
            )}
         </div>

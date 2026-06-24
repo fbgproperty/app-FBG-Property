@@ -24,6 +24,12 @@ import QuangCaoDaKenh from './views/QuangCaoDaKenh';
 
 const TOKEN_KEY = 'salesagent_access_token';
 
+// Chặn route chỉ dành cho admin (@fbgproperty.vn); sale bị đẩy về Tổng quan
+const AdminOnly: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  const level = (typeof localStorage !== 'undefined' && localStorage.getItem('salesagent_level')) || 'sale';
+  return level === 'admin' ? children : <Navigate to="/dashboard" replace />;
+};
+
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     !!localStorage.getItem(TOKEN_KEY)
@@ -69,9 +75,9 @@ const App: React.FC = () => {
           <Sidebar onLogout={handleLogout} />
           <main className="flex-1 overflow-y-auto p-4 md:p-8">
             <Routes>
-              {/* Identity Management Routes */}
-              <Route path="/identity/tai-khoan" element={<UsersPage />} />
-              <Route path="/identity/vai-tro" element={<RolesPage/>} />
+              {/* Identity Management Routes (admin only, riêng hồ sơ cho mọi người) */}
+              <Route path="/identity/tai-khoan" element={<AdminOnly><UsersPage /></AdminOnly>} />
+              <Route path="/identity/vai-tro" element={<AdminOnly><RolesPage/></AdminOnly>} />
               <Route path="/identity/ho-so-tai-khoan" element={<ProfilePage />} />
 
               <Route path="/dashboard" element={<Dashboard />} />
@@ -80,13 +86,13 @@ const App: React.FC = () => {
               <Route path="/projects/:id" element={<ProjectDetail />} />
               <Route path="/bat-dong-san/nha-can-ho" element={<HousesApartments />} />
               <Route path="/bat-dong-san/nha-can-ho/:id" element={<PropertyDetailModal />} />
-              <Route path="/deployment" element={<Deployment />} />
-              <Route path="/quang-cao" element={<QuangCaoDaKenh />} />
+              <Route path="/deployment" element={<AdminOnly><Deployment /></AdminOnly>} />
+              <Route path="/quang-cao" element={<AdminOnly><QuangCaoDaKenh /></AdminOnly>} />
               <Route path="/cdp" element={<CDP />} />
               <Route path="/ai-prospects" element={<AIProspects />} />
               <Route path="/ai-agents" element={<AIAgents />} />
               <Route path="/leads" element={<Leads />} />
-              <Route path="/billing" element={<Billing />} />
+              <Route path="/billing" element={<AdminOnly><Billing /></AdminOnly>} />
 
               {/* Trang chủ mặc định */}
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
