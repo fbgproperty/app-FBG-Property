@@ -971,6 +971,30 @@ class ApiService {
     return res.json();
   }
 
+  // AI gateway qua bridge (key AI nằm server-side, không lộ trong bundle)
+  public async aiScore(payload: {
+    id?: string; name?: string; needs?: string; status?: string;
+    viewedProjects?: string[]; webPageViews?: number; webIdentified?: boolean; leadCount?: number;
+  }): Promise<{ score: number; assessment: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/ai/score`, {
+      method: 'POST',
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`AI score ${res.status}`);
+    return res.json();
+  }
+
+  public async aiAnalyze(payload: { name: string; details: string }): Promise<{ text: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/ai/analyze`, {
+      method: 'POST',
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`AI analyze ${res.status}`);
+    return res.json();
+  }
+
   public async deleteCustomer(id: string) {
     return this.request<void>(`/customers/${encodeURIComponent(id)}`, { method: 'DELETE' });
   }

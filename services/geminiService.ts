@@ -1,9 +1,8 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
 import { api } from "./apiService";
 import { Customer, Project, AIAgent } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// AI chạy server-side qua Unified Bridge (appapi.fbgproperty.vn) — key không còn nhúng trong bundle.
 
 // --- DỮ LIỆU MẪU BAN ĐẦU ---
 const PROVINCES = ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Bình Dương', 'Đồng Nai'];
@@ -55,25 +54,12 @@ const MOCK_CUSTOMERS: Customer[] = Array.from({ length: 20 }).map((_, i) => ({
 
 // --- LOGIC NGHIỆP VỤ ---
 
-export const aiScoreCustomer = async (needs: string): Promise<{score: number, assessment: string}> => {
+export const aiScoreCustomer = async (
+    needs: string,
+    ctx?: { id?: string; name?: string; status?: string; viewedProjects?: string[]; webPageViews?: number; webIdentified?: boolean; leadCount?: number }
+): Promise<{score: number, assessment: string}> => {
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-3-flash-preview",
-            contents: `Phân tích nhu cầu khách hàng BĐS: "${needs}". Hãy trả về 1 điểm số từ 1-100 (tỷ lệ chốt đơn) và 1 câu nhận xét ngắn.`,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        score: { type: Type.NUMBER },
-                        assessment: { type: Type.STRING }
-                    },
-                    required: ["score", "assessment"]
-                }
-            }
-        });
-        const result = JSON.parse(response.text || '{"score": 50, "assessment": "Chưa xác định"}');
-        return result;
+        return await api.aiScore({ needs, ...(ctx || {}) });
     } catch (e) {
         return { score: Math.floor(Math.random() * 40) + 40, assessment: "AI đang bận, chấm điểm dự phòng." };
     }
@@ -200,6 +186,10 @@ export const saveProjectsToCache = (projects: Project[]) => {
 };
 
 export const analyzeProject = async (name: string, details: string) => {
-    const res = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: `Phân tích BĐS: ${name}. ${details}` });
-    return res.text;
+    try {
+        const res = await api.aiAnalyze({ name, details });
+        return res.text;
+    } catch (e) {
+        return "AI tạm thời không khả dụng.";
+    }
 };
