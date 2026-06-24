@@ -1281,6 +1281,41 @@ class ApiService {
     return this.webGet<string[]>(`/properties/sources`);
   }
 
+  // ===== Nội dung dự án do admin biên tập (per-tab) + AI + Drive =====
+  public async getProjectContent(slug: string): Promise<any> {
+    return this.webGet<any>(`/project-content/${encodeURIComponent(slug)}`);
+  }
+
+  public async saveProjectContent(slug: string, body: any): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/web/project-content/${encodeURIComponent(slug)}`, {
+      method: 'PUT',
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`save content ${res.status}`);
+    return res.json();
+  }
+
+  public async aiDraftProject(payload: { tab: string; projectName: string; context?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/web/ai/draft`, {
+      method: 'POST',
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`ai draft ${res.status}`);
+    return res.json();
+  }
+
+  public async driveList(folderUrl: string): Promise<{ files: any[]; error?: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/web/drive/list`, {
+      method: 'POST',
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folderUrl }),
+    });
+    if (!res.ok) throw new Error(`drive ${res.status}`);
+    return res.json();
+  }
+
   public async createRaiProperty(body: Partial<RaiPropertyDto>) {
     return this.request<RaiPropertyDto>(`/rai-properties`, { method: "POST", body: JSON.stringify(body) });
   }
