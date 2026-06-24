@@ -606,6 +606,10 @@ class ApiService {
   private baseUrl = 'https://api-qrgg43xita-as.a.run.app';
   // private baseUrl = 'https://localhost:44370';
 
+  // CDP Unified Bridge của FBG (GCP) — dữ liệu hành vi thật từ Tracardi/ERP
+  private cdpBaseUrl = 'https://appapi.fbgproperty.vn';
+  private cdpBridgeKey = 'fbgbridge_eb36304b60751d2b2532e394';
+
   private tokenKey = 'salesagent_access_token';
   private tokenTypeKey = 'salesagent_token_type';
 
@@ -950,6 +954,21 @@ class ApiService {
     sp.set('page', String(params.page));
     sp.set('pageSize', String(params.pageSize));
     return this.request(`/customers?${sp.toString()}`, { method: 'GET' });
+  }
+
+  // Lấy khách hàng từ CDP Unified Bridge (hành vi web thật + ERP).
+  // Trả về PagedResponse với item đã ở dạng VM (fullName/phone/viewedProjects/…).
+  public async getCdpCustomers(params: { q?: string; page: number; pageSize: number }) {
+    const sp = new URLSearchParams();
+    if (params.q) sp.set('q', params.q);
+    sp.set('page', String(params.page));
+    sp.set('pageSize', String(params.pageSize));
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/customers?${sp.toString()}`, {
+      method: 'GET',
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey },
+    });
+    if (!res.ok) throw new Error(`CDP bridge ${res.status}`);
+    return res.json();
   }
 
   public async deleteCustomer(id: string) {

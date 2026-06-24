@@ -170,6 +170,12 @@ export type CustomerVM = {
   score: number; // placeholder
   status: string; // placeholder UI
   needs?: string; // placeholder UI
+
+  // hành vi thật từ CDP (bridge appapi.fbgproperty.vn)
+  viewedProjects?: string[];
+  webPageViews?: number;
+  webIdentified?: boolean;
+  leadCount?: number;
 };
 
 // =====================

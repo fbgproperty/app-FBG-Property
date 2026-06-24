@@ -76,25 +76,37 @@ interface ExtendedCustomerVM extends CustomerVM {
   description: string;
 }
 
-const mapCustomerToVM = (c: CustomerDto): ExtendedCustomerVM => ({
+const mapCustomerToVM = (c: CustomerDto): ExtendedCustomerVM => {
+  const viewed: string[] = (c as any).viewedProjects ?? [];
+  const pageViews: number = (c as any).webPageViews ?? 0;
+  const tags = (c as any).tags ?? (c as any).Tags ?? '';
+  return {
   id: (c as any).id ?? (c as any).Id ?? '',
-  fullName: (c as any).name ?? (c as any).Name ?? '',
-  phone: (c as any).phoneNumber ?? (c as any).PhoneNumber ?? '',
+  // bridge CDP trả fullName/phone; backend cũ trả name/phoneNumber → đỡ cả hai
+  fullName: (c as any).fullName ?? (c as any).name ?? (c as any).Name ?? '',
+  phone: (c as any).phone ?? (c as any).phoneNumber ?? (c as any).PhoneNumber ?? '',
   email: (c as any).email ?? (c as any).Email ?? '',
   source: (c as any).source ?? (c as any).Source ?? 'Unknown',
-  tags: (c as any).tags ?? (c as any).Tags ?? '',
+  tags,
   position: (c as any).position ?? (c as any).Position ?? '',
   company: (c as any).company ?? (c as any).Company ?? '',
-  statusText: (c as any).status ?? (c as any).Status ?? '',
+  statusText: (c as any).statusText ?? (c as any).status ?? (c as any).Status ?? '',
   website: (c as any).website ?? (c as any).Website ?? '',
   leadValue: (c as any).leadValue ?? (c as any).LeadValue ?? null,
   address: (c as any).address ?? (c as any).Address ?? '',
-  score: 50, // placeholder như file 1
-  status: ((c as any).tags ?? (c as any).Tags) ? 'Có tag' : 'Mới',
-  needs: ((c as any).tags ?? (c as any).Tags) ? `Tags: ${(c as any).tags ?? (c as any).Tags}` : '',
+  // điểm thật từ CDP nếu có, không thì placeholder
+  score: typeof (c as any).score === 'number' && (c as any).score > 0 ? (c as any).score : 50,
+  status: ((c as any).status ?? (c as any).Status) || (tags ? 'Có tag' : 'Mới'),
+  needs: tags ? `Tags: ${tags}` : '',
+  // hành vi thật từ CDP
+  viewedProjects: viewed,
+  webPageViews: pageViews,
+  webIdentified: (c as any).webIdentified ?? false,
+  leadCount: (c as any).leadCount ?? 1,
   createdAt: (c as any).createdAt ?? (c as any).CreatedAt ?? new Date().toISOString(),
   description: (c as any).description ?? (c as any).Description ?? 'Chưa có mô tả chi tiết cho khách hàng này.',
-});
+  };
+};
 
 // ===== Form types (logic thật như file 1) =====
 type CustomerForm = {
@@ -238,8 +250,8 @@ const CDP: React.FC = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      // Backend file 1 chỉ cần q/page/pageSize
-      const res = (await api.getCustomers({
+      // Nguồn dữ liệu: CDP Unified Bridge (hành vi web thật + ERP)
+      const res = (await api.getCdpCustomers({
         q: q || undefined,
         page: currentPage,
         pageSize: ITEMS_PER_PAGE,
@@ -904,6 +916,29 @@ const CDP: React.FC = () => {
                         "{c.needs ? c.needs : (c.tags ? `Tags: ${c.tags}` : (c.description || ''))}"
                       </p>
                     </div>
+
+                    {(c.viewedProjects && c.viewedProjects.length > 0) ? (
+                      <div className="flex flex-wrap gap-1.5 pt-0.5">
+                        {c.viewedProjects.slice(0, 3).map((proj, i) => (
+                          <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-black">
+                            <Eye className="w-3 h-3" /> {proj}
+                          </span>
+                        ))}
+                        {c.viewedProjects.length > 3 ? (
+                          <span className="px-2 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-black">
+                            +{c.viewedProjects.length - 3}
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : null}
+
+                    {(c.webPageViews && c.webPageViews > 0) ? (
+                      <div className="flex items-center gap-2 text-[10px] font-black text-emerald-600">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200">
+                          {c.webIdentified ? '🟢 Đã định danh' : '👁 Ẩn danh'} · {c.webPageViews} lượt xem web
+                        </span>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
