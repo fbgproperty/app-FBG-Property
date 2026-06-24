@@ -1333,6 +1333,18 @@ class ApiService {
   public async assistantMe(email: string): Promise<any> {
     return this.webApiGet(`/assistant/me?email=${encodeURIComponent(email)}`);
   }
+  public async assistantChat(email: string, message: string): Promise<{ reply: string; slug?: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/assistant/chat`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, message }),
+    });
+    if (!res.ok) {
+      let msg = `chat ${res.status}`;
+      try { msg = (await res.json()).detail || msg; } catch { /* ignore */ }
+      throw new Error(msg);
+    }
+    return res.json();
+  }
   public async assistantRegister(body: { email: string; name?: string; note?: string }): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/assistant/register`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
