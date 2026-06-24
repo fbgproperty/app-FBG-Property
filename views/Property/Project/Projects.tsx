@@ -159,10 +159,7 @@ const Projects: React.FC = () => {
   const syncRaiProjects = async () => {
     try {
       setSyncing(true);
-  
-      await api.request<void>(`/sync/rai/projects`, { method: 'POST' });
-  
-      // Sync xong reload lại list
+      // Dự án đồng bộ trực tiếp từ website fbgproperty.vn → chỉ cần tải lại
       await loadProjects(true);
     } finally {
       setSyncing(false);
@@ -187,20 +184,15 @@ const Projects: React.FC = () => {
       if (force) setRefreshing(true);
       else setLoading(true);
 
-      // Backend hỗ trợ: status (statusValue), q, page, pageSize
-      const query = buildQuery({
+      // Dự án nổi bật lấy từ website fbgproperty.vn qua bridge (api.getProjects → /web/projects)
+      const res = await api.getProjects({
         status: statusFilter === 'All' ? undefined : statusFilter,
         q: searchQuery,
         page: currentProjectPage,
         pageSize: PROJECTS_PER_PAGE,
-      });
+      }) as ApiPagedResponse<ApiProjectItem>;
 
-      const res = await api.request<ApiPagedResponse<ApiProjectItem>>(
-        `/projects${query}`,
-        { method: 'GET' }
-      );
-
-      const mapped = res.items.map(mapApiToUi);
+      const mapped = (res.items || []).map(mapApiToUi);
 
       setProjects(mapped);
       setTotalItems(res.total);
