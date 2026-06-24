@@ -1329,6 +1329,30 @@ class ApiService {
     if (!res.ok) throw new Error(`match ${res.status}`);
     return res.json();
   }
+  // ===== Trợ lý AI: đồng bộ Hermes Agent + đăng ký =====
+  public async assistantMe(email: string): Promise<any> {
+    return this.webApiGet(`/assistant/me?email=${encodeURIComponent(email)}`);
+  }
+  public async assistantRegister(body: { email: string; name?: string; note?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/assistant/register`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`register ${res.status}`);
+    return res.json();
+  }
+  public async assistantRequests(): Promise<{ items: any[] }> {
+    return this.webApiGet(`/assistant/requests`);
+  }
+  public async assistantApprove(email: string, slug: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/assistant/approve`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, slug }),
+    });
+    if (!res.ok) throw new Error(`approve ${res.status}`);
+    return res.json();
+  }
+
   private async webApiGet<T>(path: string): Promise<T> {
     const res = await fetch(`${this.cdpBaseUrl}${path}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
     if (!res.ok) throw new Error(`api ${res.status}`);
