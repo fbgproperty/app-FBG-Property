@@ -824,18 +824,28 @@ class ApiService {
   // PROJECTS
   // =====================
 
+  // Bất động sản lấy từ website fbgproperty.vn qua bridge (/web/*). Dự án = chỉ nổi bật.
+  private async webGet<T>(path: string): Promise<T> {
+    const res = await fetch(`${this.cdpBaseUrl}/web${path}`, {
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey },
+    });
+    if (!res.ok) throw new Error(`web ${res.status}`);
+    return res.json();
+  }
+
   public async getProjects(query: ProjectsQuery) {
-    const qs = this.buildQuery(query);
-    return this.request<ApiPagedResponse<ApiProjectItem>>(`/projects${qs}`, { method: 'GET' });
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 12;
+    return this.webGet<ApiPagedResponse<ApiProjectItem>>(`/projects?page=${page}&pageSize=${pageSize}`);
   }
 
   public async getProjectDetail(id: string): Promise<ApiProjectDetail> {
     if (!id) throw new Error('Project id is required');
-    return this.request<ApiProjectDetail>(`/projects/${id}`, { method: 'GET' });
+    return this.webGet<ApiProjectDetail>(`/projects/${encodeURIComponent(id)}`);
   }
 
   public async getProjectsCbx() {
-    return this.request<ApiPagedResponse<ApiProjectItem>>(`/projects`, { method: 'GET' });
+    return this.webGet<ApiPagedResponse<ApiProjectItem>>(`/projects?pageSize=100`);
   }
 
   // =====================
@@ -1256,29 +1266,19 @@ class ApiService {
   // =====================
 
   public async getRaiProperties(query: RaiPropertyQuery) {
-    const qs = this.buildQuery({
-      search: query.search,
-      source: query.source && query.source !== "all" ? query.source : undefined,
-      projectId: query.projectId,
-      projectExternalId: query.projectExternalId,
-      statusLabel: query.statusLabel,
-      isFeatured: query.isFeatured,
-      page: query.page ?? 1,
-      pageSize: query.pageSize ?? 10,
-      orderBy: query.orderBy ?? "syncedAt",
-      orderDir: query.orderDir ?? "desc",
-    });
-
-    return this.request<PagedResult<RaiPropertyDto>>(`/rai-properties${qs}`, { method: "GET" });
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 12;
+    const q = query.search ? `&q=${encodeURIComponent(query.search)}` : '';
+    return this.webGet<PagedResult<RaiPropertyDto>>(`/properties?page=${page}&pageSize=${pageSize}${q}`);
   }
 
   public async getRaiPropertyDetail(id: string) {
     if (!id) throw new Error("RaiProperty id is required");
-    return this.request<RaiPropertyDto>(`/rai-properties/${encodeURIComponent(id)}`, { method: "GET" });
+    return this.webGet<RaiPropertyDto>(`/properties/${encodeURIComponent(id)}`);
   }
 
   public async getRaiPropertySources() {
-    return this.request<string[]>(`/rai-properties/sources`, { method: "GET" });
+    return this.webGet<string[]>(`/properties/sources`);
   }
 
   public async createRaiProperty(body: Partial<RaiPropertyDto>) {
