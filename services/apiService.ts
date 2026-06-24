@@ -1306,6 +1306,35 @@ class ApiService {
     return res.json();
   }
 
+  // ===== Triển khai dự án (ERP) =====
+  public async getDeployProjects(): Promise<{ items: any[]; total: number }> {
+    return this.webApiGet(`/deploy/projects`);
+  }
+  public async getDeployPlan(pid: string): Promise<any> {
+    return this.webApiGet(`/deploy/plan/${encodeURIComponent(pid)}`);
+  }
+  public async saveDeployPlan(pid: string, body: any): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/plan/${encodeURIComponent(pid)}`, {
+      method: 'PUT', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`save plan ${res.status}`);
+    return res.json();
+  }
+  public async deployMatch(projectName: string, limit = 30): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/match`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectName, limit }),
+    });
+    if (!res.ok) throw new Error(`match ${res.status}`);
+    return res.json();
+  }
+  private async webApiGet<T>(path: string): Promise<T> {
+    const res = await fetch(`${this.cdpBaseUrl}${path}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`api ${res.status}`);
+    return res.json();
+  }
+
   public async driveList(folderUrl: string): Promise<{ files: any[]; error?: string }> {
     const res = await fetch(`${this.cdpBaseUrl}/web/drive/list`, {
       method: 'POST',
