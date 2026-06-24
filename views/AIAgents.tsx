@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { AIAgent, Project } from '../types';
+import SaleAoPanel from '../components/SaleAoPanel';
 import { getAIProjectsData } from '../services/geminiService';
 import Pagination from '../components/Pagination';
 import {
@@ -240,6 +241,7 @@ const AIAgents: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
+      <SaleAoPanel />
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-gray-900 leading-none">Đội ngũ Nhân viên AI</h2>

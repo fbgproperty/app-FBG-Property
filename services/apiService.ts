@@ -995,6 +995,46 @@ class ApiService {
     return res.json();
   }
 
+  // ===== Sale ảo (ADK) qua bridge =====
+  public async getSalesAgents(owner?: string): Promise<{ items: any[]; total: number }> {
+    const sp = new URLSearchParams();
+    if (owner) sp.set('owner', owner);
+    const res = await fetch(`${this.cdpBaseUrl}/sales/agents?${sp.toString()}`, {
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey },
+    });
+    if (!res.ok) throw new Error(`sales agents ${res.status}`);
+    return res.json();
+  }
+
+  public async createSalesAgent(body: { owner: string; name: string; persona?: string; segment?: string; channel?: string }) {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/agents`, {
+      method: 'POST',
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`create sales agent ${res.status}`);
+    return res.json();
+  }
+
+  public async deleteSalesAgent(id: string) {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/agents/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey },
+    });
+    if (!res.ok) throw new Error(`delete sales agent ${res.status}`);
+    return res.json();
+  }
+
+  public async salesNurture(body: { customerId: string; agentId?: string; persona?: string; channel?: string }) {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/nurture`, {
+      method: 'POST',
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`nurture ${res.status}`);
+    return res.json();
+  }
+
   public async deleteCustomer(id: string) {
     return this.request<void>(`/customers/${encodeURIComponent(id)}`, { method: 'DELETE' });
   }
