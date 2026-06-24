@@ -48,6 +48,11 @@ const Deployment: React.FC = () => {
     catch (e: any) { alert(e?.message); } finally { setSaving(false); }
   };
 
+  const approveSeller = async (email: string) => {
+    try { await api.deployApproveSeller(sel.id, email); const pl = await api.getDeployPlan(sel.id); setPlan(pl); }
+    catch (e: any) { alert(e?.message); }
+  };
+
   const runMatch = async () => {
     setMatching(true);
     try { const r = await api.deployMatch(sel.name, 30); setMatches(r.items || []); }
@@ -168,6 +173,25 @@ const Deployment: React.FC = () => {
                 )}
               </section>
 
+              {/* Sale đăng ký bán */}
+              <section>
+                <h4 className="font-black text-slate-900 flex items-center gap-2 mb-3"><Users className="w-5 h-5 text-amber-500" /> Sale xin bán dự án</h4>
+                {(plan.sellRequests || []).length > 0 && (
+                  <div className="space-y-1.5 mb-3">
+                    {(plan.sellRequests || []).map((r: any) => (
+                      <div key={r.email} className="flex items-center justify-between bg-amber-50/60 border border-amber-200 rounded-xl px-3 py-2 text-sm">
+                        <span className="font-bold text-slate-700">{r.name || r.email} <span className="text-slate-400">({r.email})</span></span>
+                        <button onClick={() => approveSeller(r.email)} className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-black text-xs hover:bg-emerald-700">Duyệt bán</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {(plan.sellers || []).map((e: string) => <span key={e} className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[11px] font-black border border-emerald-200">✓ {e}</span>)}
+                  {!(plan.sellers || []).length && !(plan.sellRequests || []).length && <span className="text-sm text-slate-400">Chưa có sale đăng ký bán dự án này.</span>}
+                </div>
+              </section>
+
               <section>
                 <h4 className="font-black text-slate-900 flex items-center gap-2 mb-3"><ArrowRight className="w-5 h-5 text-indigo-500" /> Data NET giao cho sale ({(plan.netLeads || []).length})</h4>
                 <div className="space-y-1.5">
@@ -177,7 +201,7 @@ const Deployment: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <select value={n.assignedTo || ''} onChange={(e) => assignNet(n.id, e.target.value)} className="text-xs border border-slate-200 rounded-lg px-2 py-1 font-bold">
                           <option value="">— giao cho sale —</option>
-                          {(plan.staff || []).map((s: any) => <option key={s.id} value={s.name}>{s.name}</option>)}
+                          {(plan.sellers || []).map((e: string) => <option key={e} value={e}>{e}</option>)}
                         </select>
                         <button onClick={() => removeNet(n.id)} className="text-rose-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
                       </div>

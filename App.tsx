@@ -21,6 +21,8 @@ import RolesPage from './views/RolesPage';
 import ProfilePage from './views/ProfilePage';
 import TroLyAI from './views/TroLyAI';
 import QuangCaoDaKenh from './views/QuangCaoDaKenh';
+import SaleProjects from './views/SaleProjects';
+import MyCustomers from './views/MyCustomers';
 
 const TOKEN_KEY = 'salesagent_access_token';
 
@@ -88,11 +90,14 @@ const App: React.FC = () => {
               <Route path="/bat-dong-san/nha-can-ho/:id" element={<PropertyDetailModal />} />
               <Route path="/deployment" element={<AdminOnly><Deployment /></AdminOnly>} />
               <Route path="/quang-cao" element={<AdminOnly><QuangCaoDaKenh /></AdminOnly>} />
-              <Route path="/cdp" element={<CDP />} />
-              <Route path="/ai-prospects" element={<AIProspects />} />
-              <Route path="/ai-agents" element={<AIAgents />} />
-              <Route path="/leads" element={<Leads />} />
+              <Route path="/cdp" element={<AdminOnly><CDP /></AdminOnly>} />
+              <Route path="/ai-prospects" element={<AdminOnly><AIProspects /></AdminOnly>} />
+              <Route path="/ai-agents" element={<AdminOnly><AIAgents /></AdminOnly>} />
+              <Route path="/leads" element={<AdminOnly><Leads /></AdminOnly>} />
               <Route path="/billing" element={<AdminOnly><Billing /></AdminOnly>} />
+              {/* Sale */}
+              <Route path="/sale-projects" element={<SaleProjects />} />
+              <Route path="/my-customers" element={<MyCustomers />} />
 
               {/* Trang chủ mặc định */}
               <Route path="/" element={<Navigate to="/dashboard" replace />} />

@@ -1321,6 +1321,25 @@ class ApiService {
     if (!res.ok) throw new Error(`save plan ${res.status}`);
     return res.json();
   }
+  public async deploySellRegister(body: { projectId: string; projectName: string; email: string; name?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/sell-register`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`register ${res.status}`);
+    return res.json();
+  }
+  public async deployApproveSeller(projectId: string, email: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/approve-seller`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId, email }),
+    });
+    if (!res.ok) throw new Error(`approve ${res.status}`);
+    return res.json();
+  }
+  public async deployMy(email: string): Promise<{ projects: any[]; leads: any[] }> {
+    return this.webApiGet(`/deploy/my?email=${encodeURIComponent(email)}`);
+  }
   public async deployMatch(projectName: string, limit = 30): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/deploy/match`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },

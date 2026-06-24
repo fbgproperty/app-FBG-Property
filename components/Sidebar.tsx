@@ -64,27 +64,31 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
     { to: '/tro-ly-ai', label: 'Trợ lý AI', icon: Sparkles },
     { to: '/bat-dong-san', label: 'Bất động sản', icon: Building2, hasSub: true, subState: isProjectsOpen, setSub: setIsProjectsOpen, subItems: realEstateSubMenus, prefix: '/bat-dong-san' },
-    { to: '/cdp', label: 'Danh sách khách hàng', icon: Users },
-    { to: '/ai-agents', label: 'Nhân viên AI', icon: Bot },
-    { to: '/deployment', label: 'Triển khai dự án', icon: Rocket },
-    { to: '/quang-cao', label: 'Quảng cáo đa kênh', icon: Megaphone },
-    { to: '/ai-prospects', label: 'Khách hàng tiềm năng', icon: Sparkles },
-    { to: '/leads', label: 'Leads & Bán hàng', icon: Target },
-    { to: '/billing', label: 'Hạ tầng & Chi phí', icon: CreditCard },
-    { to: '/identity', label: 'Quản trị hệ thống', icon: ShieldCheck, hasSub: true, subState: isIdentityOpen, setSub: setIsIdentityOpen, subItems: identitySubMenus, prefix: '/identity' },
+    // Sale-only
+    { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket, saleOnly: true },
+    { to: '/my-customers', label: 'Khách của tôi', icon: Target, saleOnly: true },
+    // Admin-only
+    { to: '/cdp', label: 'Danh sách khách hàng', icon: Users, adminOnly: true },
+    { to: '/ai-agents', label: 'Nhân viên AI', icon: Bot, adminOnly: true },
+    { to: '/deployment', label: 'Triển khai dự án', icon: Rocket, adminOnly: true },
+    { to: '/quang-cao', label: 'Quảng cáo đa kênh', icon: Megaphone, adminOnly: true },
+    { to: '/ai-prospects', label: 'Khách hàng tiềm năng', icon: Sparkles, adminOnly: true },
+    { to: '/leads', label: 'Leads & Bán hàng', icon: Target, adminOnly: true },
+    { to: '/billing', label: 'Hạ tầng & Chi phí', icon: CreditCard, adminOnly: true },
+    { to: '/identity', label: 'Quản trị hệ thống', icon: ShieldCheck, hasSub: true, subState: isIdentityOpen, setSub: setIsIdentityOpen, subItems: identitySubMenus, prefix: '/identity', adminOnly: true },
   ];
 
-  // Phân quyền theo cấp: NV=1 < Quản lý=2 < Giám đốc=3 < Admin=4
-  const RANK: Record<string, number> = { 'sale': 1, 'nhan-vien': 1, 'quan-ly': 2, 'giam-doc': 3, 'admin': 4 };
   const myLevel = (typeof localStorage !== 'undefined' && localStorage.getItem('salesagent_level')) || 'sale';
-  const myRank = RANK[myLevel] || 1;
   const isAdmin = myLevel === 'admin';
   const fbUser: { email?: string; name?: string; photo?: string } = (() => {
     try { return JSON.parse(localStorage.getItem('fbg_user') || '{}'); } catch { return {}; }
   })();
-  // Sale (email ngoài @fbgproperty.vn): chỉ thấy chức năng bán hàng
-  const SALE_ALLOWED = new Set(['/dashboard', '/tro-ly-ai', '/bat-dong-san', '/cdp', '/ai-agents', '/ai-prospects', '/leads']);
-  const visibleByLevel = (item: any) => isAdmin || SALE_ALLOWED.has(item.to);
+  // admin: thấy tất cả (trừ mục sale-only). sale: chỉ mục chung + sale-only.
+  const visibleByLevel = (item: any) => {
+    if (item.saleOnly) return !isAdmin;
+    if (item.adminOnly) return isAdmin;
+    return true;
+  };
 
   const handleLogoutClick = () => {
     if (window.confirm('Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?')) {
