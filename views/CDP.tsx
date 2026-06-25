@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   Loader2, Search, Phone, MessageCircle, Eye, Bot, UserCheck, Sparkles,
   Database, Gauge, Building2, Activity, ArrowRight, RefreshCw,
+  FileSpreadsheet, Upload, UserPlus, X,
 } from 'lucide-react';
 import { api } from '../services/apiService';
 
@@ -16,6 +17,51 @@ const CDP: React.FC = () => {
   const [behavior, setBehavior] = useState<any>(null);
   const [nurture, setNurture] = useState<any>(null);
   const [busy, setBusy] = useState('');
+  const [tool, setTool] = useState<'' | 'sheet' | 'file' | 'add'>('');
+  const [sheetUrl, setSheetUrl] = useState('');
+  const [addForm, setAddForm] = useState({ fullName: '', phone: '', email: '' });
+  const [msg, setMsg] = useState('');
+
+  const syncErp = async () => {
+    setBusy('sync'); setMsg('');
+    try { const r = await api.cdpSyncErp(); setMsg(`✅ Đồng bộ: ${r.erpLeads} lead ERP → ${r.saved} hồ sơ · CDP hiện ${r.cdpCount} khách`); await load(q); }
+    catch (e: any) { setMsg('⚠️ ' + (e?.message || 'lỗi đồng bộ')); } finally { setBusy(''); }
+  };
+  const afterImport = async (r: any) => {
+    setMsg(`Đã tạo ${r.created || 0} khách (bỏ qua ${r.skipped || 0}). Đang đồng bộ sang CDP…`);
+    setTool('');
+    try { const s = await api.cdpSyncErp(); setMsg(`✅ Tạo ${r.created || 0} khách · CDP hiện ${s.cdpCount} khách`); } catch { /* ignore */ }
+    await load(q);
+  };
+  const importSheet = async () => {
+    if (!sheetUrl.trim()) return;
+    setBusy('sheet');
+    try { const r = await api.cdpImportSheet(sheetUrl.trim()); if (r.error) { alert(r.error); } else { setSheetUrl(''); await afterImport(r); } }
+    catch (e: any) { alert(e?.message); } finally { setBusy(''); }
+  };
+  const importFile = async (file: File) => {
+    setBusy('file');
+    try {
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter((l) => l.trim());
+      if (!lines.length) return;
+      const head = lines[0].split(',').map((h) => h.toLowerCase().trim().replace(/^"|"$/g, ''));
+      const idx = (names: string[]) => head.findIndex((h) => names.some((n) => h.includes(n)));
+      const iN = idx(['tên', 'ten', 'name', 'khách']); const iP = idx(['sđt', 'sdt', 'điện thoại', 'dien thoai', 'phone', 'mobile']); const iE = idx(['email']);
+      const rows = lines.slice(1).map((l) => {
+        const c = l.split(',').map((x) => x.trim().replace(/^"|"$/g, ''));
+        return { fullName: iN >= 0 ? c[iN] : '', phone: iP >= 0 ? c[iP] : '', email: iE >= 0 ? c[iE] : '' };
+      }).filter((r) => r.fullName || r.phone);
+      const r = await api.cdpImport(rows, 'Import file');
+      await afterImport(r);
+    } catch (e: any) { alert(e?.message); } finally { setBusy(''); }
+  };
+  const addOne = async () => {
+    if (!addForm.fullName && !addForm.phone) return;
+    setBusy('add');
+    try { const r = await api.cdpImport([addForm], 'Nhập tay'); setAddForm({ fullName: '', phone: '', email: '' }); await afterImport(r); }
+    catch (e: any) { alert(e?.message); } finally { setBusy(''); }
+  };
 
   const load = useCallback(async (query = '') => {
     setLoading(true);
@@ -61,13 +107,55 @@ const CDP: React.FC = () => {
 
   return (
     <div className="space-y-5 animate-in fade-in duration-500">
-      <header className="flex items-center justify-between">
+      <header className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-2xl font-black text-slate-900 leading-none flex items-center gap-2"><Database className="w-6 h-6 text-indigo-600" /> Customer 360</h2>
           <p className="text-sm text-slate-400 font-semibold mt-1">Hồ sơ 360° đồng bộ ERP–CDP · pipeline 9 bước · AI chăm sóc · <b className="text-indigo-500">{total} khách</b></p>
         </div>
-        <button onClick={() => load(q)} className="px-4 py-2 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 flex items-center gap-2"><RefreshCw className="w-4 h-4" /> Tải lại</button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button onClick={syncErp} disabled={busy === 'sync'} className="px-3.5 py-2 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-60 flex items-center gap-2">
+            {busy === 'sync' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Đồng bộ ERP→CDP
+          </button>
+          <button onClick={() => { setTool('sheet'); setMsg(''); }} className="px-3.5 py-2 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl font-black text-sm hover:bg-emerald-100 flex items-center gap-2"><FileSpreadsheet className="w-4 h-4" /> Google Sheet</button>
+          <button onClick={() => setTool('file')} className="px-3.5 py-2 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl font-black text-sm hover:bg-amber-100 flex items-center gap-2"><Upload className="w-4 h-4" /> File CSV</button>
+          <button onClick={() => setTool('add')} className="px-3.5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl font-black text-sm hover:bg-slate-50 flex items-center gap-2"><UserPlus className="w-4 h-4" /> Thêm khách</button>
+          <button onClick={() => load(q)} className="p-2 bg-white border border-slate-200 rounded-xl text-slate-500 hover:bg-slate-50"><RefreshCw className="w-4 h-4" /></button>
+        </div>
       </header>
+      {msg && <div className="bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-2.5 text-sm font-bold text-indigo-700">{msg}</div>}
+
+      {tool && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setTool('')}>
+          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-black text-slate-900 text-lg">{tool === 'sheet' ? 'Nạp từ Google Trang tính' : tool === 'file' ? 'Nạp từ file CSV' : 'Thêm khách thủ công'}</h3>
+              <button onClick={() => setTool('')} className="p-2 hover:bg-slate-100 rounded-xl"><X className="w-5 h-5" /></button>
+            </div>
+            {tool === 'sheet' && (
+              <div className="space-y-3">
+                <p className="text-xs text-slate-400 font-semibold">Dán link Google Sheet (đặt "Bất kỳ ai có link"). Cột nhận diện: Tên / SĐT / Email.</p>
+                <input value={sheetUrl} onChange={(e) => setSheetUrl(e.target.value)} placeholder="https://docs.google.com/spreadsheets/d/..." className="w-full p-3 rounded-xl border border-slate-200 text-sm" />
+                <button onClick={importSheet} disabled={busy === 'sheet'} className="w-full py-2.5 bg-emerald-600 text-white rounded-xl font-black text-sm hover:bg-emerald-700 disabled:opacity-60 flex items-center justify-center gap-2">{busy === 'sheet' ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />} Nạp & đồng bộ</button>
+              </div>
+            )}
+            {tool === 'file' && (
+              <div className="space-y-3">
+                <p className="text-xs text-slate-400 font-semibold">Chọn file <b>.csv</b> có cột tiêu đề (Tên, SĐT, Email). Excel: lưu thành CSV trước.</p>
+                <input type="file" accept=".csv,text/csv" onChange={(e) => e.target.files?.[0] && importFile(e.target.files[0])} className="w-full text-sm" />
+                {busy === 'file' && <p className="text-sm text-amber-600 font-bold flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Đang nạp…</p>}
+              </div>
+            )}
+            {tool === 'add' && (
+              <div className="space-y-2">
+                <input value={addForm.fullName} onChange={(e) => setAddForm({ ...addForm, fullName: e.target.value })} placeholder="Họ tên" className="w-full p-3 rounded-xl border border-slate-200 text-sm" />
+                <input value={addForm.phone} onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })} placeholder="Số điện thoại" className="w-full p-3 rounded-xl border border-slate-200 text-sm" />
+                <input value={addForm.email} onChange={(e) => setAddForm({ ...addForm, email: e.target.value })} placeholder="Email" className="w-full p-3 rounded-xl border border-slate-200 text-sm" />
+                <button onClick={addOne} disabled={busy === 'add'} className="w-full py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-60 flex items-center justify-center gap-2">{busy === 'add' ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />} Thêm & đồng bộ</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-5">
         {/* LEFT: danh sách */}

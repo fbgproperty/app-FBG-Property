@@ -1059,6 +1059,31 @@ class ApiService {
     });
   }
 
+  // ===== Nạp nguồn khách + đồng bộ ERP↔CDP =====
+  public async cdpSyncErp(): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/sync-erp`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey },
+    });
+    if (!res.ok) throw new Error(`sync ${res.status}`);
+    return res.json();
+  }
+  public async cdpImport(rows: any[], source: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/import`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows, source }),
+    });
+    if (!res.ok) throw new Error(`import ${res.status}`);
+    return res.json();
+  }
+  public async cdpImportSheet(url: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/import/sheet`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+    if (!res.ok) throw new Error(`sheet ${res.status}`);
+    return res.json();
+  }
+
   public async setCustomerStage(id: string, stage: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/cdp/customers/${encodeURIComponent(id)}/stage`, {
       method: 'PUT', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
