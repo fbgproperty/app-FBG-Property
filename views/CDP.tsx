@@ -213,6 +213,18 @@ const CDP: React.FC = () => {
                         </div>
                       </div>
 
+                      {(cust.region || cust.budget || cust.projectInterest || cust.product || cust.segment) && (
+                        <div className="lg:col-span-2 border border-slate-100 rounded-2xl p-4 bg-slate-50/40">
+                          <h4 className="font-black text-slate-900 mb-3 flex items-center gap-1.5"><Database className="w-4 h-4 text-indigo-500" /> Hồ sơ nguồn (data thô)</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {[['Vùng miền', cust.region], ['Tệp khách', cust.segment], ['Sản phẩm quan tâm', cust.product], ['Ngân sách', cust.budget], ['Mục đích', cust.purpose], ['Dự án quan tâm', cust.projectInterest]].filter(([, v]) => v).map(([l, v]: any, i) => (
+                              <div key={i}><p className="text-[11px] font-black text-slate-400 uppercase">{l}</p><p className="text-sm font-bold text-slate-800 mt-0.5">{v}</p></div>
+                            ))}
+                          </div>
+                          {cust.rawNote && <p className="text-sm text-slate-500 mt-3 italic">"{cust.rawNote}"</p>}
+                        </div>
+                      )}
+
                       <div className="lg:col-span-2 border border-slate-100 rounded-2xl p-4">
                         <h4 className="font-black text-slate-900 mb-3">Lịch sử liên hệ ({acts.length})</h4>
                         <div className="space-y-2 max-h-64 overflow-y-auto">
