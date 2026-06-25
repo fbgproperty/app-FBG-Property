@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { canAccess, ROLE_LABELS } from '../services/permissions';
 import { 
   LayoutDashboard, 
   Building2, 
@@ -64,31 +65,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
     { to: '/tro-ly-ai', label: 'Trợ lý AI', icon: Sparkles },
     { to: '/bat-dong-san', label: 'Bất động sản', icon: Building2, hasSub: true, subState: isProjectsOpen, setSub: setIsProjectsOpen, subItems: realEstateSubMenus, prefix: '/bat-dong-san' },
-    // Sale-only
-    { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket, saleOnly: true },
-    { to: '/my-customers', label: 'Khách của tôi', icon: Target, saleOnly: true },
-    // Admin-only
-    { to: '/cdp', label: 'Danh sách khách hàng', icon: Users, adminOnly: true },
-    { to: '/ai-agents', label: 'Nhân viên AI', icon: Bot, adminOnly: true },
-    { to: '/deployment', label: 'Triển khai dự án', icon: Rocket, adminOnly: true },
-    { to: '/quang-cao', label: 'Quảng cáo đa kênh', icon: Megaphone, adminOnly: true },
-    { to: '/ai-prospects', label: 'Khách hàng tiềm năng', icon: Sparkles, adminOnly: true },
-    { to: '/leads', label: 'Leads & Bán hàng', icon: Target, adminOnly: true },
-    { to: '/billing', label: 'Hạ tầng & Chi phí', icon: CreditCard, adminOnly: true },
-    { to: '/identity', label: 'Quản trị hệ thống', icon: ShieldCheck, hasSub: true, subState: isIdentityOpen, setSub: setIsIdentityOpen, subItems: identitySubMenus, prefix: '/identity', adminOnly: true },
+    { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket },
+    { to: '/my-customers', label: 'Khách của tôi', icon: Target },
+    { to: '/cdp', label: 'Danh sách khách hàng', icon: Users },
+    { to: '/ai-agents', label: 'Nhân viên AI', icon: Bot },
+    { to: '/deployment', label: 'Triển khai dự án', icon: Rocket },
+    { to: '/quang-cao', label: 'Quảng cáo đa kênh', icon: Megaphone },
+    { to: '/ai-prospects', label: 'Khách hàng tiềm năng', icon: Sparkles },
+    { to: '/leads', label: 'Leads & Bán hàng', icon: Target },
+    { to: '/billing', label: 'Hạ tầng & Chi phí', icon: CreditCard },
+    { to: '/org', label: 'Sơ đồ tổ chức', icon: ShieldCheck },
+    { to: '/identity', label: 'Quản trị hệ thống', icon: ShieldCheck, hasSub: true, subState: isIdentityOpen, setSub: setIsIdentityOpen, subItems: identitySubMenus, prefix: '/identity' },
   ];
 
-  const myLevel = (typeof localStorage !== 'undefined' && localStorage.getItem('salesagent_level')) || 'sale';
-  const isAdmin = myLevel === 'admin';
+  const myRole = (typeof localStorage !== 'undefined' && localStorage.getItem('fbg_role')) || 'ctv';
+  const isAdmin = ['ceo', 'gd_du_an', 'admin_du_an'].includes(myRole);
   const fbUser: { email?: string; name?: string; photo?: string } = (() => {
     try { return JSON.parse(localStorage.getItem('fbg_user') || '{}'); } catch { return {}; }
   })();
-  // admin: thấy tất cả (trừ mục sale-only). sale: chỉ mục chung + sale-only.
-  const visibleByLevel = (item: any) => {
-    if (item.saleOnly) return !isAdmin;
-    if (item.adminOnly) return isAdmin;
-    return true;
-  };
+  // Phân quyền theo vai trò (role) — chỉ hiện route được phép
+  const visibleByLevel = (item: any) => canAccess(item.to, myRole);
 
   const handleLogoutClick = () => {
     if (window.confirm('Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?')) {
@@ -167,7 +163,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
              <div className="flex-1 overflow-hidden">
                <p className="text-sm font-bold text-white truncate leading-tight">{fbUser.name || fbUser.email || 'Người dùng'}</p>
                <p className="text-[10px] text-indigo-300 font-medium uppercase tracking-wider mt-0.5">
-                 {isAdmin ? 'Quản trị viên' : 'Nhân viên Sale'}
+                 {ROLE_LABELS[myRole] || 'Sale cộng tác viên'}
                </p>
              </div>
            )}

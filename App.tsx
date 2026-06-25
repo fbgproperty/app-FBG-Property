@@ -23,13 +23,14 @@ import TroLyAI from './views/TroLyAI';
 import QuangCaoDaKenh from './views/QuangCaoDaKenh';
 import SaleProjects from './views/SaleProjects';
 import MyCustomers from './views/MyCustomers';
+import OrgChart from './views/OrgChart';
+import { canAccess } from './services/permissions';
 
 const TOKEN_KEY = 'salesagent_access_token';
 
-// Chặn route chỉ dành cho admin (@fbgproperty.vn); sale bị đẩy về Tổng quan
-const AdminOnly: React.FC<{ children: React.ReactElement }> = ({ children }) => {
-  const level = (typeof localStorage !== 'undefined' && localStorage.getItem('salesagent_level')) || 'sale';
-  return level === 'admin' ? children : <Navigate to="/dashboard" replace />;
+// Chặn route theo vai trò (role) — không có quyền → đẩy về Tổng quan
+const Guard: React.FC<{ path: string; children: React.ReactElement }> = ({ path, children }) => {
+  return canAccess(path) ? children : <Navigate to="/dashboard" replace />;
 };
 
 const App: React.FC = () => {
@@ -78,9 +79,10 @@ const App: React.FC = () => {
           <main className="flex-1 overflow-y-auto p-4 md:p-8">
             <Routes>
               {/* Identity Management Routes (admin only, riêng hồ sơ cho mọi người) */}
-              <Route path="/identity/tai-khoan" element={<AdminOnly><UsersPage /></AdminOnly>} />
-              <Route path="/identity/vai-tro" element={<AdminOnly><RolesPage/></AdminOnly>} />
+              <Route path="/identity/tai-khoan" element={<Guard path="/identity"><UsersPage /></Guard>} />
+              <Route path="/identity/vai-tro" element={<Guard path="/identity"><RolesPage/></Guard>} />
               <Route path="/identity/ho-so-tai-khoan" element={<ProfilePage />} />
+              <Route path="/org" element={<OrgChart />} />
 
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/tro-ly-ai" element={<TroLyAI />} />
@@ -88,13 +90,13 @@ const App: React.FC = () => {
               <Route path="/projects/:id" element={<ProjectDetail />} />
               <Route path="/bat-dong-san/nha-can-ho" element={<HousesApartments />} />
               <Route path="/bat-dong-san/nha-can-ho/:id" element={<PropertyDetailModal />} />
-              <Route path="/deployment" element={<AdminOnly><Deployment /></AdminOnly>} />
-              <Route path="/quang-cao" element={<AdminOnly><QuangCaoDaKenh /></AdminOnly>} />
-              <Route path="/cdp" element={<AdminOnly><CDP /></AdminOnly>} />
-              <Route path="/ai-prospects" element={<AdminOnly><AIProspects /></AdminOnly>} />
-              <Route path="/ai-agents" element={<AdminOnly><AIAgents /></AdminOnly>} />
-              <Route path="/leads" element={<AdminOnly><Leads /></AdminOnly>} />
-              <Route path="/billing" element={<AdminOnly><Billing /></AdminOnly>} />
+              <Route path="/deployment" element={<Guard path="/deployment"><Deployment /></Guard>} />
+              <Route path="/quang-cao" element={<Guard path="/quang-cao"><QuangCaoDaKenh /></Guard>} />
+              <Route path="/cdp" element={<Guard path="/cdp"><CDP /></Guard>} />
+              <Route path="/ai-prospects" element={<Guard path="/ai-prospects"><AIProspects /></Guard>} />
+              <Route path="/ai-agents" element={<Guard path="/ai-agents"><AIAgents /></Guard>} />
+              <Route path="/leads" element={<Guard path="/leads"><Leads /></Guard>} />
+              <Route path="/billing" element={<Guard path="/billing"><Billing /></Guard>} />
               {/* Sale */}
               <Route path="/sale-projects" element={<SaleProjects />} />
               <Route path="/my-customers" element={<MyCustomers />} />

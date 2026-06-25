@@ -1352,6 +1352,30 @@ class ApiService {
   public async assistantMe(email: string): Promise<any> {
     return this.webApiGet(`/assistant/me?email=${encodeURIComponent(email)}`);
   }
+  // ===== Tổ chức & phân quyền =====
+  public async orgMe(email: string): Promise<any> {
+    return this.webApiGet(`/org/me?email=${encodeURIComponent(email)}`);
+  }
+  public async orgMembers(): Promise<{ items: any[]; roles: Record<string, string> }> {
+    return this.webApiGet(`/org/members`);
+  }
+  public async orgSet(body: { email: string; name?: string; role?: string; manager?: string; approved?: boolean }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/org/set`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`org set ${res.status}`);
+    return res.json();
+  }
+  public async orgSign(email: string, name?: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/org/sign`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name }),
+    });
+    if (!res.ok) throw new Error(`org sign ${res.status}`);
+    return res.json();
+  }
+
   public async assistantChat(email: string, message: string): Promise<{ reply: string; slug?: string }> {
     const res = await fetch(`${this.cdpBaseUrl}/assistant/chat`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },

@@ -15,6 +15,7 @@ import {
 import { api } from '../services/apiService';
 import { signInWithPopup } from 'firebase/auth';
 import { fbAuth, googleProvider } from '../services/firebase';
+import { isManagerRole } from '../services/permissions';
 
 interface LoginProps {
   onLogin: () => void;
@@ -89,12 +90,15 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       // Lưu phiên: token Firebase để gating UI; dữ liệu ERP xác thực bằng bridge-key server-side
       api.setAuth(idToken, 'Bearer');
       const email = (user.email || '').toLowerCase();
-      // Phân quyền: @fbgproperty.vn = admin (full), email khác = sale (chỉ chức năng bán hàng)
-      const level = email.endsWith('@fbgproperty.vn') ? 'admin' : 'sale';
+      // Lấy vai trò từ sơ đồ tổ chức (org). Người lạ → ctv (chờ duyệt).
+      let role = email.endsWith('@fbgproperty.vn') ? 'ceo' : 'ctv';
+      try { const me = await api.orgMe(email); if (me?.role) role = me.role; } catch { /* ignore */ }
       try {
         localStorage.setItem('fbg_user', JSON.stringify({ email: user.email, name: user.displayName, photo: user.photoURL }));
         if (user.email) localStorage.setItem('fbg_owner', user.email.split('@')[0]);
-        localStorage.setItem('salesagent_level', level);
+        localStorage.setItem('fbg_role', role);
+        // tương thích thành phần cũ: vai trò quản lý = 'admin'
+        localStorage.setItem('salesagent_level', isManagerRole(role) ? 'admin' : 'sale');
       } catch { /* ignore */ }
       onLogin();
     } catch (err: any) {
