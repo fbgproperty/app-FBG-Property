@@ -1084,6 +1084,33 @@ class ApiService {
     return res.json();
   }
 
+  public async getCdpProfile(id: string): Promise<any> {
+    return this.webApiGet(`/cdp/customers/${encodeURIComponent(id)}/profile`);
+  }
+  public async saveCdpInfo(id: string, info: any): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/customers/${encodeURIComponent(id)}/info`, {
+      method: 'PUT', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(info),
+    });
+    if (!res.ok) throw new Error(`info ${res.status}`);
+    return res.json();
+  }
+  public async logCdpActivity(id: string, body: any): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/customers/${encodeURIComponent(id)}/activity`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`activity ${res.status}`);
+    return res.json();
+  }
+  public async cdpAiScore(id: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/customers/${encodeURIComponent(id)}/ai-score`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey },
+    });
+    if (!res.ok) throw new Error(`ai ${res.status}`);
+    return res.json();
+  }
+
   public async setCustomerStage(id: string, stage: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/cdp/customers/${encodeURIComponent(id)}/stage`, {
       method: 'PUT', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
