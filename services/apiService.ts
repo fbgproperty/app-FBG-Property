@@ -1059,6 +1059,23 @@ class ApiService {
     });
   }
 
+  public async setCustomerStage(id: string, stage: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/customers/${encodeURIComponent(id)}/stage`, {
+      method: 'PUT', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage }),
+    });
+    if (!res.ok) throw new Error(`stage ${res.status}`);
+    return res.json();
+  }
+
+  public async getCustomerBehavior(id: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/customers/${encodeURIComponent(id)}/behavior`, {
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey },
+    });
+    if (!res.ok) throw new Error(`behavior ${res.status}`);
+    return res.json();
+  }
+
   public async getCustomerDetail(id: string) {
     return this.request<CustomerDetailVM>(`/customers/${encodeURIComponent(id)}/detail`, { method: 'GET' });
   }
