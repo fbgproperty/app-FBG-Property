@@ -155,7 +155,11 @@ const CDP: React.FC = () => {
                   <div className="flex items-center gap-2"><h3 className="text-lg font-black text-slate-900 truncate">{cust.fullName}</h3><span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{cust.stage || 'Mới'}</span></div>
                   <p className="text-xs text-slate-400 font-bold">Mã: {cust.id} · Nguồn: {cust.source}</p>
                 </div>
-                <button onClick={runCare} disabled={busy === 'care'} className="inline-flex items-center gap-2 px-3 py-2 bg-violet-600 text-white rounded-xl font-black text-xs hover:bg-violet-700 disabled:opacity-60">{busy === 'care' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bot className="w-4 h-4" />} AI chăm sóc</button>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => { const ph = (cust.phone || '').replace(/[^0-9]/g, ''); if (!ph) { alert('Khách chưa có số điện thoại'); return; } window.open(`https://appapi.fbgproperty.vn/stringee/softphone?to=${ph}&name=${encodeURIComponent(cust.fullName || '')}`, 'stringee_call', 'width=380,height=660'); }} className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl font-black text-xs hover:bg-emerald-700"><Phone className="w-4 h-4" /> Gọi</button>
+                  <a href="https://chat.fbgproperty.vn/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 bg-sky-600 text-white rounded-xl font-black text-xs hover:bg-sky-700"><MessageCircle className="w-4 h-4" /> Chat</a>
+                  <button onClick={runCare} disabled={busy === 'care'} className="inline-flex items-center gap-2 px-3 py-2 bg-violet-600 text-white rounded-xl font-black text-xs hover:bg-violet-700 disabled:opacity-60">{busy === 'care' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bot className="w-4 h-4" />} AI chăm sóc</button>
+                </div>
               </div>
               <div className="flex gap-1">
                 {[['overview', 'Tổng quan'], ['p360', 'Hồ sơ 360°'], ['timeline', 'Dòng thời gian']].map(([k, l]) => (
