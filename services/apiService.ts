@@ -1067,6 +1067,13 @@ class ApiService {
     if (!res.ok) throw new Error(`sync ${res.status}`);
     return res.json();
   }
+  public async cdpSyncChatwoot(): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/sync-chatwoot`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey },
+    });
+    if (!res.ok) throw new Error(`sync-chat ${res.status}`);
+    return res.json();
+  }
   public async cdpImport(rows: any[], source: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/cdp/import`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },

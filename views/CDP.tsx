@@ -80,7 +80,7 @@ const CDP: React.FC = () => {
   };
 
   // ===== import / sync (toolbar) =====
-  const syncErp = async () => { setBusy('sync'); setMsg(''); try { const r = await api.cdpSyncErp(); setMsg(`✅ Đồng bộ: ${r.erpLeads} lead → ${r.saved} hồ sơ · CDP ${r.cdpCount} khách`); await load(q); } catch (e: any) { setMsg('⚠️ ' + e?.message); } finally { setBusy(''); } };
+  const syncErp = async () => { setBusy('sync'); setMsg(''); try { const r = await api.cdpSyncErp(); let cw: any = {}; try { cw = await api.cdpSyncChatwoot(); } catch { /* ignore */ } setMsg(`✅ ERP: ${r.erpLeads} lead → ${r.saved} hồ sơ · Chat/Web: ${cw.synced || 0} khách, ${cw.messages || 0} tin · CDP ${r.cdpCount} khách`); await load(q); } catch (e: any) { setMsg('⚠️ ' + e?.message); } finally { setBusy(''); } };
   const afterImport = async (r: any) => { setTool(''); setMsg(`Đã tạo ${r.created || 0} khách. Đang đồng bộ…`); try { const s = await api.cdpSyncErp(); setMsg(`✅ Tạo ${r.created || 0} khách · CDP ${s.cdpCount}`); } catch { /* ignore */ } await load(q); };
   const importSheet = async () => { if (!sheetUrl.trim()) return; setBusy('sheet'); try { const r = await api.cdpImportSheet(sheetUrl.trim()); if (r.error) alert(r.error); else { setSheetUrl(''); await afterImport(r); } } catch (e: any) { alert(e?.message); } finally { setBusy(''); } };
   const importFile = async (file: File) => {
@@ -117,7 +117,7 @@ const CDP: React.FC = () => {
           <p className="text-sm text-slate-400 font-semibold mt-1">Customer 360 · đồng bộ ERP–CDP · <b className="text-indigo-500">{total} khách</b></p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <button onClick={syncErp} disabled={busy === 'sync'} className="px-3.5 py-2 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-60 flex items-center gap-2">{busy === 'sync' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Đồng bộ ERP→CDP</button>
+          <button onClick={syncErp} disabled={busy === 'sync'} className="px-3.5 py-2 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-60 flex items-center gap-2">{busy === 'sync' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Đồng bộ ERP · Chat · Web</button>
           <button onClick={() => { setTool('sheet'); setMsg(''); }} className="px-3.5 py-2 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl font-black text-sm hover:bg-emerald-100 flex items-center gap-2"><FileSpreadsheet className="w-4 h-4" /> Google Sheet</button>
           <button onClick={() => setTool('file')} className="px-3.5 py-2 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl font-black text-sm hover:bg-amber-100 flex items-center gap-2"><Upload className="w-4 h-4" /> File CSV</button>
           <button onClick={() => setTool('add')} className="px-3.5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl font-black text-sm hover:bg-slate-50 flex items-center gap-2"><UserPlus className="w-4 h-4" /> Thêm khách</button>
