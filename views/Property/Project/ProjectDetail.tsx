@@ -57,6 +57,16 @@ const ProjectDetail: React.FC = () => {
   const [dirty, setDirty] = useState(false);
   const [aiBusy, setAiBusy] = useState<string>('');
   const [heroIdx, setHeroIdx] = useState(0);
+  const [ragQ, setRagQ] = useState('');
+  const [ragA, setRagA] = useState<any>(null);
+  const [ragBusy, setRagBusy] = useState(false);
+  const askRag = async () => {
+    if (!ragQ.trim()) return;
+    setRagBusy(true); setRagA(null);
+    try { setRagA(await api.ragAsk(ragQ, detail?.name)); }
+    catch (e: any) { setRagA({ answer: '⚠️ ' + (e?.message || 'lỗi') }); }
+    finally { setRagBusy(false); }
+  };
 
   useEffect(() => {
     let alive = true;
@@ -173,6 +183,29 @@ const ProjectDetail: React.FC = () => {
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {dirty ? 'Lưu thay đổi' : 'Đã lưu'}
           </button>
+        )}
+      </div>
+
+      {/* Hỏi AI tài liệu dự án (RAGFlow) */}
+      <div className="bg-violet-50 rounded-2xl border border-violet-100 p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="w-4 h-4 text-violet-600" />
+          <span className="font-black text-sm text-violet-900">Hỏi AI về tài liệu dự án</span>
+        </div>
+        <div className="flex gap-2">
+          <input value={ragQ} onChange={(e) => setRagQ(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && askRag()}
+            placeholder="vd: Chính sách bán hàng? Pháp lý? Bảng giá? Tiện ích?"
+            className="flex-1 px-3 py-2 rounded-xl border border-violet-200 text-sm focus:outline-none focus:border-violet-400" />
+          <button onClick={askRag} disabled={ragBusy}
+            className="px-4 py-2 bg-violet-600 text-white rounded-xl font-black text-sm hover:bg-violet-700 disabled:opacity-60 flex items-center gap-2">
+            {ragBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Hỏi
+          </button>
+        </div>
+        {ragA && (
+          <div className="mt-3 bg-white rounded-xl border border-violet-100 p-3 text-sm text-gray-700 whitespace-pre-wrap">
+            {ragA.answer}
+            {ragA.sources ? <div className="text-[11px] text-gray-400 mt-2">Nguồn: {ragA.sources} đoạn · {ragA.project || 'tự nhận diện'}</div> : null}
+          </div>
         )}
       </div>
 
