@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   Loader2, Search, Phone, MessageCircle, Eye, Bot, UserCheck, Sparkles,
   Database, Gauge, Building2, Activity, ArrowRight, RefreshCw,
-  FileSpreadsheet, Upload, UserPlus, X, Save, Clock, Send, CheckCircle2, ShieldCheck,
+  FileSpreadsheet, Upload, UserPlus, X, Save, Clock, Send, CheckCircle2, ShieldCheck, Brain,
 } from 'lucide-react';
 import { api } from '../services/apiService';
 
@@ -29,6 +29,18 @@ const CDP: React.FC = () => {
   const [sheetUrl, setSheetUrl] = useState('');
   const [addForm, setAddForm] = useState({ fullName: '', phone: '', email: '' });
   const [msg, setMsg] = useState('');
+  const [memories, setMemories] = useState<string[]>([]);
+  const [memBusy, setMemBusy] = useState(false);
+
+  const loadMemories = async (phone?: string) => {
+    const ph = (phone || '').replace(/[^0-9]/g, '');
+    if (!ph) { setMemories([]); return; }
+    setMemBusy(true);
+    try {
+      const r = await api.memRecall(ph, 'nhu cầu, dự án quan tâm, loại căn, ngân sách, sở thích, mục đích, lịch sử chăm sóc');
+      setMemories(r.memories || []);
+    } catch { setMemories([]); } finally { setMemBusy(false); }
+  };
 
   const load = useCallback(async (query = '') => {
     setLoading(true);
@@ -42,12 +54,13 @@ const CDP: React.FC = () => {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
 
   const openCustomer = async (c: any) => {
-    setSel(c); setProfile(null); setBehavior(null); setNurture(null);
+    setSel(c); setProfile(null); setBehavior(null); setNurture(null); setMemories([]);
     try {
       const p = await api.getCdpProfile(c.id);
       setProfile(p); setInfo({ ...p.customer });
     } catch { /* ignore */ }
     try { setBehavior(await api.getCustomerBehavior(c.id)); } catch { /* ignore */ }
+    loadMemories(c.phone);
   };
   const reloadProfile = async () => { if (sel) { const p = await api.getCdpProfile(sel.id); setProfile(p); } };
 
@@ -214,6 +227,12 @@ const CDP: React.FC = () => {
                               {ai.action && <div className="mt-2 bg-amber-50/60 border border-amber-100 rounded-xl p-3 text-sm text-slate-700"><b>💡 Gợi ý:</b> {ai.action}</div>}
                             </div>
                           ) : <p className="text-sm text-slate-400">Bấm "Chấm điểm lại bằng AI" để phân tích.</p>}
+                        </div>
+                        <div className="border border-fuchsia-100 rounded-2xl p-4 bg-fuchsia-50/30">
+                          <div className="flex items-center justify-between mb-2"><h4 className="font-black text-slate-900 flex items-center gap-1.5"><Brain className="w-4 h-4 text-fuchsia-500" /> Trí nhớ khách (mem0)</h4><button onClick={() => loadMemories(cust.phone)} disabled={memBusy} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg font-black text-xs text-slate-600 hover:bg-slate-50">{memBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />} Làm mới</button></div>
+                          {memBusy ? <p className="text-sm text-slate-400">Đang tải trí nhớ…</p> : memories.length ? (
+                            <ul className="space-y-1.5">{memories.map((m, i) => <li key={i} className="text-sm text-slate-700 flex gap-2"><span className="text-fuchsia-400 font-black">•</span><span>{m}</span></li>)}</ul>
+                          ) : <p className="text-sm text-slate-400">Chưa có trí nhớ. Tự tích lũy khi khách nhắn tin (Web/Zalo/Telegram) hoặc gọi điện — nhớ theo số điện thoại, dùng chung mọi kênh.</p>}
                         </div>
                       </div>
 

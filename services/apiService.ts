@@ -1082,6 +1082,22 @@ class ApiService {
     if (!res.ok) throw new Error(`rag ${res.status}`);
     return res.json();
   }
+  public async memRecall(phone: string, query: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/mem/recall`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, query, limit: 8 }),
+    });
+    if (!res.ok) throw new Error(`mem ${res.status}`);
+    return res.json();
+  }
+  public async memRemember(phone: string, text: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/mem/remember`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, text }),
+    });
+    if (!res.ok) throw new Error(`mem ${res.status}`);
+    return res.json();
+  }
   public async cdpImport(rows: any[], source: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/cdp/import`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
