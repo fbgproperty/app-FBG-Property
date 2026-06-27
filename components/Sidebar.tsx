@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { canAccess, ROLE_LABELS } from '../services/permissions';
+import { canAccess, ROLE_LABELS, isAdminRole } from '../services/permissions';
 import { 
   LayoutDashboard, 
   Building2, 
@@ -83,7 +83,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     try { return JSON.parse(localStorage.getItem('fbg_user') || '{}'); } catch { return {}; }
   })();
   // Phân quyền theo vai trò (role) — chỉ hiện route được phép
-  const visibleByLevel = (item: any) => canAccess(item.to, myRole);
+  // Ẩn 2 mục dành riêng cho sale ("Dự án triển khai", "Khách của tôi") với tài khoản admin
+  const SALE_ONLY = ['/sale-projects', '/my-customers'];
+  const visibleByLevel = (item: any) => {
+    if (SALE_ONLY.includes(item.to) && isAdminRole(myRole)) return false;
+    return canAccess(item.to, myRole);
+  };
 
   const handleLogoutClick = () => {
     if (window.confirm('Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?')) {
