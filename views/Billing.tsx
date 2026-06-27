@@ -1,151 +1,185 @@
-
 import React, { useEffect, useState } from 'react';
-import { BillingData } from '../types';
-import { getAIBillingData } from '../services/geminiService';
-import Pagination from '../components/Pagination';
-import { CreditCard, ShieldCheck, Zap, Server, BarChart3, AlertTriangle, Loader2 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  CreditCard, ShieldCheck, Server, Loader2, Globe, Cpu, MemoryStick, RefreshCw,
+  Sparkles, Phone, Mic, Volume2, Cloud, Database, Brain, MessageSquare, Radio, Building2, AlertTriangle, CheckCircle2
+} from 'lucide-react';
+import { api } from '../services/apiService';
 
-const ITEMS_PER_PAGE = 5;
+const ICONS: Record<string, any> = {
+  openrouter: Sparkles, twilio: Phone, stringee: Phone, deepgram: Mic, elevenlabs: Volume2,
+  cloudflare: Cloud, ragflow: Database, mem0: Brain, chatwoot: MessageSquare, livekit: Radio, erpnext: Building2,
+};
+const KIND_STYLE: Record<string, string> = {
+  'API trả tiền': 'bg-fuchsia-50 text-fuchsia-600 border-fuchsia-100',
+  'Self-host': 'bg-emerald-50 text-emerald-600 border-emerald-100',
+  'Miễn phí': 'bg-slate-50 text-slate-500 border-slate-100',
+};
+
+const StatusDot: React.FC<{ live: any }> = ({ live }) => {
+  const s = live?.status;
+  const map: Record<string, string> = { live: 'bg-emerald-500', free: 'bg-slate-400', self_host: 'bg-emerald-500', on_sale_vm: 'bg-amber-400', manual: 'bg-amber-400', error: 'bg-rose-500' };
+  return <span className={`w-2.5 h-2.5 rounded-full ${map[s] || 'bg-slate-300'} ${s === 'live' ? 'animate-pulse' : ''}`} />;
+};
+
+const money = (v: any) => (v === null || v === undefined ? '—' : `$${Number(v).toFixed(2)}`);
 
 const Billing: React.FC = () => {
-  const [data, setData] = useState<any>(null);
+  const [d, setD] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [err, setErr] = useState('');
 
-  useEffect(() => {
-    getAIBillingData().then(res => {
-      setData(res);
-      setLoading(false);
-    });
-  }, []);
+  const load = async () => {
+    setLoading(true); setErr('');
+    try { setD(await api.infraOverview()); } catch (e: any) { setErr(e?.message || 'Lỗi tải'); } finally { setLoading(false); }
+  };
+  useEffect(() => { load(); }, []);
 
-  if (loading) {
-    return (
-      <div className="h-full flex flex-col items-center justify-center text-indigo-600">
-        <Loader2 className="w-12 h-12 animate-spin mb-4" />
-        <p className="font-medium">AI đang truy xuất hóa đơn từ Google Cloud Console (mô phỏng)...</p>
-      </div>
-    );
-  }
-
-  const totalCost = data.details.reduce((sum: number, item: any) => sum + item.cost, 0).toFixed(2);
-  const totalPages = Math.ceil(data.details.length / ITEMS_PER_PAGE);
-  const currentDetails = data.details.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+  if (loading) return (
+    <div className="h-full flex flex-col items-center justify-center text-indigo-600">
+      <Loader2 className="w-11 h-11 animate-spin mb-3" />
+      <p className="font-bold text-sm">Đang đồng bộ hạ tầng & chi phí thật...</p>
+    </div>
+  );
+  if (err || !d) return (
+    <div className="h-full flex flex-col items-center justify-center text-rose-500 gap-3">
+      <AlertTriangle className="w-10 h-10" /><p className="font-bold">{err || 'Không có dữ liệu'}</p>
+      <button onClick={load} className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-black text-sm">Thử lại</button>
+    </div>
   );
 
+  const t = d.totals || {};
+  const orUsed = t.openrouter_used_usd, orRemain = t.openrouter_remaining_usd;
+  const orPct = orUsed != null && orRemain != null && (orUsed + orRemain) > 0 ? Math.round(orUsed / (orUsed + orRemain) * 100) : null;
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">
-            Hạ tầng & Chi phí (AI Forecast)
-          </h2>
-          <p className="text-gray-500">Mức tiêu thụ tài nguyên thực tế do Gemini tính toán.</p>
-        </div>
-        <div className="bg-indigo-600 text-white px-6 py-3 rounded-xl shadow-lg shadow-indigo-200 flex items-center gap-4">
-          <div className="text-right">
-            <p className="text-[10px] font-bold uppercase opacity-80">Tổng chi tiêu AI</p>
-            <p className="text-2xl font-bold">${totalCost}</p>
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg"><CreditCard className="w-6 h-6" /></div>
+          <div>
+            <h2 className="text-2xl font-black text-slate-900 leading-none">Hạ tầng & Chi phí</h2>
+            <p className="text-sm text-slate-400 font-semibold mt-1">Toàn bộ VM · nền tảng · API của dự án — số liệu thật, đồng bộ trực tiếp</p>
           </div>
-          <CreditCard className="w-8 h-8 opacity-50" />
         </div>
+        <button onClick={load} className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-black text-sm hover:bg-slate-50 self-start">
+          <RefreshCw className="w-4 h-4" /> Đồng bộ lại
+        </button>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="font-bold flex items-center gap-2">
-              <BarChart3 className="text-indigo-600 w-5 h-5" />
-              Biểu đồ Chi phí (AI Generation)
-            </h3>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.trend}>
-                <defs>
-                  <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis dataKey="date" stroke="#9ca3af" fontSize={10} axisLine={false} tickLine={false} />
-                <YAxis stroke="#9ca3af" fontSize={10} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Area type="monotone" dataKey="cost" name="Chi phí ($)" stroke="#4f46e5" fillOpacity={1} fill="url(#colorCost)" strokeWidth={3} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+      {/* KPI tổng */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-indigo-600 text-white rounded-2xl p-5 shadow-lg shadow-indigo-200">
+          <p className="text-[10px] font-black uppercase opacity-80 tracking-wider">Hạ tầng VM / tháng</p>
+          <p className="text-3xl font-black mt-1">{money(t.vm_monthly_usd)}</p>
+          <p className="text-[11px] opacity-70 mt-1">{d.vms?.length} máy chủ · cố định</p>
         </div>
-
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
-          <h3 className="font-bold mb-6 flex items-center gap-2">
-            <ShieldCheck className="text-green-600 w-5 h-5" />
-            Kiểm soát Ngân sách
-          </h3>
-          <div className="flex-1 space-y-6">
-            <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-              <h4 className="text-xs font-bold text-indigo-700 uppercase mb-2">Lời khuyên từ AI</h4>
-              <p className="text-xs text-indigo-900 leading-relaxed italic">
-                "Dựa trên dữ liệu 7 ngày qua, bạn nên chuyển một số tác vụ từ Pro sang Flash để tiết kiệm chi phí API mà vẫn giữ nguyên hiệu quả."
-              </p>
-            </div>
-          </div>
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">OpenRouter đã dùng</p>
+          <p className="text-3xl font-black mt-1 text-slate-900">{money(orUsed)}</p>
+          <p className="text-[11px] text-slate-400 mt-1">Còn lại {money(orRemain)}{orPct != null ? ` · dùng ${orPct}%` : ''}</p>
+        </div>
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Số dư Twilio</p>
+          <p className="text-3xl font-black mt-1 text-slate-900">{money(t.twilio_balance_usd)}</p>
+          <p className="text-[11px] text-slate-400 mt-1">AI gọi chăm khách</p>
+        </div>
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Domain đang chạy</p>
+          <p className="text-3xl font-black mt-1 text-slate-900">{d.domains?.length}</p>
+          <p className="text-[11px] text-slate-400 mt-1">Cloudflare DNS (free)</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
-          <h3 className="font-bold text-gray-900">Chi tiết Tiêu thụ (Phân trang)</h3>
-          <Zap className="w-5 h-5 text-indigo-500" />
+      {orPct != null && (
+        <div className="bg-white rounded-2xl border border-slate-100 p-4">
+          <div className="flex items-center justify-between text-xs font-black text-slate-500 mb-2">
+            <span>Hạn mức OpenRouter</span><span>{money(orUsed)} / {money(orUsed + orRemain)}</span>
+          </div>
+          <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+            <div className={`h-full rounded-full ${orPct > 85 ? 'bg-rose-500' : orPct > 60 ? 'bg-amber-400' : 'bg-emerald-500'}`} style={{ width: `${orPct}%` }} />
+          </div>
+          {orPct > 80 && <p className="text-[11px] text-rose-500 font-bold mt-2">⚠ Sắp hết credit OpenRouter — nên nạp thêm để AI không gián đoạn.</p>}
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="text-[10px] uppercase tracking-widest text-gray-400 font-bold border-b border-gray-100">
-                <th className="px-6 py-4">Tài nguyên</th>
-                <th className="px-6 py-4 text-center">Requests</th>
-                <th className="px-6 py-4 text-right">Chi phí</th>
-                <th className="px-6 py-4 text-right">Biến động</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {currentDetails.map((item: any, i: number) => (
-                <tr key={i} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gray-100 rounded-lg">
-                        <Server className="w-4 h-4 text-gray-600" />
-                      </div>
-                      <span className="text-sm font-bold text-gray-700">{item.apiName}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="text-sm font-medium text-gray-600">{item.requests.toLocaleString()}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <span className="text-sm font-bold text-gray-900">${item.cost.toFixed(2)}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <span className={`text-xs font-bold ${item.change > 0 ? 'text-red-500' : 'text-green-500'}`}>
-                      {item.change > 0 ? '+' : ''}{item.change}%
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      )}
+
+      {/* Máy chủ */}
+      <section>
+        <h3 className="font-black text-slate-900 mb-3 flex items-center gap-2"><Server className="w-5 h-5 text-indigo-600" /> Máy chủ (Google Cloud · {d.vm_monthly_total ? money(d.vm_monthly_total) : ''}/tháng)</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {d.vms.map((v: any) => (
+            <div key={v.name} className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0"><Server className="w-5 h-5" /></div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-slate-900 text-sm">{v.name}</span>
+                  <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md">{v.machine}</span>
+                </div>
+                <p className="text-[12px] text-slate-500 truncate">{v.role}</p>
+                <div className="flex items-center gap-3 text-[11px] text-slate-400 font-bold mt-1">
+                  <span className="flex items-center gap-1"><Cpu className="w-3 h-3" />{v.vcpu} vCPU</span>
+                  <span className="flex items-center gap-1"><MemoryStick className="w-3 h-3" />{v.ram_gb}GB</span>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="font-black text-slate-900">{money(v.monthly_usd)}</p>
+                <p className="text-[10px] text-slate-400 font-bold">/ tháng</p>
+              </div>
+            </div>
+          ))}
         </div>
-        <Pagination 
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          totalItems={data.details.length}
-          itemsPerPage={ITEMS_PER_PAGE}
-        />
+      </section>
+
+      {/* Nền tảng & API */}
+      <section>
+        <h3 className="font-black text-slate-900 mb-3 flex items-center gap-2"><Sparkles className="w-5 h-5 text-fuchsia-600" /> Nền tảng & API ({d.platforms.length})</h3>
+        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden divide-y divide-slate-50">
+          {d.platforms.map((p: any) => {
+            const Icon = ICONS[p.key] || Cloud;
+            const live = p.live || {};
+            let right = '';
+            if (live.status === 'live' && p.key === 'openrouter') right = `Đã dùng ${money(live.used_usd)} · còn ${money(live.remaining_usd)}`;
+            else if (live.status === 'live' && p.key === 'twilio') right = `Số dư ${money(live.balance_usd)}`;
+            else if (live.status === 'free') right = 'Miễn phí';
+            else if (live.status === 'self_host') right = 'Gồm trong VM';
+            else if (live.status === 'error') right = 'Lỗi kết nối';
+            else right = live.note || p.billing || '';
+            return (
+              <div key={p.key} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50/60">
+                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-600 shrink-0"><Icon className="w-5 h-5" /></div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <StatusDot live={live} />
+                    <span className="font-black text-slate-900 text-sm truncate">{p.name}</span>
+                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-md border ${KIND_STYLE[p.kind] || 'bg-slate-50 text-slate-500 border-slate-100'}`}>{p.kind}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 font-bold truncate">{p.detail || ''}{p.detail && p.billing ? ' · ' : ''}{p.billing}</p>
+                </div>
+                <div className="text-right shrink-0 text-[12px] font-bold text-slate-600 max-w-[180px] truncate">{right}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Domain */}
+      <section>
+        <h3 className="font-black text-slate-900 mb-3 flex items-center gap-2"><Globe className="w-5 h-5 text-blue-500" /> Tên miền ({d.domains.length})</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          {d.domains.map((dm: any) => (
+            <div key={dm.host} className="bg-white rounded-xl border border-slate-100 px-3 py-2.5 flex items-center gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+              <div className="min-w-0">
+                <p className="font-black text-slate-800 text-[13px] truncate">{dm.host}</p>
+                <p className="text-[11px] text-slate-400 font-bold truncate">{dm.svc} → {dm.to}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="flex items-start gap-2 text-[12px] text-slate-500 bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+        <ShieldCheck className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+        <span>{d.notes} · Cập nhật: {new Date(d.generated_at).toLocaleString('vi-VN')}</span>
       </div>
     </div>
   );

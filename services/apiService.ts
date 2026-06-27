@@ -1111,6 +1111,11 @@ class ApiService {
     if (!res.ok) throw new Error(`org ${res.status}`);
     return res.json();
   }
+  public async infraOverview(): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/infra/overview`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`infra ${res.status}`);
+    return res.json();
+  }
   public async twilioCall(phone: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/twilio/call`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
