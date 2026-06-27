@@ -1098,6 +1098,14 @@ class ApiService {
     if (!res.ok) throw new Error(`mem ${res.status}`);
     return res.json();
   }
+  public async twilioCall(phone: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/twilio/call`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone }),
+    });
+    if (!res.ok) throw new Error(`twilio ${res.status}`);
+    return res.json();
+  }
   public async cdpImport(rows: any[], source: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/cdp/import`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
