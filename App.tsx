@@ -10,6 +10,7 @@ import CDP from './views/CDP';
 import AIProspects from './views/AIProspects';
 import AIAgents from './views/AIAgents';
 import AIOrgChart from './views/AIOrgChart';
+import TeamHub from './views/TeamHub';
 import Leads from './views/Leads';
 import Billing from './views/Billing';
 import Deployment from './views/Deployment';
@@ -97,6 +98,7 @@ const App: React.FC = () => {
               <Route path="/ai-prospects" element={<Guard path="/ai-prospects"><AIProspects /></Guard>} />
               <Route path="/ai-agents" element={<Guard path="/ai-agents"><AIAgents /></Guard>} />
               <Route path="/ai-org" element={<AIOrgChart />} />
+              <Route path="/team" element={<TeamHub />} />
               <Route path="/leads" element={<Guard path="/leads"><Leads /></Guard>} />
               <Route path="/billing" element={<Guard path="/billing"><Billing /></Guard>} />
               {/* Sale */}
