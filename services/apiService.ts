@@ -1098,6 +1098,19 @@ class ApiService {
     if (!res.ok) throw new Error(`mem ${res.status}`);
     return res.json();
   }
+  public async aiOrgGet(): Promise<{ items: any[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/org/ai`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`org ${res.status}`);
+    return res.json();
+  }
+  public async aiOrgSet(items: any[]): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/org/ai`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items }),
+    });
+    if (!res.ok) throw new Error(`org ${res.status}`);
+    return res.json();
+  }
   public async twilioCall(phone: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/twilio/call`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
