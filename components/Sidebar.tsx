@@ -71,8 +71,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/team', label: 'Đội ngũ AI & Tổ chức', icon: Bot },
     { to: '/deployment', label: 'Triển khai dự án', icon: Rocket },
     { to: '/quang-cao', label: 'Quảng cáo đa kênh', icon: Megaphone },
-    { to: '/ai-prospects', label: 'Khách hàng tiềm năng', icon: Sparkles },
-    { to: '/leads', label: 'Leads & Bán hàng', icon: Target },
     { to: '/billing', label: 'Hạ tầng & Chi phí', icon: CreditCard },
     { to: '/identity', label: 'Quản trị hệ thống', icon: ShieldCheck, hasSub: true, subState: isIdentityOpen, setSub: setIsIdentityOpen, subItems: identitySubMenus, prefix: '/identity' },
   ];

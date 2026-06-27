@@ -7,11 +7,9 @@ import ProjectDetail from './views/Property/Project/ProjectDetail';
 import HousesApartments from './views/Property/Properties/HousesApartments';
 import PropertyDetailModal from './views/Property/Properties/PropertyDetailModal';
 import CDP from './views/CDP';
-import AIProspects from './views/AIProspects';
 import AIAgents from './views/AIAgents';
 import AIOrgChart from './views/AIOrgChart';
 import TeamHub from './views/TeamHub';
-import Leads from './views/Leads';
 import Billing from './views/Billing';
 import Deployment from './views/Deployment';
 import Login from './views/Login';
@@ -95,11 +93,9 @@ const App: React.FC = () => {
               <Route path="/deployment" element={<Guard path="/deployment"><Deployment /></Guard>} />
               <Route path="/quang-cao" element={<Guard path="/quang-cao"><QuangCaoDaKenh /></Guard>} />
               <Route path="/cdp" element={<Guard path="/cdp"><CDP /></Guard>} />
-              <Route path="/ai-prospects" element={<Guard path="/ai-prospects"><AIProspects /></Guard>} />
               <Route path="/ai-agents" element={<Guard path="/ai-agents"><AIAgents /></Guard>} />
               <Route path="/ai-org" element={<AIOrgChart />} />
               <Route path="/team" element={<TeamHub />} />
-              <Route path="/leads" element={<Guard path="/leads"><Leads /></Guard>} />
               <Route path="/billing" element={<Guard path="/billing"><Billing /></Guard>} />
               {/* Sale */}
               <Route path="/sale-projects" element={<SaleProjects />} />
