@@ -17,7 +17,7 @@ const KIND_STYLE: Record<string, string> = {
 
 const StatusDot: React.FC<{ live: any }> = ({ live }) => {
   const s = live?.status;
-  const map: Record<string, string> = { live: 'bg-emerald-500', free: 'bg-slate-400', self_host: 'bg-emerald-500', on_sale_vm: 'bg-amber-400', manual: 'bg-amber-400', error: 'bg-rose-500' };
+  const map: Record<string, string> = { live: 'bg-emerald-500', free: 'bg-slate-400', self_host: 'bg-emerald-500', on_sale_vm: 'bg-amber-400', no_scope: 'bg-amber-400', manual: 'bg-amber-400', error: 'bg-rose-500' };
   return <span className={`w-2.5 h-2.5 rounded-full ${map[s] || 'bg-slate-300'} ${s === 'live' ? 'animate-pulse' : ''}`} />;
 };
 
@@ -139,6 +139,9 @@ const Billing: React.FC = () => {
             let right = '';
             if (live.status === 'live' && p.key === 'openrouter') right = `Đã dùng ${money(live.used_usd)} · còn ${money(live.remaining_usd)}`;
             else if (live.status === 'live' && p.key === 'twilio') right = `Số dư ${money(live.balance_usd)}`;
+            else if (live.status === 'live' && p.key === 'elevenlabs') right = `${(live.used_chars || 0).toLocaleString()}/${(live.limit_chars || 0).toLocaleString()} ký tự (${live.pct}%)`;
+            else if (live.status === 'live' && p.key === 'deepgram') right = `Số dư ${money(live.amount_usd)}`;
+            else if (live.status === 'no_scope') right = 'Key thiếu scope đọc usage';
             else if (live.status === 'free') right = 'Miễn phí';
             else if (live.status === 'self_host') right = 'Gồm trong VM';
             else if (live.status === 'error') right = 'Lỗi kết nối';
