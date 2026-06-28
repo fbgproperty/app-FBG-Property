@@ -69,6 +69,24 @@ const Marketing: React.FC = () => {
     } finally { setSubmitting(false); }
   };
 
+  // ===== Facebook: xem SĐT đã cào → đưa vào CDP =====
+  const [openJob, setOpenJob] = useState<string | null>(null);
+  const [extracts, setExtracts] = useState<any[]>([]);
+  const [loadingEx, setLoadingEx] = useState(false);
+  const viewExtracts = async (jobId: string) => {
+    if (openJob === jobId) { setOpenJob(null); return; }
+    setOpenJob(jobId); setLoadingEx(true); setExtracts([]);
+    try { const r = await api.mktGet(`collect/fb/jobs/${jobId}/extracts?page=1&limit=500`); setExtracts(arr(r)); }
+    catch (e: any) { setMsg('⚠ ' + (e?.message || 'Lỗi tải SĐT')); } finally { setLoadingEx(false); }
+  };
+  const pushToCdp = async () => {
+    const rows = extracts.map((x: any) => ({ phone: (x.phone || x.phoneNumber || x.value || '').toString(), name: x.name || 'Khách Facebook' })).filter(r => r.phone);
+    if (!rows.length) { setMsg('⚠ Không có SĐT để đưa vào CDP.'); return; }
+    setSubmitting(true); setMsg('');
+    try { const r = await api.cdpImport(rows, 'Facebook Marketing'); setMsg(`✓ Đã đưa ${r?.created ?? rows.length} khách vào CDP (Danh sách khách hàng).`); }
+    catch (e: any) { setMsg('⚠ ' + (e?.message || 'Lỗi')); } finally { setSubmitting(false); }
+  };
+
   // ===== Zalo: proxy + QR =====
   const [pxForm, setPxForm] = useState({ host: '', port: '', username: '', password: '' });
   const [qr, setQr] = useState<{ proxyId: string; t: number } | null>(null);
@@ -193,11 +211,32 @@ const Marketing: React.FC = () => {
               <div className="px-5 py-3 border-b border-slate-50 font-black text-slate-900 text-sm">Lịch sử cào</div>
               <div className="divide-y divide-slate-50">
                 {jobs.slice(0, 15).map((j: any, i: number) => (
-                  <div key={j._id || i} className="flex items-center gap-3 px-5 py-3 text-sm">
-                    <CheckCircle2 className={`w-4 h-4 shrink-0 ${j.status === 'completed' ? 'text-emerald-500' : j.status === 'failed' ? 'text-rose-500' : 'text-amber-400'}`} />
-                    <span className="font-bold text-slate-700 truncate flex-1">{j.keyword || j.groupUrl || j.postUrl || j.type || 'Việc cào'}</span>
-                    <span className="text-[11px] text-slate-400 font-bold">{j.status}</span>
-                    <span className="inline-flex items-center gap-1 text-[12px] font-black text-fuchsia-600"><Phone className="w-3 h-3" />{j.extractedPhonesCount ?? j.phonesCount ?? 0}</span>
+                  <div key={j._id || i}>
+                    <div className="flex items-center gap-3 px-5 py-3 text-sm">
+                      <CheckCircle2 className={`w-4 h-4 shrink-0 ${j.status === 'completed' ? 'text-emerald-500' : j.status === 'failed' ? 'text-rose-500' : 'text-amber-400'}`} />
+                      <span className="font-bold text-slate-700 truncate flex-1">{j.keyword || j.groupUrl || j.postUrl || j.type || 'Việc cào'}</span>
+                      <span className="text-[11px] text-slate-400 font-bold">{j.status}</span>
+                      <span className="inline-flex items-center gap-1 text-[12px] font-black text-fuchsia-600"><Phone className="w-3 h-3" />{j.extractedPhonesCount ?? j.phonesCount ?? 0}</span>
+                      <button onClick={() => viewExtracts(j._id)} className="text-xs font-black text-blue-600 hover:underline">{openJob === j._id ? 'Ẩn' : 'Xem SĐT'}</button>
+                    </div>
+                    {openJob === j._id && (
+                      <div className="px-5 pb-4 bg-slate-50/60">
+                        {loadingEx ? <div className="py-3 text-slate-400 text-sm flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Đang tải...</div> : (
+                          <>
+                            <div className="flex items-center justify-between py-2">
+                              <span className="text-[12px] font-black text-slate-600">{extracts.length} SĐT cào được</span>
+                              <button onClick={pushToCdp} disabled={submitting || extracts.length === 0} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-black text-xs hover:bg-emerald-700 disabled:opacity-50"><Database className="w-3.5 h-3.5" /> Đưa {extracts.length} số vào CDP</button>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
+                              {extracts.slice(0, 200).map((x: any, k: number) => (
+                                <span key={k} className="inline-flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-600"><Phone className="w-3 h-3 text-fuchsia-500" />{x.phone || x.phoneNumber || x.value}</span>
+                              ))}
+                              {extracts.length === 0 && <span className="text-[12px] text-slate-400 py-2">Chưa có SĐT (job có thể đang chạy).</span>}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

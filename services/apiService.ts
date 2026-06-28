@@ -1116,6 +1116,14 @@ class ApiService {
     if (!res.ok) throw new Error(`infra ${res.status}`);
     return res.json();
   }
+  public async cdpImport(rows: any[], source: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/import`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows, source }),
+    });
+    if (!res.ok) throw new Error(`cdp import ${res.status}`);
+    return res.json();
+  }
   // ===== Marketing (Flash Zalo + fb-collect) qua bridge /mkt/* — token giữ server-side =====
   public async mktGet(path: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
