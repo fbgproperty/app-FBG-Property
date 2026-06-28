@@ -4,6 +4,7 @@ import {
   UserPlus, AlertTriangle, CheckCircle2, Database, Phone, Plus, QrCode, Server, Trash2, X
 } from 'lucide-react';
 import { api } from '../services/apiService';
+import ZaloChat from './ZaloChat';
 
 type Tab = 'facebook' | 'zalo';
 const MKT = 'https://mkt.fbgproperty.vn';
@@ -254,6 +255,8 @@ const Marketing: React.FC = () => {
               <div key={a._id || i} className="flex items-center gap-2 text-sm"><span className="w-2 h-2 rounded-full bg-emerald-500" /><span className="font-bold text-slate-700">{a.name || a.displayName || a.phone || 'Tài khoản'}</span></div>
             ))}</div>}
           </div>
+
+          {zaloAccounts.length > 0 && <ZaloChat accounts={zaloAccounts} />}
 
           {/* Proxy + QR */}
           <div className="bg-sky-50/40 rounded-2xl border border-sky-100 p-5 space-y-4">
