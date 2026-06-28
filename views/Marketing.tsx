@@ -17,12 +17,16 @@ const Marketing: React.FC = () => {
   const [zaloAccounts, setZaloAccounts] = useState<any[]>([]);
   const [proxies, setProxies] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
+  const [userId, setUserId] = useState('');
   const [err, setErr] = useState('');
 
   const load = async () => {
     setErr('');
+    let uid = userId;
+    if (!uid) { try { const p = await api.mktGet('auth/profile'); uid = p?.data?._id || p?._id || ''; setUserId(uid); } catch { /* */ } }
     const [fb, za, px, jb] = await Promise.allSettled([
-      api.mktGet('fb/accounts'), api.mktGet('accounts'), api.mktGet('proxies'), api.mktGet('collect/fb/jobs?page=1&limit=20'),
+      api.mktGet('fb/accounts'), api.mktGet('accounts'), api.mktGet('proxies'),
+      api.mktGet('collect/fb/jobs?userId=' + uid + '&page=1&limit=20'),
     ]);
     if (fb.status === 'fulfilled') setFbAccounts(arr(fb.value));
     if (za.status === 'fulfilled') setZaloAccounts(arr(za.value));
@@ -45,7 +49,7 @@ const Marketing: React.FC = () => {
     if (!val.trim()) { setMsg('Nhập từ khoá / link đã.'); return; }
     setSubmitting(true); setMsg('');
     try {
-      const body: any = { type: src }; body[src] = val.trim();
+      const body: any = { type: src, userId }; body[src] = val.trim();
       await api.mktPost('collect/fb/jobs', body);
       setMsg('✓ Đã tạo việc cào.'); setVal(''); load();
     } catch (e: any) {
