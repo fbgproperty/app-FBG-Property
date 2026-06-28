@@ -92,6 +92,32 @@ const Marketing: React.FC = () => {
     return () => clearInterval(iv);
   }, [qr?.proxyId]);
 
+  // ===== Zalo: gửi tin / kết bạn hàng loạt =====
+  const [zModal, setZModal] = useState<'send' | 'friend' | null>(null);
+  const [zForm, setZForm] = useState({ accountId: '', phones: '', message: '' });
+  const runZalo = async () => {
+    const acc = zForm.accountId || zaloAccounts[0]?._id;
+    const phones = Array.from(new Set(zForm.phones.split(/[\s,;]+/).map(s => s.replace(/[^0-9]/g, '')).filter(p => p.length >= 8)));
+    if (!acc) { setMsg('⚠ Chưa có tài khoản Zalo kết nối.'); return; }
+    if (!phones.length) { setMsg('⚠ Nhập danh sách SĐT.'); return; }
+    if (!zForm.message.trim()) { setMsg('⚠ Nhập nội dung.'); return; }
+    setSubmitting(true); setMsg('');
+    const base = zModal === 'send' ? 'message-scripts' : 'friend-request-scripts';
+    const kind = zModal === 'send' ? 'Gửi tin' : 'Kết bạn';
+    try {
+      const created = await api.mktPost(base, {
+        taskName: `${kind} ${phones.length} số`, type: 'PHONE',
+        accountIds: [acc], phoneNumbers: phones, messageContent: zForm.message.trim(),
+      });
+      const id = created?.data?._id || created?._id;
+      if (id) await api.mktPatch(`${base}/${id}/start?reset=true`);
+      setMsg(`✓ Đã tạo & chạy "${kind}" cho ${phones.length} số. Theo dõi tiến độ trên nền tảng.`);
+      setZModal(null); setZForm({ accountId: '', phones: '', message: '' });
+    } catch (e: any) {
+      setMsg('⚠ ' + (e?.message || 'Lỗi'));
+    } finally { setSubmitting(false); }
+  };
+
   if (loading) return <div className="h-full flex items-center justify-center text-indigo-600"><Loader2 className="w-10 h-10 animate-spin" /></div>;
 
   const TabBtn: React.FC<{ id: Tab; label: string; icon: any; color: string }> = ({ id, label, icon: Icon, color }) => (
@@ -227,14 +253,46 @@ const Marketing: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white rounded-2xl border border-slate-100 p-5">
+            <button onClick={() => { setMsg(''); setZModal('send'); }} disabled={zaloAccounts.length === 0} className="text-left bg-white rounded-2xl border border-slate-100 p-5 hover:border-sky-300 hover:shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">
               <div className="flex items-center gap-2 mb-1"><Send className="w-5 h-5 text-sky-500" /><span className="font-black text-slate-900">Gửi tin hàng loạt</span></div>
-              <p className="text-[12px] text-slate-400 font-bold">Soạn kịch bản → gửi tới danh sách SĐT (lead từ Facebook). {zaloAccounts.length === 0 ? 'Cần kết nối tài khoản Zalo trước.' : 'Sẵn sàng.'}</p>
-            </div>
-            <div className="bg-white rounded-2xl border border-slate-100 p-5">
+              <p className="text-[12px] text-slate-400 font-bold">Soạn nội dung → gửi tới danh sách SĐT (lead từ Facebook). {zaloAccounts.length === 0 ? 'Cần kết nối tài khoản Zalo trước.' : 'Bấm để soạn & gửi.'}</p>
+            </button>
+            <button onClick={() => { setMsg(''); setZModal('friend'); }} disabled={zaloAccounts.length === 0} className="text-left bg-white rounded-2xl border border-slate-100 p-5 hover:border-sky-300 hover:shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">
               <div className="flex items-center gap-2 mb-1"><UserPlus className="w-5 h-5 text-sky-500" /><span className="font-black text-slate-900">Kết bạn theo SĐT</span></div>
-              <p className="text-[12px] text-slate-400 font-bold">Tự động tìm + gửi kết bạn theo danh sách số. {zaloAccounts.length === 0 ? 'Cần kết nối tài khoản Zalo trước.' : 'Sẵn sàng.'}</p>
+              <p className="text-[12px] text-slate-400 font-bold">Tự động tìm + gửi kết bạn theo danh sách số. {zaloAccounts.length === 0 ? 'Cần kết nối tài khoản Zalo trước.' : 'Bấm để chạy.'}</p>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {zModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setZModal(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-3" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-black text-slate-900">{zModal === 'send' ? 'Gửi tin hàng loạt (Zalo)' : 'Kết bạn theo SĐT (Zalo)'}</h3>
+              <button onClick={() => setZModal(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
             </div>
+            <div>
+              <label className="text-xs font-black text-slate-500">Tài khoản gửi</label>
+              <select value={zForm.accountId || zaloAccounts[0]?._id || ''} onChange={e => setZForm(f => ({ ...f, accountId: e.target.value }))} className="w-full mt-1 p-2.5 rounded-xl border border-slate-200 text-sm">
+                {zaloAccounts.map((a: any) => <option key={a._id} value={a._id}>{a.name || a.displayName || a.phone || a._id}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-black text-slate-500">Danh sách SĐT (mỗi số 1 dòng, hoặc cách bởi dấu phẩy)</label>
+              <textarea value={zForm.phones} onChange={e => setZForm(f => ({ ...f, phones: e.target.value }))} rows={4} placeholder={'0905123456\n0906234567'} className="w-full mt-1 p-2.5 rounded-xl border border-slate-200 text-sm font-mono" />
+            </div>
+            <div>
+              <label className="text-xs font-black text-slate-500">{zModal === 'send' ? 'Nội dung tin nhắn' : 'Lời nhắn kèm kết bạn'}</label>
+              <textarea value={zForm.message} onChange={e => setZForm(f => ({ ...f, message: e.target.value }))} rows={3} placeholder="Chào anh/chị, em là tư vấn viên FBG Property..." className="w-full mt-1 p-2.5 rounded-xl border border-slate-200 text-sm" />
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <button onClick={() => setZModal(null)} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-black text-sm">Hủy</button>
+              <button onClick={runZalo} disabled={submitting} className="inline-flex items-center gap-2 px-4 py-2.5 bg-sky-500 text-white rounded-xl font-black text-sm hover:bg-sky-600 disabled:opacity-60">
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {zModal === 'send' ? 'Gửi ngay' : 'Kết bạn ngay'}
+              </button>
+            </div>
+            <p className="text-[11px] text-amber-600 font-bold">⚠ Gửi chậm rãi, tránh spam để Zalo không khoá tài khoản.</p>
           </div>
         </div>
       )}

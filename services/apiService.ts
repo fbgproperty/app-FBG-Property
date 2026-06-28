@@ -1132,6 +1132,15 @@ class ApiService {
     if (!res.ok) throw new Error((Array.isArray(j?.message) ? j.message.join(', ') : j?.message) || `mkt ${res.status}`);
     return j;
   }
+  public async mktPatch(path: string, body?: any): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, {
+      method: 'PATCH', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {}),
+    });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error((Array.isArray(j?.message) ? j.message.join(', ') : j?.message) || `mkt ${res.status}`);
+    return j;
+  }
   public async mktDelete(path: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, { method: 'DELETE', headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
     if (!res.ok) throw new Error(`mkt ${res.status}`);
