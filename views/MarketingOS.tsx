@@ -9,6 +9,7 @@ import QuangCaoDaKenh from './QuangCaoDaKenh';
 import ContentFactory from './ContentFactory';
 import AutomationHub from './AutomationHub';
 import MarketingROI from './MarketingROI';
+import AgencyDashboard from './AgencyDashboard';
 
 type Sec = 'overview' | 'content' | 'ads' | 'channels' | 'automation' | 'roi';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
@@ -126,7 +127,7 @@ const MarketingOS: React.FC = () => {
       </div>
 
       <div className="animate-in fade-in duration-300">
-        {sec === 'overview' && <Overview />}
+        {sec === 'overview' && <AgencyDashboard onOpen={(s) => setSec(s as Sec)} />}
         {sec === 'ads' && <QuangCaoDaKenh />}
         {sec === 'channels' && <Marketing />}
         {sec === 'content' && <ContentFactory />}
