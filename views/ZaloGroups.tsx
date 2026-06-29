@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Loader2, Users2, RefreshCw, RotateCw, ChevronRight, User } from 'lucide-react';
 import { api } from '../services/apiService';
 
-const arr = (x: any): any[] => (Array.isArray(x) ? x : x?.data?.items || x?.items || x?.data || []);
+const arr = (x: any): any[] => { const c = Array.isArray(x) ? x : (x?.data?.items || x?.items || x?.data?.data || x?.data); return Array.isArray(c) ? c : []; };
 const gid = (g: any) => g.groupId || g.id || g._id || g.uid;
 const gname = (g: any) => g.name || g.groupName || g.title || gid(g);
 const mname = (m: any) => m.name || m.displayName || m.zaloName || m.uid || m.userId || m.id;

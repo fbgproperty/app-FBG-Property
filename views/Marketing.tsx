@@ -11,7 +11,7 @@ import ZaloGroups from './ZaloGroups';
 type Tab = 'facebook' | 'zalo';
 const MKT = 'https://mkt.fbgproperty.vn';
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
-const arr = (x: any): any[] => (Array.isArray(x) ? x : x?.data?.items || x?.items || x?.data || []);
+const arr = (x: any): any[] => { const c = Array.isArray(x) ? x : (x?.data?.items || x?.items || x?.data?.data || x?.data); return Array.isArray(c) ? c : []; };
 
 const Marketing: React.FC = () => {
   const [tab, setTab] = useState<Tab>('facebook');

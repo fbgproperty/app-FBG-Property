@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Loader2, Send, RefreshCw, MessageCircle, User } from 'lucide-react';
 import { api } from '../services/apiService';
 
-const arr = (x: any): any[] => (Array.isArray(x) ? x : x?.data?.items || x?.items || x?.data || []);
+const arr = (x: any): any[] => { const c = Array.isArray(x) ? x : (x?.data?.items || x?.items || x?.data?.data || x?.data); return Array.isArray(c) ? c : []; };
 const threadName = (t: any) => t.name || t.displayName || t.title || t.zaloName || t.threadName || t.phone || 'Hội thoại';
 const threadId = (t: any) => t.threadId || t.id || t.uid || t._id;
 const msgText = (m: any) => (typeof m.content === 'string' ? m.content : m.content?.text) || m.message || m.text || m.body || '';

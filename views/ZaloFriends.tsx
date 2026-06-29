@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Loader2, Search, UserPlus, Users, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { api } from '../services/apiService';
 
-const arr = (x: any): any[] => (Array.isArray(x) ? x : x?.data?.items || x?.items || x?.data || []);
+const arr = (x: any): any[] => { const c = Array.isArray(x) ? x : (x?.data?.items || x?.items || x?.data?.data || x?.data); return Array.isArray(c) ? c : []; };
 const uidOf = (u: any) => u.uid || u.userId || u.zaloId || u.id || u._id;
 const nameOf = (u: any) => u.name || u.displayName || u.zaloName || u.username || u.phone || uidOf(u);
 
