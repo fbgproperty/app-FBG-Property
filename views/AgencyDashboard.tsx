@@ -39,7 +39,7 @@ const AgencyDashboard: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) 
   }, []);
 
   const AGENTS: { n: string; role: string; icon: any; status: St; sec?: string; metric: string }[] = [
-    { n: 'Giám đốc chiến lược', role: 'Lập kế hoạch chiến dịch theo dự án', icon: Brain, status: 'soon', metric: 'Hermes điều phối' },
+    { n: 'Giám đốc chiến lược', role: 'Lập kế hoạch chiến dịch theo dự án', icon: Brain, status: 'live', sec: 'content', metric: 'Lập kế hoạch (AI)' },
     { n: 'Copywriter', role: 'Viết nội dung bám tài liệu dự án', icon: FileText, status: 'live', sec: 'content', metric: 'Sinh content RAG' },
     { n: 'Designer', role: 'Banner / ảnh quảng cáo', icon: ImageIcon, status: 'locked', metric: 'Cần image-model' },
     { n: 'Video editor', role: 'Kịch bản → reels giới thiệu', icon: Video, status: 'partial', sec: 'content', metric: 'Kịch bản video' },

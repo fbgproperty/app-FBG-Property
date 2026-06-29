@@ -2,26 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { FileText, Loader2, Sparkles, Copy, Check, Send, RefreshCw } from 'lucide-react';
 import { api } from '../services/apiService';
 
-type CType = 'facebook_post' | 'zalo_broadcast' | 'caption' | 'video_script' | 'ad_copy';
+type CType = 'campaign_plan' | 'facebook_post' | 'zalo_broadcast' | 'caption' | 'video_script' | 'ad_copy';
 const TYPES: { id: CType; label: string }[] = [
+  { id: 'campaign_plan', label: 'Kế hoạch chiến dịch (Chiến lược)' },
   { id: 'facebook_post', label: 'Bài đăng Facebook' },
   { id: 'zalo_broadcast', label: 'Tin Zalo chăm khách' },
   { id: 'caption', label: 'Caption + hashtag' },
   { id: 'video_script', label: 'Kịch bản video 30s' },
   { id: 'ad_copy', label: 'Nội dung quảng cáo' },
 ];
-const prompt = (t: CType, p: string, note: string) => {
-  const base: Record<CType, string> = {
-    facebook_post: `Soạn 1 BÀI ĐĂNG FACEBOOK marketing thật hấp dẫn quảng bá dự án "${p}". Gồm: tiêu đề giật tít, 3-4 điểm nổi bật (vị trí/giá/tiện ích/pháp lý), 1 lời kêu gọi hành động, 5 hashtag. Khoảng 150 từ, văn phong bán hàng BĐS.`,
-    zalo_broadcast: `Soạn 1 TIN NHẮN ZALO ngắn gọn (~60 từ) chăm khách đang quan tâm dự án "${p}". Thân thiện, có đúng 1 lời kêu gọi (hẹn xem nhà / nhận bảng giá).`,
-    caption: `Viết 1 CAPTION ngắn (~30 từ) cho ảnh dự án "${p}" + 5 hashtag.`,
-    video_script: `Viết KỊCH BẢN VIDEO NGẮN 30 giây giới thiệu dự án "${p}": mô tả cảnh quay + lời thoại theo từng cảnh, hấp dẫn.`,
-    ad_copy: `Viết NỘI DUNG QUẢNG CÁO cho dự án "${p}": 1 headline ngắn, 1 đoạn mô tả, 1 CTA — tối ưu chuyển đổi.`,
-  };
-  return base[t] + (note ? ` Yêu cầu thêm: ${note}.` : '') +
-    ' Chỉ dùng thông tin THẬT của dự án, không bịa số liệu.' +
-    ' QUAN TRỌNG: CHỈ xuất đúng nội dung được yêu cầu — KHÔNG lời chào, KHÔNG xưng "tôi là chuyên viên tư vấn", KHÔNG mở đầu kiểu "Chào quý khách", KHÔNG giải thích thêm.';
-};
 
 const ContentFactory: React.FC = () => {
   const [projects, setProjects] = useState<string[]>([]);
