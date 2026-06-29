@@ -7,6 +7,8 @@ import { api } from '../services/apiService';
 import Marketing from './Marketing';
 import QuangCaoDaKenh from './QuangCaoDaKenh';
 import ContentFactory from './ContentFactory';
+import AutomationHub from './AutomationHub';
+import MarketingROI from './MarketingROI';
 
 type Sec = 'overview' | 'content' | 'ads' | 'channels' | 'automation' | 'roi';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
@@ -128,15 +130,8 @@ const MarketingOS: React.FC = () => {
         {sec === 'ads' && <QuangCaoDaKenh />}
         {sec === 'channels' && <Marketing />}
         {sec === 'content' && <ContentFactory />}
-        {sec === 'automation' && <Soon icon={Workflow} title="Tự động hoá (n8n)" desc="Bật/tắt các workflow nối các bước marketing thành dây chuyền tự động." phase="Giai đoạn C–E" bullets={[
-          'Lead Engine: cào → CDP → chấm điểm → giao sale → nurture Zalo',
-          'Content: sinh → duyệt → đăng theo lịch',
-          'Ad Optimizer + Báo cáo ROI hằng ngày (Hermes)',
-        ]} />}
-        {sec === 'roi' && <Soon icon={BarChart3} title="Báo cáo ROI" desc="Đo chi phí marketing ↔ doanh thu deal (CDP + ERP + Ads)." phase="Giai đoạn E" bullets={[
-          'Lead theo nguồn · chi phí Ads · deal ERP · ROI từng dự án/kênh',
-          'Hermes tổng hợp + gửi Anh Duy mỗi sáng (Telegram + app)',
-        ]} />}
+        {sec === 'automation' && <AutomationHub />}
+        {sec === 'roi' && <MarketingROI />}
       </div>
     </div>
   );
