@@ -41,8 +41,8 @@ const ContentFactory: React.FC = () => {
     if (!project) { setErr('Chọn dự án.'); return; }
     setLoading(true); setErr(''); setOut('');
     try {
-      const r = await api.ragAsk(prompt(type, project, note), project);
-      setOut((r?.answer || r?.text || r?.data || '').toString());
+      const r = await api.contentDraft(project, type, note);
+      setOut((r?.text || r?.answer || '').toString());
     } catch (e: any) { setErr(e?.message || 'Lỗi sinh nội dung'); } finally { setLoading(false); }
   };
   const copy = () => { navigator.clipboard.writeText(out); setCopied(true); setTimeout(() => setCopied(false), 1500); };
