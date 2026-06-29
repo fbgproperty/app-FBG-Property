@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { api } from '../services/apiService';
 import ZaloChat from './ZaloChat';
+import ZaloFriends from './ZaloFriends';
 
 type Tab = 'facebook' | 'zalo';
 const MKT = 'https://mkt.fbgproperty.vn';
@@ -257,6 +258,7 @@ const Marketing: React.FC = () => {
           </div>
 
           {zaloAccounts.length > 0 && <ZaloChat accounts={zaloAccounts} />}
+          {zaloAccounts.length > 0 && <ZaloFriends accounts={zaloAccounts} />}
 
           {/* Proxy + QR */}
           <div className="bg-sky-50/40 rounded-2xl border border-sky-100 p-5 space-y-4">
