@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Loader2, Send, RefreshCw, MessageCircle, User } from 'lucide-react';
+import { Loader2, Send, RefreshCw, MessageCircle, User, Sparkles } from 'lucide-react';
 import { api } from '../services/apiService';
 
 const arr = (x: any): any[] => { const c = Array.isArray(x) ? x : (x?.data?.items || x?.items || x?.data?.data || x?.data); return Array.isArray(c) ? c : []; };
@@ -43,6 +43,17 @@ const ZaloChat: React.FC<{ accounts: any[] }> = ({ accounts }) => {
       setReply(''); setTimeout(() => endRef.current?.scrollIntoView(), 80);
     } catch (e: any) { setErr(e?.message || 'Lỗi gửi'); } finally { setSending(false); }
   };
+  const [suggesting, setSuggesting] = useState(false);
+  const suggest = async () => {
+    const lastIncoming = [...messages].reverse().find(m => !isMine(m));
+    const ctx = lastIncoming ? msgText(lastIncoming) : (active ? threadName(active) : '');
+    if (!ctx) { setErr('Chưa có tin khách để gợi ý.'); return; }
+    setSuggesting(true); setErr('');
+    try {
+      const r = await api.ragAsk(`Khách Zalo nhắn: "${ctx}". Soạn 1 câu trả lời tư vấn bất động sản của FBG Property: ngắn gọn, thân thiện, đúng thông tin dự án, có 1 lời mời hành động. CHỈ trả về đúng nội dung tin nhắn, không lời chào kiểu "Chào quý khách", không xưng "chuyên viên tư vấn".`);
+      setReply((r?.answer || r?.text || '').toString().trim());
+    } catch (e: any) { setErr(e?.message || 'Lỗi gợi ý'); } finally { setSuggesting(false); }
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
@@ -85,7 +96,8 @@ const ZaloChat: React.FC<{ accounts: any[] }> = ({ accounts }) => {
                 <div ref={endRef} />
               </div>
               <div className="flex items-center gap-2 p-3 border-t border-slate-100">
-                <input value={reply} onChange={e => setReply(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()} placeholder="Nhập tin nhắn..." className="flex-1 p-2.5 rounded-xl border border-slate-200 text-sm" />
+                <button onClick={suggest} disabled={suggesting} title="AI gợi ý trả lời (bám tài liệu dự án)" className="inline-flex items-center justify-center w-10 h-10 bg-fuchsia-50 text-fuchsia-600 rounded-xl hover:bg-fuchsia-100 disabled:opacity-50 shrink-0">{suggesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}</button>
+                <input value={reply} onChange={e => setReply(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()} placeholder="Nhập tin nhắn... (✨ để AI gợi ý)" className="flex-1 p-2.5 rounded-xl border border-slate-200 text-sm" />
                 <button onClick={send} disabled={sending || !reply.trim()} className="inline-flex items-center justify-center w-10 h-10 bg-sky-500 text-white rounded-xl hover:bg-sky-600 disabled:opacity-50">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}</button>
               </div>
             </>
