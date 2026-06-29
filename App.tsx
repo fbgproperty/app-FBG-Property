@@ -11,6 +11,7 @@ import AIAgents from './views/AIAgents';
 import AIOrgChart from './views/AIOrgChart';
 import TeamHub from './views/TeamHub';
 import Marketing from './views/Marketing';
+import MarketingOS from './views/MarketingOS';
 import Billing from './views/Billing';
 import Deployment from './views/Deployment';
 import Login from './views/Login';
@@ -97,7 +98,7 @@ const App: React.FC = () => {
               <Route path="/ai-agents" element={<Guard path="/ai-agents"><AIAgents /></Guard>} />
               <Route path="/ai-org" element={<AIOrgChart />} />
               <Route path="/team" element={<TeamHub />} />
-              <Route path="/marketing" element={<Guard path="/marketing"><Marketing /></Guard>} />
+              <Route path="/marketing" element={<Guard path="/marketing"><MarketingOS /></Guard>} />
               <Route path="/billing" element={<Guard path="/billing"><Billing /></Guard>} />
               {/* Sale */}
               <Route path="/sale-projects" element={<SaleProjects />} />
