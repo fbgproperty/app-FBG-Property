@@ -6,6 +6,7 @@ import {
 import { api } from '../services/apiService';
 import Marketing from './Marketing';
 import QuangCaoDaKenh from './QuangCaoDaKenh';
+import ContentFactory from './ContentFactory';
 
 type Sec = 'overview' | 'content' | 'ads' | 'channels' | 'automation' | 'roi';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
@@ -126,11 +127,7 @@ const MarketingOS: React.FC = () => {
         {sec === 'overview' && <Overview />}
         {sec === 'ads' && <QuangCaoDaKenh />}
         {sec === 'channels' && <Marketing />}
-        {sec === 'content' && <Soon icon={FileText} title="Content Factory (AI)" desc="Hermes + RAG sản xuất nội dung đúng thông tin dự án, đăng đa kênh." phase="Giai đoạn B" bullets={[
-          'Chọn dự án → AI sinh bài đăng / caption / hashtag / kịch bản video (bám tài liệu RAG)',
-          'Kho nội dung + duyệt trước khi đăng',
-          'Lên lịch đăng Facebook / Zalo / TikTok qua n8n',
-        ]} />}
+        {sec === 'content' && <ContentFactory />}
         {sec === 'automation' && <Soon icon={Workflow} title="Tự động hoá (n8n)" desc="Bật/tắt các workflow nối các bước marketing thành dây chuyền tự động." phase="Giai đoạn C–E" bullets={[
           'Lead Engine: cào → CDP → chấm điểm → giao sale → nurture Zalo',
           'Content: sinh → duyệt → đăng theo lịch',

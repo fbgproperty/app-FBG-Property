@@ -1082,6 +1082,12 @@ class ApiService {
     if (!res.ok) throw new Error(`rag ${res.status}`);
     return res.json();
   }
+  public async ragProjects(): Promise<string[]> {
+    const res = await fetch(`${this.cdpBaseUrl}/rag/projects`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`rag ${res.status}`);
+    const j = await res.json();
+    return j?.projects || j?.data || (Array.isArray(j) ? j : []);
+  }
   public async memRecall(phone: string, query: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/mem/recall`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
