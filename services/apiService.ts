@@ -1124,33 +1124,35 @@ class ApiService {
     if (!res.ok) throw new Error(`cdp import ${res.status}`);
     return res.json();
   }
-  // ===== Marketing (Flash Zalo + fb-collect) qua bridge /mkt/* — token giữ server-side =====
+  // ===== Marketing (Flash Zalo + fb-collect) qua bridge /mkt/* — token giữ server-side, CÔ LẬP theo user =====
+  private mktUserEmail(): string {
+    try { return (JSON.parse(localStorage.getItem('fbg_user') || '{}').email) || localStorage.getItem('fbg_owner') || ''; } catch { return ''; }
+  }
+  private mktHeaders(json = false): Record<string, string> {
+    const h: Record<string, string> = { 'X-Bridge-Key': this.cdpBridgeKey, 'X-Mkt-User': this.mktUserEmail() };
+    if (json) h['Content-Type'] = 'application/json';
+    return h;
+  }
   public async mktGet(path: string): Promise<any> {
-    const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, { headers: this.mktHeaders() });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(j?.message || `mkt ${res.status}`);
     return j;
   }
   public async mktPost(path: string, body?: any): Promise<any> {
-    const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, {
-      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body || {}),
-    });
+    const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, { method: 'POST', headers: this.mktHeaders(true), body: JSON.stringify(body || {}) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error((Array.isArray(j?.message) ? j.message.join(', ') : j?.message) || `mkt ${res.status}`);
     return j;
   }
   public async mktPatch(path: string, body?: any): Promise<any> {
-    const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, {
-      method: 'PATCH', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body || {}),
-    });
+    const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, { method: 'PATCH', headers: this.mktHeaders(true), body: JSON.stringify(body || {}) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error((Array.isArray(j?.message) ? j.message.join(', ') : j?.message) || `mkt ${res.status}`);
     return j;
   }
   public async mktDelete(path: string): Promise<any> {
-    const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, { method: 'DELETE', headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    const res = await fetch(`${this.cdpBaseUrl}/mkt/${path}`, { method: 'DELETE', headers: this.mktHeaders() });
     if (!res.ok) throw new Error(`mkt ${res.status}`);
     return res.json().catch(() => ({}));
   }
