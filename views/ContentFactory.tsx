@@ -18,7 +18,9 @@ const prompt = (t: CType, p: string, note: string) => {
     video_script: `Viết KỊCH BẢN VIDEO NGẮN 30 giây giới thiệu dự án "${p}": mô tả cảnh quay + lời thoại theo từng cảnh, hấp dẫn.`,
     ad_copy: `Viết NỘI DUNG QUẢNG CÁO cho dự án "${p}": 1 headline ngắn, 1 đoạn mô tả, 1 CTA — tối ưu chuyển đổi.`,
   };
-  return base[t] + (note ? ` Yêu cầu thêm: ${note}.` : '') + ' Chỉ dùng thông tin THẬT của dự án, không bịa số liệu.';
+  return base[t] + (note ? ` Yêu cầu thêm: ${note}.` : '') +
+    ' Chỉ dùng thông tin THẬT của dự án, không bịa số liệu.' +
+    ' QUAN TRỌNG: CHỈ xuất đúng nội dung được yêu cầu — KHÔNG lời chào, KHÔNG xưng "tôi là chuyên viên tư vấn", KHÔNG mở đầu kiểu "Chào quý khách", KHÔNG giải thích thêm.';
 };
 
 const ContentFactory: React.FC = () => {
