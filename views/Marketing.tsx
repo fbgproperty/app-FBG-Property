@@ -6,6 +6,7 @@ import {
 import { api } from '../services/apiService';
 import ZaloChat from './ZaloChat';
 import ZaloFriends from './ZaloFriends';
+import ZaloGroups from './ZaloGroups';
 
 type Tab = 'facebook' | 'zalo';
 const MKT = 'https://mkt.fbgproperty.vn';
@@ -259,6 +260,7 @@ const Marketing: React.FC = () => {
 
           {zaloAccounts.length > 0 && <ZaloChat accounts={zaloAccounts} />}
           {zaloAccounts.length > 0 && <ZaloFriends accounts={zaloAccounts} />}
+          {zaloAccounts.length > 0 && <ZaloGroups accounts={zaloAccounts} />}
 
           {/* Proxy + QR */}
           <div className="bg-sky-50/40 rounded-2xl border border-sky-100 p-5 space-y-4">
