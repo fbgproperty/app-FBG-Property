@@ -44,7 +44,9 @@ const Office3DPanel: React.FC = () => {
           <h3 className="font-black text-gray-900">Văn phòng AI 3D</h3>
           <span className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-md">Hermes + 30 nhân viên</span>
         </div>
-        <span className="text-[11px] text-gray-400 font-bold hidden sm:block">Kéo để xoay · lăn để zoom · bấm nhân viên để mở phòng</span>
+        <a href="https://office.fbgproperty.vn" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 text-white rounded-xl font-black text-xs hover:bg-slate-800">
+          <Sparkles className="w-3.5 h-3.5" /> Mở văn phòng 3D thật (Claw3D) <ArrowRight className="w-3.5 h-3.5" />
+        </a>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
