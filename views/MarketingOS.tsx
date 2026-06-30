@@ -12,13 +12,15 @@ import ImageFactory from './ImageFactory';
 import AutomationHub from './AutomationHub';
 import MarketingROI from './MarketingROI';
 import AgencyDashboard from './AgencyDashboard';
+import CommunityInbox from './CommunityInbox';
 
-type Sec = 'overview' | 'content' | 'ads' | 'channels' | 'automation' | 'roi';
+type Sec = 'overview' | 'content' | 'ads' | 'channels' | 'community' | 'automation' | 'roi';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'content', label: 'Content AI', icon: FileText },
   { id: 'ads', label: 'Quảng cáo', icon: Target },
   { id: 'channels', label: 'Kênh (FB/Zalo)', icon: Share2 },
+  { id: 'community', label: 'Trực inbox', icon: Bot },
   { id: 'automation', label: 'Tự động hoá', icon: Workflow },
   { id: 'roi', label: 'Báo cáo ROI', icon: BarChart3 },
 ];
@@ -132,6 +134,7 @@ const MarketingOS: React.FC = () => {
         {sec === 'overview' && <AgencyDashboard onOpen={(s) => setSec(s as Sec)} />}
         {sec === 'ads' && <QuangCaoDaKenh />}
         {sec === 'channels' && <Marketing />}
+        {sec === 'community' && <CommunityInbox />}
         {sec === 'content' && <div className="space-y-5"><ContentFactory /><ImageFactory /><VideoFactory /></div>}
         {sec === 'automation' && <AutomationHub />}
         {sec === 'roi' && <MarketingROI />}

@@ -1090,6 +1090,14 @@ class ApiService {
     if (!res.ok) throw new Error(`image ${res.status}`);
     return res.json();
   }
+  public async adsPlan(payload: { project: string; platform: string; budget?: string; objective?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/ads/plan`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`ads ${res.status}`);
+    return res.json();
+  }
   public async analystReport(stats: any, period?: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/analyst/report`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },

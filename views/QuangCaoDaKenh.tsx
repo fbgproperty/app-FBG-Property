@@ -1,5 +1,66 @@
-import React, { useState } from 'react';
-import { Megaphone, CheckCircle2, Circle, ExternalLink, Loader2, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Megaphone, CheckCircle2, Circle, ExternalLink, Loader2, ChevronRight, Sparkles, Target, Copy, Check } from 'lucide-react';
+import { api } from '../services/apiService';
+
+const AdsAIPanel: React.FC = () => {
+  const [projects, setProjects] = useState<any[]>([]);
+  const [project, setProject] = useState('');
+  const [platform, setPlatform] = useState('Facebook Ads');
+  const [budget, setBudget] = useState('300.000đ/ngày');
+  const [objective, setObjective] = useState('Tin nhắn / Lead');
+  const [loading, setLoading] = useState(false);
+  const [text, setText] = useState('');
+  const [err, setErr] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    api.getProjectsCbx().then((r: any) => {
+      const items = r?.items || r?.data?.items || r?.data || [];
+      setProjects(Array.isArray(items) ? items : []);
+    }).catch(() => { /* */ });
+  }, []);
+
+  const gen = async () => {
+    if (!project) { setErr('Chọn dự án.'); return; }
+    setErr(''); setLoading(true); setText('');
+    try {
+      const r = await api.adsPlan({ project, platform, budget, objective });
+      setText(r?.text || '');
+    } catch (e: any) { setErr(e?.message || 'Lỗi'); }
+    setLoading(false);
+  };
+  const copy = () => { navigator.clipboard?.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+
+  return (
+    <div className="bg-white rounded-[28px] border border-gray-100 shadow-sm p-6 space-y-4">
+      <div className="flex items-center gap-2"><Target className="w-5 h-5 text-fuchsia-600" /><span className="font-black text-gray-900">AI tạo chiến dịch & creative quảng cáo</span><span className="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md">Chạy ngay</span></div>
+      <p className="text-xs text-gray-400 -mt-2">AI bám tài liệu dự án sinh: đối tượng nhắm chọn · tiêu đề · mô tả · CTA · phân bổ ngân sách. Copy thẳng vào trình quản lý quảng cáo (chưa cần Developer Token).</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <select value={project} onChange={e => setProject(e.target.value)} className="p-2.5 rounded-xl border border-gray-200 text-sm">
+          <option value="">— chọn dự án —</option>
+          {projects.map((p: any) => <option key={p.id || p.slug || p.name} value={p.name}>{p.name}</option>)}
+        </select>
+        <select value={platform} onChange={e => setPlatform(e.target.value)} className="p-2.5 rounded-xl border border-gray-200 text-sm">
+          {['Facebook Ads', 'Google Ads', 'TikTok Ads', 'Zalo Ads'].map(x => <option key={x} value={x}>{x}</option>)}
+        </select>
+        <input value={budget} onChange={e => setBudget(e.target.value)} placeholder="Ngân sách/ngày" className="p-2.5 rounded-xl border border-gray-200 text-sm" />
+        <select value={objective} onChange={e => setObjective(e.target.value)} className="p-2.5 rounded-xl border border-gray-200 text-sm">
+          {['Tin nhắn / Lead', 'Tương tác', 'Truy cập web', 'Nhận diện thương hiệu'].map(x => <option key={x} value={x}>{x}</option>)}
+        </select>
+      </div>
+      {err && <div className="text-amber-700 bg-amber-50 rounded-xl px-3 py-2 text-sm font-bold">{err}</div>}
+      <button onClick={gen} disabled={loading} className="inline-flex items-center gap-2 px-5 py-2.5 bg-fuchsia-600 text-white rounded-xl font-black text-sm hover:bg-fuchsia-700 disabled:opacity-60">
+        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Tạo chiến dịch AI
+      </button>
+      {text && (
+        <div className="relative">
+          <button onClick={copy} className="absolute top-2 right-2 inline-flex items-center gap-1 text-[11px] font-black bg-white border border-slate-200 rounded-lg px-2 py-1 hover:bg-slate-50">{copied ? <><Check className="w-3.5 h-3.5 text-emerald-500" />Đã chép</> : <><Copy className="w-3.5 h-3.5" />Chép</>}</button>
+          <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50 rounded-2xl p-4 pr-16">{text}</div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 type Channel = {
   id: string; name: string; color: string; bg: string; icon: string; status: 'connect' | 'soon';
@@ -45,6 +106,8 @@ const QuangCaoDaKenh: React.FC = () => {
           </p>
         </div>
       </header>
+
+      <AdsAIPanel />
 
       {/* Google Ads — nổi bật */}
       <div className="bg-white rounded-[28px] border border-gray-100 shadow-sm overflow-hidden">
