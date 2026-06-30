@@ -1082,6 +1082,24 @@ class ApiService {
     if (!res.ok) throw new Error(`rag ${res.status}`);
     return res.json();
   }
+  public async videoRender(payload: { title: string; subtitle?: string; images: string[]; captions?: string[]; music?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/video/render`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`video ${res.status}`);
+    return res.json();
+  }
+  public async videoStatus(jobId: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/video/status/${jobId}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`video ${res.status}`);
+    return res.json();
+  }
+  public async videoBlobUrl(name: string): Promise<string> {
+    const res = await fetch(`${this.cdpBaseUrl}/video/file/${name}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`video file ${res.status}`);
+    return URL.createObjectURL(await res.blob());
+  }
   public async contentDraft(project: string, type: string, note: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/content/draft`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },

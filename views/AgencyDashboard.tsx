@@ -42,7 +42,7 @@ const AgencyDashboard: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) 
     { n: 'Giám đốc chiến lược', role: 'Lập kế hoạch chiến dịch theo dự án', icon: Brain, status: 'live', sec: 'content', metric: 'Lập kế hoạch (AI)' },
     { n: 'Copywriter', role: 'Viết nội dung bám tài liệu dự án', icon: FileText, status: 'live', sec: 'content', metric: 'Sinh content RAG' },
     { n: 'Designer', role: 'Banner / ảnh quảng cáo', icon: ImageIcon, status: 'locked', metric: 'Cần image-model' },
-    { n: 'Video editor', role: 'Kịch bản → reels giới thiệu', icon: Video, status: 'partial', sec: 'content', metric: 'Kịch bản video' },
+    { n: 'Video editor', role: 'Dựng video từ ảnh dự án thật', icon: Video, status: 'live', sec: 'content', metric: 'Video AI (OpenMontage)' },
     { n: 'Channel manager', role: 'Đăng / gửi đa kênh', icon: Share2, status: 'live', sec: 'channels', metric: `${k.zalo} kênh Zalo` },
     { n: 'Ads manager', role: 'Tạo + tối ưu quảng cáo trả phí', icon: Target, status: 'locked', sec: 'ads', metric: 'Cần token Google' },
     { n: 'Lead hunter', role: 'Săn lead FB/Gmaps → CDP', icon: Search, status: 'live', sec: 'channels', metric: `${k.jobs} việc cào` },

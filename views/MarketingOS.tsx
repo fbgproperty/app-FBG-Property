@@ -7,6 +7,7 @@ import { api } from '../services/apiService';
 import Marketing from './Marketing';
 import QuangCaoDaKenh from './QuangCaoDaKenh';
 import ContentFactory from './ContentFactory';
+import VideoFactory from './VideoFactory';
 import AutomationHub from './AutomationHub';
 import MarketingROI from './MarketingROI';
 import AgencyDashboard from './AgencyDashboard';
@@ -130,7 +131,7 @@ const MarketingOS: React.FC = () => {
         {sec === 'overview' && <AgencyDashboard onOpen={(s) => setSec(s as Sec)} />}
         {sec === 'ads' && <QuangCaoDaKenh />}
         {sec === 'channels' && <Marketing />}
-        {sec === 'content' && <ContentFactory />}
+        {sec === 'content' && <div className="space-y-5"><ContentFactory /><VideoFactory /></div>}
         {sec === 'automation' && <AutomationHub />}
         {sec === 'roi' && <MarketingROI />}
       </div>
