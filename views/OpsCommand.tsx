@@ -14,8 +14,14 @@ const OpsCommand: React.FC = () => {
   const [d, setD] = useState<any>({ kenh: 0, jobs: 0, duan: 0, listing: 0, khach: 0, lead: 0, vmUp: 0, vmDown: 0, vms: [] });
   const [loading, setLoading] = useState(true);
   const [brief, setBrief] = useState('');
+  const [briefTs, setBriefTs] = useState(0);
   const [gen, setGen] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    // Tự tải bản tin Hermes mới nhất (cron sinh mỗi sáng)
+    api.opsBriefLatest().then((r) => { if (r?.text) { setBrief(r.text); setBriefTs(r.ts || 0); } }).catch(() => { /* */ });
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -125,7 +131,9 @@ const OpsCommand: React.FC = () => {
 
       <div className="bg-white rounded-2xl border border-slate-100 p-5">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
-          <div className="flex items-center gap-2"><Bot className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Bản tin vận hành — Hermes</span></div>
+          <div className="flex items-center gap-2"><Bot className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Bản tin vận hành — Hermes</span>
+            {briefTs > 0 && <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Tự động · {new Date(briefTs * 1000).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}</span>}
+          </div>
           <button onClick={genBrief} disabled={gen || loading} className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-60">
             {gen ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Tạo bản tin vận hành
           </button>
@@ -135,7 +143,7 @@ const OpsCommand: React.FC = () => {
               <button onClick={copy} className="absolute top-2 right-2 inline-flex items-center gap-1 text-[11px] font-black bg-white border border-slate-200 rounded-lg px-2 py-1 hover:bg-slate-50">{copied ? <><Check className="w-3.5 h-3.5 text-emerald-500" />Đã chép</> : <><Copy className="w-3.5 h-3.5" />Chép</>}</button>
               <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50 rounded-xl p-4 pr-16">{brief}</div>
             </div>
-          : <p className="text-[12px] text-slate-400">Hermes tổng hợp 3 phòng + hạ tầng → tình hình, điểm nghẽn, 3-5 ưu tiên hôm nay (giao phòng nào) + cảnh báo. Sẽ tự gửi CEO mỗi sáng khi bật cron.</p>}
+          : <p className="text-[12px] text-slate-400">Hermes tự sinh bản tin <b>mỗi 7h sáng</b> (tình hình 3 phòng · điểm nghẽn · 3-5 ưu tiên + giao phòng · cảnh báo). Bấm nút để tạo ngay bản tin mới.</p>}
       </div>
     </div>
   );
