@@ -74,6 +74,25 @@ const OpsCommand: React.FC = () => {
         </div>
       </div>
 
+      <div className="bg-white rounded-2xl border border-slate-100 p-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider pl-1 pr-1">Mở nhanh OS</span>
+          {[
+            { n: 'Sàn BĐS', to: '/san-bds', on: true },
+            { n: 'Marketing', to: '/marketing', on: true },
+            { n: 'Kinh doanh', to: '/kinh-doanh', on: true },
+            { n: 'Vận hành', to: '/van-hanh', on: true },
+            { n: 'Công nghệ', to: '/billing', on: true },
+            { n: 'Báo cáo', to: '', on: false },
+          ].map(x => (
+            <button key={x.n} disabled={!x.on} onClick={() => x.on && nav(x.to)}
+              className={`text-xs font-black px-3 py-1.5 rounded-xl transition ${x.on ? 'bg-slate-50 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700' : 'bg-slate-50 text-slate-300 cursor-default'}`}>
+              {x.n}{!x.on && ' · sắp có'}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div>
         <h3 className="font-black text-slate-900 mb-3">3 phòng AI — bấm để mở</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

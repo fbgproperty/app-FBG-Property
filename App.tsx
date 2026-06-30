@@ -15,6 +15,7 @@ import MarketingOS from './views/MarketingOS';
 import RealEstateOS from './views/RealEstateOS';
 import BusinessOS from './views/BusinessOS';
 import OperationsOS from './views/OperationsOS';
+import AssistantOS from './views/AssistantOS';
 import Billing from './views/Billing';
 import Deployment from './views/Deployment';
 import Login from './views/Login';
@@ -90,7 +91,7 @@ const App: React.FC = () => {
               <Route path="/org" element={<OrgChart />} />
 
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/tro-ly-ai" element={<TroLyAI />} />
+              <Route path="/tro-ly-ai" element={<AssistantOS />} />
               <Route path="/bat-dong-san/du-an-bds" element={<Projects />} />
               <Route path="/projects/:id" element={<ProjectDetail />} />
               <Route path="/bat-dong-san/nha-can-ho" element={<HousesApartments />} />

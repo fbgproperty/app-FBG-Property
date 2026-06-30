@@ -64,7 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 
   const navItems = [
     { to: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-    { to: '/tro-ly-ai', label: 'Trợ lý AI', icon: Sparkles },
+    { to: '/tro-ly-ai', label: 'Trợ lý', icon: Sparkles },
     { to: '/san-bds', label: 'Bất động sản', icon: Building2 },
     { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket },
     { to: '/my-customers', label: 'Khách của tôi', icon: Target },
