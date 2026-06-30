@@ -1112,6 +1112,24 @@ class ApiService {
     if (!res.ok) throw new Error(`task update ${res.status}`);
     return res.json();
   }
+  private userEmail(): string {
+    try { return (JSON.parse(localStorage.getItem('fbg_user') || '{}').email || '').toLowerCase(); } catch { return ''; }
+  }
+  /** Lead của ERP, CÔ LẬP theo người đăng nhập (sale chỉ thấy lead_owner = email mình; admin info@ thấy hết). */
+  public async erpLeads(params: { limit?: number; status?: string; q?: string } = {}): Promise<{ items: any[]; total: number; scoped: boolean; owner: string }> {
+    const qs = new URLSearchParams();
+    if (params.limit) qs.set('limit', String(params.limit));
+    if (params.status) qs.set('status', params.status);
+    if (params.q) qs.set('q', params.q);
+    const res = await fetch(`${this.cdpBaseUrl}/ops/leads?${qs.toString()}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`leads ${res.status}`);
+    return res.json();
+  }
+  public async erpMySummary(): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/my-summary`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`summary ${res.status}`);
+    return res.json();
+  }
   public async opsBrief(stats: any, period?: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/brief`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },

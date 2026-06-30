@@ -1,0 +1,18 @@
+{
+  "name": "FBG Property — Quản trị BĐS bằng AI",
+  "short_name": "FBG Property",
+  "description": "Hệ điều hành doanh nghiệp bất động sản vận hành toàn diện bằng AI — Hermes + đội chuyên viên AI cho từng nhân sự.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "categories": ["business", "productivity"],
+  "lang": "vi",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

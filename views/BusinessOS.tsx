@@ -4,11 +4,13 @@ import BusinessAgency from './BusinessAgency';
 import NextActionPanel from './NextActionPanel';
 import SalesReport from './SalesReport';
 import CDP from './CDP';
+import MyLeads from './MyLeads';
 
-type Sec = 'overview' | 'customers' | 'action' | 'report';
+type Sec = 'overview' | 'mine' | 'customers' | 'action' | 'report';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
-  { id: 'customers', label: 'Khách hàng', icon: Users },
+  { id: 'mine', label: 'Khách của tôi', icon: Users },
+  { id: 'customers', label: 'Tất cả khách (CDP)', icon: Users },
   { id: 'action', label: 'Hành động AI', icon: Zap },
   { id: 'report', label: 'Báo cáo kinh doanh', icon: BarChart3 },
 ];
@@ -38,6 +40,7 @@ const BusinessOS: React.FC = () => {
 
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <BusinessAgency onOpen={(s) => setSec(s as Sec)} />}
+        {sec === 'mine' && <MyLeads />}
         {sec === 'customers' && <CDP />}
         {sec === 'action' && <NextActionPanel />}
         {sec === 'report' && <SalesReport />}
