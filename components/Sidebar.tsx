@@ -67,7 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/san-bds', label: 'Bất động sản', icon: Building2 },
     { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket },
     { to: '/my-customers', label: 'Khách của tôi', icon: Target },
-    { to: '/cdp', label: 'Danh sách khách hàng', icon: Users },
+    { to: '/kinh-doanh', label: 'Kinh doanh', icon: Briefcase },
     { to: '/team', label: 'Đội ngũ AI & Tổ chức', icon: Bot },
     { to: '/marketing', label: 'Marketing', icon: Megaphone },
     { to: '/billing', label: 'Hạ tầng & Chi phí', icon: CreditCard },

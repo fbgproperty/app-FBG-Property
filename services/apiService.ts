@@ -1090,6 +1090,30 @@ class ApiService {
     if (!res.ok) throw new Error(`image ${res.status}`);
     return res.json();
   }
+  public async salesNextAction(payload: { name: string; phone?: string; stage?: string; note?: string; project?: string; history?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/nextaction`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`nextaction ${res.status}`);
+    return res.json();
+  }
+  public async salesPlaybook(payload: { stage: string; project?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/playbook`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`playbook ${res.status}`);
+    return res.json();
+  }
+  public async salesReport(stats: any, period?: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/report`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stats, period: period || 'tuần này' }),
+    });
+    if (!res.ok) throw new Error(`sales report ${res.status}`);
+    return res.json();
+  }
   public async estateSalePlan(payload: { project: string; units?: string; price?: string; target?: string }): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/estate/saleplan`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },

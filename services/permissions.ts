@@ -34,6 +34,7 @@ export const canAccess = (route: string, role: string = getRole()): boolean => {
   if (route === '/team' || route.startsWith('/team/')) return true; // hub gộp: ai cũng vào được, nội dung con tự lọc
   if (route === '/marketing') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
   if (route === '/san-bds') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
+  if (route === '/kinh-doanh') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
   return p.some((r) => route === r || route.startsWith(r + '/'));
 };
 
