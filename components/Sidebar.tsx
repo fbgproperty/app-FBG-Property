@@ -65,6 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
     { to: '/tro-ly-ai', label: 'Trợ lý AI', icon: Sparkles },
     { to: '/bat-dong-san', label: 'Bất động sản', icon: Building2, hasSub: true, subState: isProjectsOpen, setSub: setIsProjectsOpen, subItems: realEstateSubMenus, prefix: '/bat-dong-san' },
+    { to: '/san-bds', label: 'Sàn BĐS AI', icon: Sparkles },
     { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket },
     { to: '/my-customers', label: 'Khách của tôi', icon: Target },
     { to: '/cdp', label: 'Danh sách khách hàng', icon: Users },
