@@ -54,10 +54,10 @@ const Overview: React.FC = () => {
     { label: 'Khách trong CDP', val: k.cdp, icon: Users, color: 'emerald' },
   ];
   const FLOWS = [
-    { t: 'Content Factory', d: 'Hermes + RAG sinh bài/caption/kịch bản theo dự án → duyệt → đăng đa kênh', s: 'Đang phát triển (GĐ B)' },
+    { t: 'Content Factory', d: 'Trợ lý AI + RAG sinh bài/caption/kịch bản theo dự án → duyệt → đăng đa kênh', s: 'Đang phát triển (GĐ B)' },
     { t: 'Lead Engine', d: 'Cào lead → CDP → AI chấm điểm → giao 1 sale → Zalo nurture → ERP deal', s: 'Một phần đã chạy' },
     { t: 'Ad Optimizer', d: 'Kéo số liệu Ads → AI tối ưu ngân sách + cảnh báo', s: 'Chờ token Google (GĐ D)' },
-    { t: 'Báo cáo ROI', d: 'Hermes tổng hợp chi phí marketing ↔ doanh thu deal mỗi sáng', s: 'GĐ E' },
+    { t: 'Báo cáo ROI', d: 'Trợ lý AI tổng hợp chi phí marketing ↔ doanh thu deal mỗi sáng', s: 'GĐ E' },
   ];
   const C: Record<string, string> = { sky: 'bg-sky-500', blue: 'bg-blue-600', fuchsia: 'bg-fuchsia-600', emerald: 'bg-emerald-600' };
   return (
@@ -74,8 +74,8 @@ const Overview: React.FC = () => {
         </div>
       )}
       <div className="bg-gradient-to-br from-indigo-600 to-fuchsia-600 rounded-3xl p-6 text-white">
-        <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Điều phối bởi Hermes</span></div>
-        <p className="text-sm opacity-90">Hermes lập kế hoạch chiến dịch + giao việc + báo cáo, nối n8n · CDP · ERP · RAG · mem0 để tự động hoá. Mọi nội dung/quảng cáo/tin gửi khách <b>cần người duyệt</b> trước khi ra ngoài.</p>
+        <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Điều phối bởi Trợ lý AI</span></div>
+        <p className="text-sm opacity-90">Trợ lý AI lập kế hoạch chiến dịch + giao việc + báo cáo, nối Tự động hoá · CDP · ERP · RAG · Bộ nhớ AI để tự động hoá. Mọi nội dung/quảng cáo/tin gửi khách <b>cần người duyệt</b> trước khi ra ngoài.</p>
       </div>
       <div>
         <h3 className="font-black text-slate-900 mb-3 flex items-center gap-2"><Sparkles className="w-5 h-5 text-fuchsia-600" /> 4 luồng tự động hoá lõi</h3>

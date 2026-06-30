@@ -32,7 +32,7 @@ const BusinessAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) =
   const AGENTS: { n: string; role: string; icon: any; status: St; sec?: string; metric: string }[] = [
     { n: 'Giám đốc kinh doanh', role: 'Tổng hợp pipeline, mục tiêu doanh số', icon: Crown, status: 'live', sec: 'report', metric: 'Báo cáo & dự báo' },
     { n: 'Lead scorer', role: 'Chấm điểm tiềm năng từng khách', icon: Gauge, status: 'live', sec: 'customers', metric: 'AI score (đã có)' },
-    { n: 'Khách 360', role: 'Hồ sơ 360° + hành vi + trí nhớ', icon: UserCircle, status: 'live', sec: 'customers', metric: 'Profile + mem0' },
+    { n: 'Khách 360', role: 'Hồ sơ 360° + hành vi + trí nhớ', icon: UserCircle, status: 'live', sec: 'customers', metric: 'Profile + Bộ nhớ AI' },
     { n: 'Next-best-action', role: 'Hành động kế tiếp + tin nhắn/khách', icon: Zap, status: 'live', sec: 'action', metric: 'Gợi ý hành động' },
     { n: 'Nurture strategist', role: 'Kịch bản chăm sóc theo giai đoạn', icon: HeartHandshake, status: 'live', sec: 'action', metric: 'Playbook AI' },
     { n: 'Sale matcher', role: 'Phân khách ↔ sale phù hợp', icon: Users2, status: 'partial', sec: 'customers', metric: 'Đã có khớp' },
@@ -54,7 +54,7 @@ const BusinessAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) =
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-emerald-700 to-indigo-600 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><ShieldCheck className="w-5 h-5" /><span className="font-black">Phòng Kinh doanh tự trị bằng AI</span></div>
-        <p className="text-sm opacity-90">Đội <b>10 chuyên viên AI</b> vận hành pipeline — chấm điểm, hồ sơ 360, phân khách, chăm sóc, hành động kế tiếp, dự báo, báo cáo — do <b>Hermes</b> chỉ huy, nối CDP·ERP·RAG·mem0. Bạn chỉ <b>chốt deal</b>.</p>
+        <p className="text-sm opacity-90">Đội <b>10 chuyên viên AI</b> vận hành pipeline — chấm điểm, hồ sơ 360, phân khách, chăm sóc, hành động kế tiếp, dự báo, báo cáo — do <b>Trợ lý AI</b> chỉ huy, nối CDP·ERP·RAG·Bộ nhớ AI. Bạn chỉ <b>chốt deal</b>.</p>
       </div>
 
       {loading ? <div className="flex justify-center py-6 text-indigo-600"><Loader2 className="w-7 h-7 animate-spin" /></div> : (

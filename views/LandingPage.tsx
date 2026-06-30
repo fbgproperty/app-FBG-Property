@@ -6,20 +6,20 @@ import {
 } from 'lucide-react';
 
 const OS = [
-  { icon: Bot, name: 'Trợ lý — Hermes', d: 'Bộ não AI chỉ huy toàn bộ, ra lệnh bằng hội thoại', c: 'from-indigo-600 to-violet-600' },
+  { icon: Bot, name: 'Trợ lý AI', d: 'Bộ não AI chỉ huy toàn bộ, ra lệnh bằng hội thoại', c: 'from-indigo-600 to-violet-600' },
   { icon: Building2, name: 'Sàn Bất động sản', d: 'Rổ hàng · kế hoạch bán · nghiên cứu thị trường · đăng tin', c: 'from-indigo-600 to-blue-600' },
   { icon: Megaphone, name: 'Marketing', d: 'Content · ảnh · video · quảng cáo · đa kênh · trực inbox 24/7', c: 'from-fuchsia-600 to-pink-600' },
   { icon: Briefcase, name: 'Kinh doanh', d: 'Khách 360 · chấm điểm · hành động kế tiếp · dự báo', c: 'from-emerald-600 to-teal-600' },
-  { icon: Cpu, name: 'Vận hành', d: 'Công việc ERP · tự động hoá n8n · đội ngũ · tổ chức', c: 'from-slate-700 to-slate-900' },
+  { icon: Cpu, name: 'Vận hành', d: 'Công việc ERP · tự động hoá · đội ngũ · tổ chức', c: 'from-slate-700 to-slate-900' },
   { icon: ShieldCheck, name: 'Công nghệ', d: 'Hạ tầng · chi phí · người dùng · phân quyền', c: 'from-slate-600 to-gray-700' },
-  { icon: BarChart3, name: 'Báo cáo', d: 'Tổng hợp toàn hệ thống do Hermes soạn', c: 'from-indigo-700 to-slate-900' },
+  { icon: BarChart3, name: 'Báo cáo', d: 'Tổng hợp toàn hệ thống do Trợ lý AI soạn', c: 'from-indigo-700 to-slate-900' },
 ];
 
 const VALUES = [
   { icon: Brain, t: 'Mỗi nhân sự có một đội AI riêng', d: '30+ chuyên viên AI chia 3 phòng (Marketing · BĐS · Kinh doanh) hỗ trợ từng người tự động.' },
   { icon: MessageSquare, t: 'Bám tài liệu thật của dự án', d: 'Mọi nội dung, tư vấn, kế hoạch đều grounded RAG từ tài liệu chủ đầu tư — không bịa.' },
   { icon: TrendingUp, t: 'Tăng hiệu quả, giảm việc tay', d: 'AI soạn content, dựng video, chấm điểm khách, gợi ý hành động — nhân sự chỉ duyệt & chốt deal.' },
-  { icon: Zap, t: 'Hermes điều phối tự trị', d: 'Một bộ não AI nối ERP · CDP · RAG · mem0 · Website · Zalo — vận hành xuyên suốt.' },
+  { icon: Zap, t: 'Trợ lý AI điều phối tự trị', d: 'Một bộ não AI nối ERP · CDP · RAG · Bộ nhớ AI · Website · Zalo — vận hành xuyên suốt.' },
 ];
 
 const STATS = [
@@ -56,7 +56,7 @@ const LandingPage: React.FC = () => {
           Bất động sản FBG Property<br /><span className="bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">nâng hiệu quả nhân sự bằng AI</span>
         </h1>
         <p className="text-slate-300 text-lg mt-6 max-w-2xl mx-auto leading-relaxed">
-          Một hệ điều hành doanh nghiệp do <b className="text-white">Hermes</b> chỉ huy: 30+ chuyên viên AI làm marketing, bán hàng, vận hành — để mỗi nhân sự FBG làm việc như có cả một đội ngũ phía sau.
+          Một hệ điều hành doanh nghiệp do <b className="text-white">Trợ lý AI</b> chỉ huy: 30+ chuyên viên AI làm marketing, bán hàng, vận hành — để mỗi nhân sự FBG làm việc như có cả một đội ngũ phía sau.
         </p>
         <div className="flex items-center justify-center gap-3 mt-9">
           <Link to="/login" className="inline-flex items-center gap-2 px-7 py-3.5 bg-gradient-to-r from-indigo-600 to-fuchsia-600 rounded-xl font-black hover:opacity-90 transition shadow-lg shadow-indigo-600/30">
@@ -97,7 +97,7 @@ const LandingPage: React.FC = () => {
       <section id="he-thong" className="px-6 md:px-12 py-16 max-w-6xl mx-auto">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-black">7 Hệ điều hành — một doanh nghiệp AI</h2>
-          <p className="text-slate-400 mt-3">Mỗi phòng ban là một OS do Hermes điều phối, nối liền dữ liệu thật.</p>
+          <p className="text-slate-400 mt-3">Mỗi phòng ban là một OS do Trợ lý AI điều phối, nối liền dữ liệu thật.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {OS.map(o => {

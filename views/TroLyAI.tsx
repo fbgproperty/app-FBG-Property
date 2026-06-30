@@ -44,7 +44,7 @@ const TroLyAI: React.FC = () => {
   };
   const approve = async (email: string) => {
     const slug = (slugInputs[email] || '').trim();
-    if (!slug) { alert('Nhập slug Hermes (vd: hub2)'); return; }
+    if (!slug) { alert('Nhập slug Trợ lý AI (vd: hub2)'); return; }
     try { await api.assistantApprove(email, slug); await loadMe(); } catch (e: any) { alert(e?.message); }
   };
 
@@ -55,7 +55,7 @@ const TroLyAI: React.FC = () => {
     setInput(''); setLoading(true);
     try {
       if (me?.hasAgent && user.email) {
-        // Ra lệnh thẳng cho Hermes Agent cá nhân (như Telegram) — đủ công cụ ERP/CDP/Sale ảo/Chatwoot
+        // Ra lệnh thẳng cho Trợ lý AI cá nhân (như Telegram) — đủ công cụ ERP/CDP/Sale ảo/Tổng đài chat
         const res = await api.assistantChat(user.email, q);
         setMessages((m) => [...m, { role: 'ai', text: res.reply || '(trợ lý không trả lời)' }]);
       } else {
@@ -75,21 +75,21 @@ const TroLyAI: React.FC = () => {
         <div>
           <h2 className="text-2xl font-black text-gray-900 leading-none">Trợ lý AI</h2>
           <p className="text-[11px] font-bold text-indigo-500 uppercase tracking-widest mt-1.5 flex items-center gap-1">
-            <Sparkles className="w-3 h-3" /> Hermes Agent cá nhân · đủ công cụ ERP/CDP/Sale ảo/Chatwoot
+            <Sparkles className="w-3 h-3" /> Trợ lý AI cá nhân · đủ công cụ ERP/CDP/Sale ảo/Tổng đài chat
           </p>
         </div>
         {me?.hasAgent && (
           <a href={me.url} target="_blank" rel="noreferrer" className="ml-auto inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-2xl text-sm font-black shadow-lg hover:bg-indigo-700">
-            <ExternalLink className="w-4 h-4" /> Mở Hermes Agent đầy đủ
+            <ExternalLink className="w-4 h-4" /> Mở Trợ lý AI đầy đủ
           </a>
         )}
       </header>
 
-      {/* Trạng thái đồng bộ Hermes */}
+      {/* Trạng thái đồng bộ Trợ lý AI */}
       {me && me.hasAgent && (
         <div className="mb-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <p className="text-sm font-bold text-emerald-800">Đã kết nối Hermes Agent <span className="font-black">{me.slug}</span> — gõ lệnh ngay bên dưới là <b>ra lệnh thẳng cho Hermes</b> (đủ công cụ ERP/CDP/Sale ảo/Chatwoot), giống hệt điều khiển qua Telegram.</p>
+          <p className="text-sm font-bold text-emerald-800">Đã kết nối Trợ lý AI <span className="font-black">{me.slug}</span> — gõ lệnh ngay bên dưới là <b>ra lệnh thẳng cho Trợ lý AI</b> (đủ công cụ ERP/CDP/Sale ảo/Tổng đài chat), giống hệt điều khiển qua Telegram.</p>
         </div>
       )}
       {me && !me.hasAgent && (
@@ -98,7 +98,7 @@ const TroLyAI: React.FC = () => {
             <p className="text-sm font-bold text-amber-800 flex items-center gap-2"><Clock className="w-5 h-5" /> Yêu cầu Trợ lý AI riêng của bạn đang <b>chờ quản trị duyệt</b>. Tạm thời dùng trợ lý chung bên dưới.</p>
           ) : (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <p className="text-sm font-bold text-amber-800">Bạn chưa có <b>Trợ lý AI Hermes riêng</b>. Đăng ký để được cấp một trợ lý cá nhân (đồng bộ ERP/CDP/Sale ảo).</p>
+              <p className="text-sm font-bold text-amber-800">Bạn chưa có <b>Trợ lý AI riêng</b>. Đăng ký để được cấp một trợ lý cá nhân (đồng bộ ERP/CDP/Sale ảo).</p>
               <button onClick={register} disabled={registering || !user.email} className="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-xl font-black text-sm hover:bg-amber-700 disabled:opacity-60 whitespace-nowrap">
                 {registering ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />} Đăng ký để được duyệt
               </button>
@@ -114,7 +114,7 @@ const TroLyAI: React.FC = () => {
             {requests.map((r) => (
               <div key={r.email} className="flex items-center gap-2 text-sm">
                 <span className="font-bold text-slate-700 flex-1 truncate">{r.name || r.email} <span className="text-slate-400">({r.email})</span></span>
-                <input value={slugInputs[r.email] || ''} onChange={(e) => setSlugInputs((s) => ({ ...s, [r.email]: e.target.value }))} placeholder="slug Hermes" className="w-32 px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold" />
+                <input value={slugInputs[r.email] || ''} onChange={(e) => setSlugInputs((s) => ({ ...s, [r.email]: e.target.value }))} placeholder="slug Trợ lý AI" className="w-32 px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold" />
                 <button onClick={() => approve(r.email)} className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-black text-xs hover:bg-indigo-700">Duyệt</button>
               </div>
             ))}
@@ -126,7 +126,7 @@ const TroLyAI: React.FC = () => {
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-center py-10">
             <div className="w-16 h-16 bg-indigo-50 rounded-3xl flex items-center justify-center mb-4"><Bot className="w-8 h-8 text-indigo-600" /></div>
-            <h3 className="text-lg font-black text-gray-900">Chào {user.name || 'Sếp'}! Tôi là Hermes Agent của bạn.</h3>
+            <h3 className="text-lg font-black text-gray-900">Chào {user.name || 'Sếp'}! Tôi là Trợ lý AI của bạn.</h3>
             <p className="text-gray-500 text-sm font-medium mb-6">Gõ lệnh như trên Telegram: hỏi dự án, khách hàng, tạo sale ảo, xem hội thoại… (agent có thể mất 10–30s khi dùng công cụ).</p>
             <div className="grid gap-2 w-full max-w-md">
               {SUGGEST.map((s, i) => (

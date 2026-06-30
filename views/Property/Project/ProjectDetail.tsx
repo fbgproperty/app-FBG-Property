@@ -186,7 +186,7 @@ const ProjectDetail: React.FC = () => {
         )}
       </div>
 
-      {/* Hỏi AI tài liệu dự án (RAGFlow) */}
+      {/* Hỏi AI tài liệu dự án (Kho tài liệu AI) */}
       <div className="bg-violet-50 rounded-2xl border border-violet-100 p-4">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="w-4 h-4 text-violet-600" />

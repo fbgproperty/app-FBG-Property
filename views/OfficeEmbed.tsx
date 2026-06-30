@@ -13,7 +13,7 @@ const OfficeEmbed: React.FC = () => {
       {!loaded && !err && (
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white/80 z-10">
           <Loader2 className="w-9 h-9 animate-spin mb-3" />
-          <span className="text-sm font-bold">Đang tải Văn phòng 3D (Claw3D) · nối OpenClaw...</span>
+          <span className="text-sm font-bold">Đang tải Văn phòng 3D · nối Trung tâm giám sát...</span>
         </div>
       )}
       {err ? (
@@ -24,7 +24,7 @@ const OfficeEmbed: React.FC = () => {
       ) : (
         <iframe
           src={OFFICE_URL}
-          title="Office FBG — Văn phòng 3D Claw3D"
+          title="Office FBG — Văn phòng 3D"
           className="w-full h-full border-0"
           allow="fullscreen; xr-spatial-tracking; microphone; clipboard-write"
           onLoad={() => setLoaded(true)}

@@ -102,7 +102,7 @@ const SaleAoPanel: React.FC = () => {
           <Loader2 className="w-4 h-4 animate-spin" /> Đang tải sale ảo…
         </div>
       ) : agents.length === 0 ? (
-        <p className="text-slate-400 text-sm font-semibold py-6 text-center">Chưa có sale ảo nào. Bấm "Tạo sale ảo" hoặc nhờ Hermes tạo qua Telegram.</p>
+        <p className="text-slate-400 text-sm font-semibold py-6 text-center">Chưa có sale ảo nào. Bấm "Tạo sale ảo" hoặc nhờ Trợ lý AI tạo qua Telegram.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {agents.map(a => (

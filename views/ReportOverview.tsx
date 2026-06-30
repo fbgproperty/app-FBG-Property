@@ -71,16 +71,16 @@ const ReportOverview: React.FC = () => {
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-indigo-700 to-slate-900 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Báo cáo tổng hợp toàn hệ thống</span></div>
-        <p className="text-sm opacity-90">Gom số liệu thật từ 3 phòng AI + vận hành + hạ tầng. Hermes viết báo cáo tổng cho CEO.</p>
+        <p className="text-sm opacity-90">Gom số liệu thật từ 3 phòng AI + vận hành + hạ tầng. Trợ lý AI viết báo cáo tổng cho CEO.</p>
       </div>
 
       <a href="https://openclaw.fbgproperty.vn" target="_blank" rel="noreferrer" className="block bg-gradient-to-br from-rose-600 to-orange-500 rounded-3xl p-6 text-white hover:opacity-95 transition">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
-            <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">OpenClaw — Trung tâm giám sát hệ thống</span></div>
-            <p className="text-sm opacity-90 max-w-2xl">OpenClaw theo dõi toàn bộ Office FBG + nền tảng, tổng hợp báo cáo giám sát toàn hệ thống. Mở trung tâm OpenClaw để xem giám sát chi tiết.</p>
+            <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Trung tâm giám sát hệ thống</span></div>
+            <p className="text-sm opacity-90 max-w-2xl">Trung tâm giám sát theo dõi toàn bộ Office FBG + nền tảng, tổng hợp báo cáo giám sát toàn hệ thống. Mở trung tâm giám sát để xem giám sát chi tiết.</p>
           </div>
-          <span className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-rose-600 rounded-xl font-black text-sm shrink-0">Mở OpenClaw →</span>
+          <span className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-rose-600 rounded-xl font-black text-sm shrink-0">Mở Trung tâm giám sát →</span>
         </div>
       </a>
 
@@ -98,7 +98,7 @@ const ReportOverview: React.FC = () => {
 
       <div className="bg-white rounded-2xl border border-slate-100 p-5">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
-          <div className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Báo cáo tổng — Hermes</span></div>
+          <div className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Báo cáo tổng — Trợ lý AI</span></div>
           <button onClick={genReport} disabled={gen || loading} className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-60">
             {gen ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Tạo báo cáo tổng
           </button>

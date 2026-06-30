@@ -19,14 +19,14 @@ const PIPELINES = [
       STEP(FileText, 'AI sinh nội dung (RAG)', true),
       STEP(CheckCircle2, 'Duyệt', false),
       STEP(Megaphone, 'Đăng FB/Zalo/TikTok', false),
-      STEP(Clock, 'Lên lịch (n8n)', false),
+      STEP(Clock, 'Lên lịch (Tự động hoá)', false),
     ],
   },
   {
-    name: 'Báo cáo ROI', desc: 'Tổng hợp chi phí ↔ doanh thu mỗi sáng, Hermes gửi Anh Duy.',
+    name: 'Báo cáo ROI', desc: 'Tổng hợp chi phí ↔ doanh thu mỗi sáng, Trợ lý AI gửi Anh Duy.',
     steps: [
       STEP(BarChart3, 'Gom CDP + ERP + Ads', false),
-      STEP(Sparkles, 'Hermes tổng hợp', false),
+      STEP(Sparkles, 'Trợ lý AI tổng hợp', false),
       STEP(MessageCircle, 'Gửi Telegram + app', false),
     ],
   },
@@ -35,8 +35,8 @@ const PIPELINES = [
 const AutomationHub: React.FC = () => (
   <div className="space-y-6">
     <div className="flex items-center justify-between flex-wrap gap-3">
-      <div className="flex items-center gap-2"><Workflow className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Tự động hoá (n8n + Hermes)</span></div>
-      <a href="https://n8n.fbgproperty.vn" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700"><ExternalLink className="w-4 h-4" /> Mở n8n</a>
+      <div className="flex items-center gap-2"><Workflow className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Tự động hoá (Trợ lý AI điều phối)</span></div>
+      <a href="https://n8n.fbgproperty.vn" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700"><ExternalLink className="w-4 h-4" /> Mở công cụ tự động hoá</a>
     </div>
 
     <div className="space-y-4">
@@ -63,7 +63,7 @@ const AutomationHub: React.FC = () => (
 
     <div className="flex items-start gap-2 text-[12px] text-slate-500 bg-amber-50 rounded-xl px-4 py-3 border border-amber-100">
       <Clock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-      <span>Các bước <b>chưa chạy</b> (AI chấm điểm, giao sale, duyệt, đăng đa kênh, báo cáo) sẽ được nối thành workflow tự động trên <b>n8n.fbgproperty.vn</b> + cron Hermes — cần bật ở backend (gcloud + n8n credentials). Bước "đã chạy" hiện làm thủ công trong app.</span>
+      <span>Các bước <b>chưa chạy</b> (AI chấm điểm, giao sale, duyệt, đăng đa kênh, báo cáo) sẽ được nối thành quy trình tự động trên <b>công cụ tự động hoá</b> + lịch tự trị của Trợ lý AI — cần bật ở máy chủ (cấu hình + thông tin kết nối). Bước "đã chạy" hiện làm thủ công trong app.</span>
     </div>
   </div>
 );

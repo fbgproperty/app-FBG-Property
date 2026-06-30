@@ -45,7 +45,7 @@ const ErpTasks: React.FC = () => {
     <div className="space-y-4">
       <div className="bg-gradient-to-br from-slate-800 to-indigo-700 rounded-3xl p-5 text-white">
         <div className="flex items-center gap-2 mb-1"><ClipboardCheck className="w-5 h-5" /><span className="font-black">Công việc (ERP)</span></div>
-        <p className="text-sm opacity-90">Đồng bộ thật từ ERPNext — {loading ? '...' : total} công việc theo dự án/người phụ trách. Hermes sẽ tự giao & nhắc deadline (cron).</p>
+        <p className="text-sm opacity-90">Đồng bộ thật từ ERPNext — {loading ? '...' : total} công việc theo dự án/người phụ trách. Trợ lý AI sẽ tự giao & nhắc deadline (cron).</p>
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">

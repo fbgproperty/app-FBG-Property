@@ -1130,7 +1130,7 @@ class ApiService {
     if (!res.ok) throw new Error(`summary ${res.status}`);
     return res.json();
   }
-  /** Việc Hermes tự sinh cho nhân sự — duyệt/từ chối; cô lập theo người đăng nhập. */
+  /** Việc Trợ lý AI tự sinh cho nhân sự — duyệt/từ chối; cô lập theo người đăng nhập. */
   public async opsWorklog(): Promise<{ items: any[] }> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/worklog`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
     if (!res.ok) throw new Error(`worklog ${res.status}`);
@@ -1702,7 +1702,7 @@ class ApiService {
     if (!res.ok) throw new Error(`match ${res.status}`);
     return res.json();
   }
-  // ===== Trợ lý AI: đồng bộ Hermes Agent + đăng ký =====
+  // ===== Trợ lý AI: đồng bộ Trợ lý AI Agent + đăng ký =====
   public async assistantMe(email: string): Promise<any> {
     return this.webApiGet(`/assistant/me?email=${encodeURIComponent(email)}`);
   }

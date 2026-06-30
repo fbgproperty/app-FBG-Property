@@ -9,7 +9,7 @@ import OrgChart from './OrgChart';
 type Sec = 'tasks' | 'automation' | 'agents' | 'org';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'tasks', label: 'Công việc (ERP)', icon: ClipboardCheck },
-  { id: 'automation', label: 'Tự động hoá (n8n)', icon: Workflow },
+  { id: 'automation', label: 'Tự động hoá', icon: Workflow },
   { id: 'agents', label: 'Đội ngũ AI', icon: Bot },
   { id: 'org', label: 'Tổ chức', icon: Network },
 ];
@@ -22,7 +22,7 @@ const OperationsOS: React.FC = () => {
         <div className="w-11 h-11 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg"><Cpu className="w-6 h-6" /></div>
         <div>
           <h2 className="text-2xl font-black text-slate-900 leading-none">Vận hành</h2>
-          <p className="text-sm text-slate-400 font-semibold mt-1">Công việc ERP · Tự động hoá n8n · Đội ngũ AI · Tổ chức</p>
+          <p className="text-sm text-slate-400 font-semibold mt-1">Công việc ERP · Tự động hoá · Đội ngũ AI · Tổ chức</p>
         </div>
       </header>
 

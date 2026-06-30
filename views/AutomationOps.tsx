@@ -24,7 +24,7 @@ const AutomationOps: React.FC = () => {
   }, []);
 
   const runNow = async () => {
-    if (!window.confirm('Chạy Autopilot ngay? Hermes sẽ đồng bộ dữ liệu, sinh bản tin và gửi cho 8 quản lý qua Telegram.')) return;
+    if (!window.confirm('Chạy Autopilot ngay? Trợ lý AI sẽ đồng bộ dữ liệu, sinh bản tin và gửi cho 8 quản lý qua Telegram.')) return;
     setRunning(true);
     try { await api.autopilotRun(); await loadAp(); } catch (e: any) { alert('Lỗi: ' + (e?.message || '')); }
     setRunning(false);
@@ -32,27 +32,27 @@ const AutomationOps: React.FC = () => {
 
   const SCHEDULE = [
     { t: '07:00', name: 'Autopilot — đồng bộ + bản tin + nhắc quá hạn → quản lý' },
-    { t: '07:30', name: 'Hermes sinh việc cho 24 nhân sự → duyệt qua Telegram' },
+    { t: '07:30', name: 'Trợ lý AI sinh việc cho 24 nhân sự → duyệt qua Telegram' },
     { t: '15:00', name: 'Nhắc việc quá hạn buổi chiều → quản lý' },
   ];
 
   return (
     <div className="space-y-4">
       <div className="bg-gradient-to-br from-fuchsia-700 to-indigo-600 rounded-3xl p-5 text-white">
-        <div className="flex items-center gap-2 mb-1"><Workflow className="w-5 h-5" /><span className="font-black">Tự động hoá — n8n & Jobs</span></div>
-        <p className="text-sm opacity-90">Hermes điều phối quy trình tự động qua n8n + các job nền (cào lead, đồng bộ). Quy trình phức tạp dựng trực quan trong n8n.</p>
+        <div className="flex items-center gap-2 mb-1"><Workflow className="w-5 h-5" /><span className="font-black">Tự động hoá & Jobs</span></div>
+        <p className="text-sm opacity-90">Trợ lý AI điều phối quy trình tự động qua công cụ tự động hoá + các job nền (cào lead, đồng bộ). Quy trình phức tạp dựng trực quan trong công cụ tự động hoá.</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-100 p-5 flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-fuchsia-50 flex items-center justify-center text-fuchsia-600"><Workflow className="w-6 h-6" /></div>
           <div>
-            <div className="font-black text-slate-900">n8n Automation</div>
-            <div className="text-[11px] text-slate-400 font-bold flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Engine đang chạy · n8n.fbgproperty.vn</div>
+            <div className="font-black text-slate-900">Tự động hoá</div>
+            <div className="text-[11px] text-slate-400 font-bold flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Engine đang chạy</div>
           </div>
         </div>
         <a href="https://n8n.fbgproperty.vn" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700">
-          <ExternalLink className="w-4 h-4" /> Mở n8n quản lý quy trình
+          <ExternalLink className="w-4 h-4" /> Mở công cụ tự động hoá quản lý quy trình
         </a>
       </div>
 
@@ -81,12 +81,12 @@ const AutomationOps: React.FC = () => {
 
       <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-5 text-white">
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-2"><Bot className="w-5 h-5" /><span className="font-black">Autopilot — Hermes COO tự trị mỗi ngày</span></div>
+          <div className="flex items-center gap-2"><Bot className="w-5 h-5" /><span className="font-black">Autopilot — Trợ lý điều hành AI tự trị mỗi ngày</span></div>
           <button onClick={runNow} disabled={running} className="inline-flex items-center gap-2 px-4 py-2 bg-white text-emerald-700 rounded-xl font-black text-sm hover:bg-emerald-50 disabled:opacity-60">
             {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Chạy ngay
           </button>
         </div>
-        <p className="text-sm opacity-90 mt-1">Hermes tự động đồng bộ dữ liệu, viết bản tin vận hành và nhắc việc quá hạn — gửi thẳng vào Telegram của 8 quản lý. Không cần bấm tay.</p>
+        <p className="text-sm opacity-90 mt-1">Trợ lý AI tự động đồng bộ dữ liệu, viết bản tin vận hành và nhắc việc quá hạn — gửi thẳng vào Telegram của 8 quản lý. Không cần bấm tay.</p>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-3">
           {[['Nhân sự', ap?.staff], ['Quản lý', ap?.managers], ['Việc hôm nay', ap?.worklog_today], ['Chờ duyệt', ap?.worklog_pending], ['Quá hạn', ap?.overdue]].map(([k, v]) => (
             <div key={String(k)} className="bg-white/15 rounded-xl px-3 py-2">

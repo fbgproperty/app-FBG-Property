@@ -86,8 +86,8 @@ const MarketingROI: React.FC = () => {
       </div>
 
       <div className="bg-gradient-to-br from-indigo-600 to-fuchsia-600 rounded-3xl p-6 text-white">
-        <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Báo cáo ROI hằng ngày — Hermes</span></div>
-        <p className="text-sm opacity-90">Khi đã nối đủ Ads (chi phí) + ERP (doanh thu), Hermes sẽ tổng hợp lead theo nguồn ↔ chi phí ↔ doanh thu deal từng dự án/kênh, tính ROI và gửi Anh Duy mỗi sáng (Telegram + app). <b>Cần</b>: token Ads + cron Hermes (bật ở backend).</p>
+        <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Báo cáo ROI hằng ngày — Trợ lý AI</span></div>
+        <p className="text-sm opacity-90">Khi đã nối đủ Ads (chi phí) + ERP (doanh thu), Trợ lý AI sẽ tổng hợp lead theo nguồn ↔ chi phí ↔ doanh thu deal từng dự án/kênh, tính ROI và gửi Anh Duy mỗi sáng (Telegram + app). <b>Cần</b>: token Ads + cron Trợ lý AI (bật ở backend).</p>
       </div>
     </div>
   );

@@ -63,7 +63,7 @@ const AgencyDashboard: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) 
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-indigo-600 to-fuchsia-600 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><ShieldCheck className="w-5 h-5" /><span className="font-black">Phòng Marketing AI của {name}</span></div>
-        <p className="text-sm opacity-90">Đội <b>10 chuyên viên AI</b> phục vụ riêng bạn — sản xuất nội dung, chạy kênh, săn lead, chăm khách, báo cáo — do <b>Hermes</b> chỉ huy, nối CDP·ERP·RAG·mem0. Bạn chỉ <b>duyệt + chốt deal</b>.</p>
+        <p className="text-sm opacity-90">Đội <b>10 chuyên viên AI</b> phục vụ riêng bạn — sản xuất nội dung, chạy kênh, săn lead, chăm khách, báo cáo — do <b>Trợ lý AI</b> chỉ huy, nối CDP·ERP·RAG·Bộ nhớ AI. Bạn chỉ <b>duyệt + chốt deal</b>.</p>
       </div>
 
       {loading ? <div className="flex justify-center py-6 text-indigo-600"><Loader2 className="w-7 h-7 animate-spin" /></div> : (

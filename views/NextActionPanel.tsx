@@ -61,7 +61,7 @@ const NextActionPanel: React.FC = () => {
     <div className="space-y-4">
       <div className="bg-white rounded-2xl border border-slate-100 p-5 space-y-4">
         <div className="flex items-center gap-2"><Zap className="w-5 h-5 text-amber-500" /><span className="font-black text-slate-900">Next-best-action — Hành động kế tiếp cho từng khách</span></div>
-        <p className="text-xs text-slate-400 -mt-2">AI đọc hồ sơ + trí nhớ (mem0 theo SĐT) + tài liệu dự án → đánh giá khách, đề xuất việc cần làm + tin nhắn mẫu sẵn gửi.</p>
+        <p className="text-xs text-slate-400 -mt-2">AI đọc hồ sơ + trí nhớ (Bộ nhớ AI theo SĐT) + tài liệu dự án → đánh giá khách, đề xuất việc cần làm + tin nhắn mẫu sẵn gửi.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <select value={cid} onChange={e => { setCid(e.target.value); setAction(''); }} className="p-2.5 rounded-xl border border-slate-200 text-sm">
             <option value="">— chọn khách —</option>

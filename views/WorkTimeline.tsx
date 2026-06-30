@@ -50,17 +50,17 @@ const WorkTimeline: React.FC = () => {
           <button onClick={load} className="text-slate-300 hover:text-slate-500"><RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /></button>
         </div>
         <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-sky-600 bg-sky-50 rounded-lg px-2.5 py-1.5">
-          <Send className="w-3.5 h-3.5" /> Hermes tự sinh việc · báo Telegram · duyệt/từ chối tại đây
+          <Send className="w-3.5 h-3.5" /> Trợ lý AI tự sinh việc · báo Telegram · duyệt/từ chối tại đây
         </div>
         <button onClick={generate} disabled={gen} className="mt-2 w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-xl font-black text-xs hover:bg-indigo-700 disabled:opacity-60">
-          {gen ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Hermes sinh việc {pending.length > 0 && `· ${pending.length} chờ duyệt`}
+          {gen ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Trợ lý AI sinh việc {pending.length > 0 && `· ${pending.length} chờ duyệt`}
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 pb-5">
         {err && <div className="text-[11px] text-amber-600 bg-amber-50 rounded-lg px-2.5 py-1.5 mb-2 font-bold">{err}</div>}
         {loading ? <div className="flex justify-center py-10 text-indigo-600"><Loader2 className="w-6 h-6 animate-spin" /></div> :
-          items.length === 0 ? <div className="text-center text-slate-400 text-xs py-8">Chưa có việc. Bấm <b>"Hermes sinh việc"</b> để Hermes đề xuất việc hôm nay.</div> : (
+          items.length === 0 ? <div className="text-center text-slate-400 text-xs py-8">Chưa có việc. Bấm <b>"Trợ lý AI sinh việc"</b> để Trợ lý AI đề xuất việc hôm nay.</div> : (
             <div className="relative pl-4">
               <div className="absolute left-[6px] top-1 bottom-1 w-0.5 bg-slate-100" />
               {items.map((it) => {
@@ -70,7 +70,7 @@ const WorkTimeline: React.FC = () => {
                 return (
                   <div key={it.id} className="relative mb-4 pl-3">
                     <div className="absolute -left-[10px] top-1 w-3 h-3 rounded-full border-2 border-white" style={{ background: c }} />
-                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider" style={{ color: c }}><Icon className="w-3 h-3" />{it.dept || 'Hermes'} · {ago(it.decidedAt || it.ts)}</div>
+                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider" style={{ color: c }}><Icon className="w-3 h-3" />{it.dept || 'Trợ lý AI'} · {ago(it.decidedAt || it.ts)}</div>
                     <div className="font-bold text-slate-800 text-[13px] leading-tight mt-0.5">{it.title}</div>
                     {it.desc && <div className="text-[11px] text-slate-400 mt-0.5">{it.desc}</div>}
                     {st === 'pending' ? (

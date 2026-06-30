@@ -6,7 +6,7 @@ import TroLyAI from './TroLyAI';
 type Sec = 'command' | 'chat';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'command', label: 'Chỉ huy', icon: LayoutDashboard },
-  { id: 'chat', label: 'Trò chuyện Hermes', icon: MessageSquare },
+  { id: 'chat', label: 'Trò chuyện Trợ lý AI', icon: MessageSquare },
 ];
 
 const AssistantOS: React.FC = () => {
@@ -16,7 +16,7 @@ const AssistantOS: React.FC = () => {
       <header className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg"><Sparkles className="w-6 h-6" /></div>
         <div>
-          <h2 className="text-2xl font-black text-slate-900 leading-none">Trợ lý — Hermes</h2>
+          <h2 className="text-2xl font-black text-slate-900 leading-none">Trợ lý AI</h2>
           <p className="text-sm text-slate-400 font-semibold mt-1">Bộ não chỉ huy toàn bộ các OS · ra lệnh trực tiếp bằng hội thoại</p>
         </div>
       </header>

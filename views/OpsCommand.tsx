@@ -21,7 +21,7 @@ const OpsCommand: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // Tự tải bản tin Hermes mới nhất (cron sinh mỗi sáng) + task quá hạn + trạng thái autopilot
+    // Tự tải bản tin Trợ lý AI mới nhất (cron sinh mỗi sáng) + task quá hạn + trạng thái autopilot
     api.opsBriefLatest().then((r) => { if (r?.text) { setBrief(r.text); setBriefTs(r.ts || 0); } }).catch(() => { /* */ });
     api.opsOverdue().then((r) => setOverdue(r?.total || 0)).catch(() => { /* */ });
     api.autopilotStatus().then((r) => setAp(r)).catch(() => { /* */ });
@@ -76,10 +76,10 @@ const OpsCommand: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-slate-900 to-indigo-700 rounded-3xl p-6 text-white">
-        <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Hermes — Giám đốc vận hành AI (COO)</span></div>
-        <p className="text-sm opacity-90">Điều phối <b>{ap?.staff ?? 24} nhân sự — mỗi người 1 trợ lý Hermes riêng</b> (chat · ERP · n8n) + 3 phòng chuyên viên AI + hạ tầng. Một màn hình thấy toàn bộ tổ chức đang chạy gì, ưu tiên gì.</p>
+        <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Trợ lý điều hành AI của FBG</span></div>
+        <p className="text-sm opacity-90">Điều phối <b>{ap?.staff ?? 24} nhân sự — mỗi người 1 trợ lý AI riêng</b> (chat · ERP · tự động hoá) + 3 phòng chuyên viên AI + hạ tầng. Một màn hình thấy toàn bộ tổ chức đang chạy gì, ưu tiên gì.</p>
         <div className="flex items-center gap-4 mt-3 text-xs font-bold">
-          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-300" /> {ap?.staff ?? 24} Hermes trực · {ap?.managers ?? 8} quản lý</span>
+          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-300" /> {ap?.staff ?? 24} trợ lý AI trực · {ap?.managers ?? 8} quản lý</span>
           <span className="inline-flex items-center gap-1.5"><Server className="w-4 h-4 text-sky-300" /> {loading ? '...' : `${d.vmUp} VM hoạt động`}</span>
           {(ap?.overdue ?? overdue) > 0 && <span className="inline-flex items-center gap-1.5 bg-rose-500/30 px-2 py-0.5 rounded-md"><AlertTriangle className="w-4 h-4 text-rose-200" /> {ap?.overdue ?? overdue} việc quá hạn</span>}
         </div>
@@ -136,7 +136,7 @@ const OpsCommand: React.FC = () => {
 
       <div className="bg-white rounded-2xl border border-slate-100 p-5">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
-          <div className="flex items-center gap-2"><Bot className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Bản tin vận hành — Hermes</span>
+          <div className="flex items-center gap-2"><Bot className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Bản tin vận hành — Trợ lý AI</span>
             {briefTs > 0 && <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Tự động · {new Date(briefTs * 1000).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}</span>}
           </div>
           <button onClick={genBrief} disabled={gen || loading} className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-60">
@@ -148,7 +148,7 @@ const OpsCommand: React.FC = () => {
               <button onClick={copy} className="absolute top-2 right-2 inline-flex items-center gap-1 text-[11px] font-black bg-white border border-slate-200 rounded-lg px-2 py-1 hover:bg-slate-50">{copied ? <><Check className="w-3.5 h-3.5 text-emerald-500" />Đã chép</> : <><Copy className="w-3.5 h-3.5" />Chép</>}</button>
               <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50 rounded-xl p-4 pr-16">{brief}</div>
             </div>
-          : <p className="text-[12px] text-slate-400">Hermes tự sinh bản tin <b>mỗi 7h sáng</b> (tình hình 3 phòng · điểm nghẽn · 3-5 ưu tiên + giao phòng · cảnh báo). Bấm nút để tạo ngay bản tin mới.</p>}
+          : <p className="text-[12px] text-slate-400">Trợ lý AI tự sinh bản tin <b>mỗi 7h sáng</b> (tình hình 3 phòng · điểm nghẽn · 3-5 ưu tiên + giao phòng · cảnh báo). Bấm nút để tạo ngay bản tin mới.</p>}
       </div>
     </div>
   );

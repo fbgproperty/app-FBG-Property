@@ -230,7 +230,7 @@ const CDP: React.FC = () => {
                           ) : <p className="text-sm text-slate-400">Bấm "Chấm điểm lại bằng AI" để phân tích.</p>}
                         </div>
                         <div className="border border-fuchsia-100 rounded-2xl p-4 bg-fuchsia-50/30">
-                          <div className="flex items-center justify-between mb-2"><h4 className="font-black text-slate-900 flex items-center gap-1.5"><Brain className="w-4 h-4 text-fuchsia-500" /> Trí nhớ khách (mem0)</h4><button onClick={() => loadMemories(cust.phone)} disabled={memBusy} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg font-black text-xs text-slate-600 hover:bg-slate-50">{memBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />} Làm mới</button></div>
+                          <div className="flex items-center justify-between mb-2"><h4 className="font-black text-slate-900 flex items-center gap-1.5"><Brain className="w-4 h-4 text-fuchsia-500" /> Trí nhớ khách (Bộ nhớ AI)</h4><button onClick={() => loadMemories(cust.phone)} disabled={memBusy} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg font-black text-xs text-slate-600 hover:bg-slate-50">{memBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />} Làm mới</button></div>
                           {memBusy ? <p className="text-sm text-slate-400">Đang tải trí nhớ…</p> : memories.length ? (
                             <ul className="space-y-1.5">{memories.map((m, i) => <li key={i} className="text-sm text-slate-700 flex gap-2"><span className="text-fuchsia-400 font-black">•</span><span>{m}</span></li>)}</ul>
                           ) : <p className="text-sm text-slate-400">Chưa có trí nhớ. Tự tích lũy khi khách nhắn tin (Web/Zalo/Telegram) hoặc gọi điện — nhớ theo số điện thoại, dùng chung mọi kênh.</p>}
@@ -323,7 +323,7 @@ const CDP: React.FC = () => {
                         <div className="border border-slate-100 rounded-2xl p-4">
                           <h4 className="font-black text-slate-900 mb-2">Kênh đã tương tác</h4>
                           {channels.length ? channels.map((c) => <div key={c.t} className="flex justify-between text-sm py-1"><span className="text-slate-600 font-bold">{c.t}</span><span className="text-slate-400 font-bold">{c.n} lần</span></div>) : <p className="text-sm text-slate-400">Chưa có.</p>}
-                          <div className="flex justify-between text-sm py-1 border-t border-slate-50 mt-1 pt-2"><span className="text-slate-600 font-bold">Chatwoot</span><span className="text-amber-500 font-bold text-xs">đa kênh</span></div>
+                          <div className="flex justify-between text-sm py-1 border-t border-slate-50 mt-1 pt-2"><span className="text-slate-600 font-bold">Tổng đài chat</span><span className="text-amber-500 font-bold text-xs">đa kênh</span></div>
                         </div>
                         <div className="border border-slate-100 rounded-2xl p-4">
                           <h4 className="font-black text-slate-900 mb-2">Giao dịch (0)</h4>
