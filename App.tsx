@@ -16,6 +16,8 @@ import RealEstateOS from './views/RealEstateOS';
 import BusinessOS from './views/BusinessOS';
 import OperationsOS from './views/OperationsOS';
 import AssistantOS from './views/AssistantOS';
+import TechnologyOS from './views/TechnologyOS';
+import ReportOS from './views/ReportOS';
 import Billing from './views/Billing';
 import Deployment from './views/Deployment';
 import Login from './views/Login';
@@ -107,6 +109,8 @@ const App: React.FC = () => {
               <Route path="/san-bds" element={<Guard path="/san-bds"><RealEstateOS /></Guard>} />
               <Route path="/kinh-doanh" element={<Guard path="/kinh-doanh"><BusinessOS /></Guard>} />
               <Route path="/billing" element={<Guard path="/billing"><Billing /></Guard>} />
+              <Route path="/cong-nghe" element={<Guard path="/cong-nghe"><TechnologyOS /></Guard>} />
+              <Route path="/bao-cao" element={<Guard path="/bao-cao"><ReportOS /></Guard>} />
               {/* Sale */}
               <Route path="/sale-projects" element={<SaleProjects />} />
               <Route path="/my-customers" element={<MyCustomers />} />

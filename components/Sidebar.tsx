@@ -27,6 +27,8 @@ import {
   Lock,
   User,
   Cpu,
+  Server,
+  BarChart3,
   Megaphone
 } from 'lucide-react';
 
@@ -66,13 +68,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
     { to: '/tro-ly-ai', label: 'Trợ lý', icon: Sparkles },
     { to: '/san-bds', label: 'Bất động sản', icon: Building2 },
-    { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket },
-    { to: '/my-customers', label: 'Khách của tôi', icon: Target },
+    { to: '/marketing', label: 'Marketing', icon: Megaphone },
     { to: '/kinh-doanh', label: 'Kinh doanh', icon: Briefcase },
     { to: '/van-hanh', label: 'Vận hành', icon: Cpu },
-    { to: '/marketing', label: 'Marketing', icon: Megaphone },
-    { to: '/billing', label: 'Hạ tầng & Chi phí', icon: CreditCard },
-    { to: '/identity', label: 'Quản trị hệ thống', icon: ShieldCheck, hasSub: true, subState: isIdentityOpen, setSub: setIsIdentityOpen, subItems: identitySubMenus, prefix: '/identity' },
+    { to: '/cong-nghe', label: 'Công nghệ', icon: Server },
+    { to: '/bao-cao', label: 'Báo cáo', icon: BarChart3 },
+    { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket },
+    { to: '/my-customers', label: 'Khách của tôi', icon: Target },
   ];
 
   const myRole = (typeof localStorage !== 'undefined' && localStorage.getItem('fbg_role')) || 'ctv';
