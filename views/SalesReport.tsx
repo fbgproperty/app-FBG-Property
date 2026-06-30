@@ -11,17 +11,15 @@ const SalesReport: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const tot = (x: any) => (x?.total ?? x?.totalItems ?? x?.data?.total ?? (x?.items?.length) ?? 0);
-      const [cdp, leads, proj] = await Promise.allSettled([
-        api.getCdpCustomers({ page: 1, pageSize: 1 }),
-        api.getLeads({ page: 1, pageSize: 1 } as any),
+      const [sum, proj] = await Promise.allSettled([
+        api.erpMySummary(),
         api.getDeployProjects(),
       ]);
-      const leadVal: any = leads.status === 'fulfilled' ? leads.value : {};
+      const s: any = sum.status === 'fulfilled' ? sum.value : {};
       setD({
-        khach: cdp.status === 'fulfilled' ? tot(cdp.value) : 0,
-        lead: tot(leadVal),
-        hot: leadVal?.hot ?? leadVal?.nong ?? 0,
+        khach: s.total || 0,
+        lead: (s.Open || 0) + (s.Replied || 0),
+        hot: s.Opportunity || 0,
         projects: proj.status === 'fulfilled' ? ((proj.value as any)?.total ?? (proj.value as any)?.items?.length ?? 0) : 0,
       });
       setLoading(false);
@@ -39,9 +37,9 @@ const SalesReport: React.FC = () => {
   const copy = () => { navigator.clipboard?.writeText(report); setCopied(true); setTimeout(() => setCopied(false), 1500); };
 
   const KPIS = [
-    { label: 'Khách trong CDP', val: d.khach, icon: Users, c: 'bg-emerald-600' },
-    { label: 'Lead phễu', val: d.lead, icon: MessageSquare, c: 'bg-fuchsia-600' },
-    { label: 'Lead nóng', val: d.hot, icon: Flame, c: 'bg-rose-500' },
+    { label: 'Khách (ERP)', val: d.khach, icon: Users, c: 'bg-emerald-600' },
+    { label: 'Đang xử lý', val: d.lead, icon: MessageSquare, c: 'bg-fuchsia-600' },
+    { label: 'Cơ hội (nóng)', val: d.hot, icon: Flame, c: 'bg-rose-500' },
     { label: 'Dự án đang bán', val: d.projects, icon: CheckCircle2, c: 'bg-indigo-600' },
   ];
 
