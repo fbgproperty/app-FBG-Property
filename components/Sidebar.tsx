@@ -106,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
         <div className="bg-white p-2 rounded-lg shadow-lg shrink-0">
           <ShieldCheck className="text-indigo-900 w-6 h-6" />
         </div>
-        {!isCollapsed && <h1 className="text-xl font-bold tracking-tight animate-fadeIn whitespace-nowrap">AI Agent</h1>}
+        {!isCollapsed && <h1 className="text-xl font-bold tracking-tight animate-fadeIn whitespace-nowrap">FBG Property</h1>}
       </div>
       
       <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto custom-scrollbar overflow-x-hidden">

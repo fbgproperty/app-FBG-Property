@@ -21,6 +21,7 @@ import ReportOS from './views/ReportOS';
 import Billing from './views/Billing';
 import Deployment from './views/Deployment';
 import Login from './views/Login';
+import LandingPage from './views/LandingPage';
 import { api } from './services/apiService'; // <-- sửa path đúng
 import { fbAuth } from './services/firebase';
 import { signOut } from 'firebase/auth';
@@ -78,8 +79,9 @@ const App: React.FC = () => {
       {!isAuthenticated ? (
         <Routes>
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          {/* Khi chưa đăng nhập, mọi đường dẫn đều về Login */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<LandingPage />} />
+          {/* Chưa đăng nhập → trang giới thiệu công khai */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       ) : (
         <div className="flex h-screen bg-gray-50 overflow-hidden">

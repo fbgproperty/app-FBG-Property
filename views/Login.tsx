@@ -131,13 +131,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <div className="bg-white p-2.5 rounded-2xl shadow-xl">
                 <Home className="text-indigo-600 w-7 h-7" />
               </div>
-              <h1 className="text-2xl font-black tracking-tighter">Rai Agent</h1>
+              <h1 className="text-2xl font-black tracking-tighter">FBG Property</h1>
             </div>
 
             <div className="space-y-8">
               <h2 className="text-4xl font-black leading-tight">
-                Nền tảng Bán hàng <br />
-                <span className="text-indigo-200">Tự động hóa bằng AI</span>
+                Bất động sản FBG <br />
+                <span className="text-indigo-200">vận hành bằng AI</span>
               </h2>
               <p className="text-indigo-100 text-lg font-medium opacity-80 leading-relaxed">
                 Vận hành đội ngũ nhân sự ảo, tối ưu quy trình kinh doanh bất động sản trên hạ tầng Google Cloud.
@@ -145,7 +145,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
               <div className="space-y-4 pt-4">
                 {[
-                  { icon: Bot, text: 'Lực lượng AI Agent chuyên nghiệp' },
+                  { icon: Bot, text: '30+ chuyên viên AI hỗ trợ từng nhân sự' },
                   { icon: Zap, text: 'Xử lý dữ liệu Real-time với BigQuery' },
                   { icon: ShieldCheck, text: 'Bảo mật chuẩn Google Cloud Platform' },
                 ].map((item, i) => (
@@ -169,7 +169,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <div className="bg-indigo-600 p-2 rounded-xl text-white">
               <Home className="w-6 h-6" />
             </div>
-            <h1 className="text-xl font-black tracking-tight text-gray-900">Rai Agent</h1>
+            <h1 className="text-xl font-black tracking-tight text-gray-900">FBG Property</h1>
           </div>
 
           {/* Form Header */}
@@ -179,7 +179,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </h3>
             <p className="text-gray-500 font-medium text-sm">
               {mode === 'login'
-                ? 'Đăng nhập để quản trị hệ thống RAI Agent.'
+                ? 'Đăng nhập hệ thống FBG Property.'
                 : 'Nhập email của bạn để nhận hướng dẫn đặt lại mật khẩu.'}
             </p>
           </div>
@@ -437,7 +437,7 @@ export default Login;
 //               <div className="bg-white p-2.5 rounded-2xl shadow-xl">
 //                 <Home className="text-indigo-600 w-7 h-7" />
 //               </div>
-//               <h1 className="text-2xl font-black tracking-tighter">Rai Agent</h1>
+//               <h1 className="text-2xl font-black tracking-tighter">FBG Property</h1>
 //             </div>
 
 //             <div className="space-y-8">
@@ -451,7 +451,7 @@ export default Login;
 
 //               <div className="space-y-4 pt-4">
 //                 {[
-//                   { icon: Bot, text: 'Lực lượng AI Agent chuyên nghiệp' },
+//                   { icon: Bot, text: '30+ chuyên viên AI hỗ trợ từng nhân sự' },
 //                   { icon: Zap, text: 'Xử lý dữ liệu Real-time với BigQuery' },
 //                   { icon: ShieldCheck, text: 'Bảo mật chuẩn Google Cloud Platform' },
 //                 ].map((item, i) => (
@@ -475,7 +475,7 @@ export default Login;
 //             <div className="bg-indigo-600 p-2 rounded-xl text-white">
 //               <Home className="w-6 h-6" />
 //             </div>
-//             <h1 className="text-xl font-black tracking-tight text-gray-900">Rai Agent</h1>
+//             <h1 className="text-xl font-black tracking-tight text-gray-900">FBG Property</h1>
 //           </div>
 
 //           {/* Form Header */}
@@ -485,7 +485,7 @@ export default Login;
 //             </h3>
 //             <p className="text-gray-500 font-medium text-sm">
 //               {mode === 'login'
-//                 ? 'Đăng nhập để quản trị hệ thống RAI Agent.'
+//                 ? 'Đăng nhập hệ thống FBG Property.'
 //                 : 'Nhập email của bạn để nhận hướng dẫn đặt lại mật khẩu.'}
 //             </p>
 //           </div>
@@ -677,7 +677,7 @@ export default Login;
 //               <div className="bg-white p-2.5 rounded-2xl shadow-xl">
 //                 <Home className="text-indigo-600 w-7 h-7" />
 //               </div>
-//               <h1 className="text-2xl font-black tracking-tighter">Rai Agent</h1>
+//               <h1 className="text-2xl font-black tracking-tighter">FBG Property</h1>
 //             </div>
 
 //             <div className="space-y-8">
@@ -711,7 +711,7 @@ export default Login;
 //             <div className="bg-indigo-600 p-2 rounded-xl text-white">
 //               <Home className="w-6 h-6" />
 //             </div>
-//             <h1 className="text-xl font-black tracking-tight text-gray-900">Rai Agent</h1>
+//             <h1 className="text-xl font-black tracking-tight text-gray-900">FBG Property</h1>
 //           </div>
 
 //           <div className="mb-10">
