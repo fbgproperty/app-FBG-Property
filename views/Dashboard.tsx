@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import StatCard from '../components/StatCard';
 // import { getAIDashboardData, simulateIncomingLeads, runAIAgentProcessing } from '../services/geminiService';
 import { api } from '../services/apiService';
-import Office3DPanel from './Office3DPanel';
+import OfficeEmbed from './OfficeEmbed';
 import {
   Building2,
   Users,
@@ -111,8 +111,8 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       <header className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-black text-gray-900 leading-none">Tổng quan hệ thống</h2>
-          <p className="text-gray-500 font-medium mt-2 text-sm">Chào mừng bạn trở lại, Admin.</p>
+          <h2 className="text-2xl font-black text-gray-900 leading-none">Office FBG</h2>
+          <p className="text-gray-500 font-medium mt-2 text-sm">Văn phòng 3D — Hermes & nhân viên AI làm việc thật (Claw3D · OpenClaw)</p>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-green-100">
           <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
@@ -128,8 +128,8 @@ const Dashboard: React.FC = () => {
         <StatCard label="Chi phí Cloud" value={data.stats.revenue} icon={Cloud} trend="Trong ngân sách" trendUp />
       </div>
 
-      {/* Văn phòng AI 3D */}
-      <Office3DPanel />
+      {/* Office FBG — văn phòng 3D thật (Claw3D nối OpenClaw) */}
+      <OfficeEmbed />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Main Chart Area */}

@@ -65,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   ];
 
   const navItems = [
-    { to: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+    { to: '/dashboard', label: 'Office FBG', icon: LayoutDashboard },
     { to: '/tro-ly-ai', label: 'Trợ lý', icon: Sparkles },
     { to: '/san-bds', label: 'Bất động sản', icon: Building2 },
     { to: '/marketing', label: 'Marketing', icon: Megaphone },
