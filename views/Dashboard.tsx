@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import StatCard from '../components/StatCard';
 // import { getAIDashboardData, simulateIncomingLeads, runAIAgentProcessing } from '../services/geminiService';
 import { api } from '../services/apiService';
+import Office3DPanel from './Office3DPanel';
 import {
   Building2,
   Users,
@@ -126,6 +127,9 @@ const Dashboard: React.FC = () => {
         <StatCard label="Nhân viên AI" value={data.stats.activeAgents} icon={Bot} trend="Online" trendUp />
         <StatCard label="Chi phí Cloud" value={data.stats.revenue} icon={Cloud} trend="Trong ngân sách" trendUp />
       </div>
+
+      {/* Văn phòng AI 3D */}
+      <Office3DPanel />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Main Chart Area */}
