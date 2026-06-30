@@ -1130,6 +1130,27 @@ class ApiService {
     if (!res.ok) throw new Error(`summary ${res.status}`);
     return res.json();
   }
+  /** Việc Hermes tự sinh cho nhân sự — duyệt/từ chối; cô lập theo người đăng nhập. */
+  public async opsWorklog(): Promise<{ items: any[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/worklog`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`worklog ${res.status}`);
+    return res.json();
+  }
+  public async worklogGenerate(): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/worklog/generate`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+    });
+    if (!res.ok) throw new Error(`gen ${res.status}`);
+    return res.json();
+  }
+  public async worklogDecide(id: string, decision: 'approve' | 'reject'): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/worklog/decide`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, decision }),
+    });
+    if (!res.ok) throw new Error(`decide ${res.status}`);
+    return res.json();
+  }
   public async opsOverdue(): Promise<{ items: any[]; total: number; asOf: string }> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/overdue`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
     if (!res.ok) throw new Error(`overdue ${res.status}`);
