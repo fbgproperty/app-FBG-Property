@@ -26,6 +26,7 @@ import {
   UserCog,
   Lock,
   User,
+  Cpu,
   Megaphone
 } from 'lucide-react';
 
@@ -68,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket },
     { to: '/my-customers', label: 'Khách của tôi', icon: Target },
     { to: '/kinh-doanh', label: 'Kinh doanh', icon: Briefcase },
-    { to: '/team', label: 'Đội ngũ AI & Tổ chức', icon: Bot },
+    { to: '/van-hanh', label: 'Vận hành', icon: Cpu },
     { to: '/marketing', label: 'Marketing', icon: Megaphone },
     { to: '/billing', label: 'Hạ tầng & Chi phí', icon: CreditCard },
     { to: '/identity', label: 'Quản trị hệ thống', icon: ShieldCheck, hasSub: true, subState: isIdentityOpen, setSub: setIsIdentityOpen, subItems: identitySubMenus, prefix: '/identity' },

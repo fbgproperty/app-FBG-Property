@@ -1090,6 +1090,14 @@ class ApiService {
     if (!res.ok) throw new Error(`image ${res.status}`);
     return res.json();
   }
+  public async opsBrief(stats: any, period?: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/brief`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stats, period: period || 'hôm nay' }),
+    });
+    if (!res.ok) throw new Error(`ops brief ${res.status}`);
+    return res.json();
+  }
   public async salesNextAction(payload: { name: string; phone?: string; stage?: string; note?: string; project?: string; history?: string }): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/sales/nextaction`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },

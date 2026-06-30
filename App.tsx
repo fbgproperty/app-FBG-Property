@@ -14,6 +14,7 @@ import Marketing from './views/Marketing';
 import MarketingOS from './views/MarketingOS';
 import RealEstateOS from './views/RealEstateOS';
 import BusinessOS from './views/BusinessOS';
+import OperationsOS from './views/OperationsOS';
 import Billing from './views/Billing';
 import Deployment from './views/Deployment';
 import Login from './views/Login';
@@ -100,6 +101,7 @@ const App: React.FC = () => {
               <Route path="/ai-agents" element={<Guard path="/ai-agents"><AIAgents /></Guard>} />
               <Route path="/ai-org" element={<AIOrgChart />} />
               <Route path="/team" element={<TeamHub />} />
+              <Route path="/van-hanh" element={<Guard path="/van-hanh"><OperationsOS /></Guard>} />
               <Route path="/marketing" element={<Guard path="/marketing"><MarketingOS /></Guard>} />
               <Route path="/san-bds" element={<Guard path="/san-bds"><RealEstateOS /></Guard>} />
               <Route path="/kinh-doanh" element={<Guard path="/kinh-doanh"><BusinessOS /></Guard>} />
