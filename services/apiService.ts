@@ -1090,6 +1090,28 @@ class ApiService {
     if (!res.ok) throw new Error(`image ${res.status}`);
     return res.json();
   }
+  public async opsTasks(params: { status?: string; project?: string; limit?: number } = {}): Promise<{ items: any[]; total: number }> {
+    const q = new URLSearchParams();
+    if (params.status) q.set('status', params.status);
+    if (params.project) q.set('project', params.project);
+    q.set('limit', String(params.limit ?? 100));
+    const res = await fetch(`${this.cdpBaseUrl}/ops/tasks?${q.toString()}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`ops tasks ${res.status}`);
+    return res.json();
+  }
+  public async opsTasksSummary(): Promise<Record<string, number>> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/tasks/summary`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`ops summary ${res.status}`);
+    return res.json();
+  }
+  public async opsTaskUpdate(name: string, status: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/tasks/update`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, status }),
+    });
+    if (!res.ok) throw new Error(`task update ${res.status}`);
+    return res.json();
+  }
   public async opsBrief(stats: any, period?: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/brief`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },

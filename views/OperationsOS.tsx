@@ -1,27 +1,28 @@
 import React, { useState } from 'react';
-import { Cpu, LayoutDashboard, Bot, Network, Users } from 'lucide-react';
-import OpsCommand from './OpsCommand';
+import { Cpu, ClipboardCheck, Workflow, Bot, Network } from 'lucide-react';
+import ErpTasks from './ErpTasks';
+import AutomationOps from './AutomationOps';
 import AIAgents from './AIAgents';
 import AIOrgChart from './AIOrgChart';
 import OrgChart from './OrgChart';
 
-type Sec = 'overview' | 'agents' | 'aiorg' | 'org';
+type Sec = 'tasks' | 'automation' | 'agents' | 'org';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
-  { id: 'overview', label: 'Tổng quan vận hành', icon: LayoutDashboard },
+  { id: 'tasks', label: 'Công việc (ERP)', icon: ClipboardCheck },
+  { id: 'automation', label: 'Tự động hoá (n8n)', icon: Workflow },
   { id: 'agents', label: 'Đội ngũ AI', icon: Bot },
-  { id: 'aiorg', label: 'Sơ đồ tổ chức AI', icon: Network },
-  { id: 'org', label: 'Nhân sự & Vai trò', icon: Users },
+  { id: 'org', label: 'Tổ chức', icon: Network },
 ];
 
 const OperationsOS: React.FC = () => {
-  const [sec, setSec] = useState<Sec>('overview');
+  const [sec, setSec] = useState<Sec>('tasks');
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg"><Cpu className="w-6 h-6" /></div>
         <div>
           <h2 className="text-2xl font-black text-slate-900 leading-none">Vận hành</h2>
-          <p className="text-sm text-slate-400 font-semibold mt-1">Hermes điều phối 3 phòng AI · đội ngũ · tổ chức · hạ tầng</p>
+          <p className="text-sm text-slate-400 font-semibold mt-1">Công việc ERP · Tự động hoá n8n · Đội ngũ AI · Tổ chức</p>
         </div>
       </header>
 
@@ -37,10 +38,10 @@ const OperationsOS: React.FC = () => {
       </div>
 
       <div className="animate-in fade-in duration-300">
-        {sec === 'overview' && <OpsCommand />}
+        {sec === 'tasks' && <ErpTasks />}
+        {sec === 'automation' && <AutomationOps />}
         {sec === 'agents' && <AIAgents />}
-        {sec === 'aiorg' && <AIOrgChart />}
-        {sec === 'org' && <OrgChart />}
+        {sec === 'org' && <div className="space-y-6"><AIOrgChart /><OrgChart /></div>}
       </div>
     </div>
   );
