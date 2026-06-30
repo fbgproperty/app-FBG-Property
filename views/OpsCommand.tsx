@@ -15,12 +15,14 @@ const OpsCommand: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [brief, setBrief] = useState('');
   const [briefTs, setBriefTs] = useState(0);
+  const [overdue, setOverdue] = useState(0);
   const [gen, setGen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // Tự tải bản tin Hermes mới nhất (cron sinh mỗi sáng)
+    // Tự tải bản tin Hermes mới nhất (cron sinh mỗi sáng) + task quá hạn
     api.opsBriefLatest().then((r) => { if (r?.text) { setBrief(r.text); setBriefTs(r.ts || 0); } }).catch(() => { /* */ });
+    api.opsOverdue().then((r) => setOverdue(r?.total || 0)).catch(() => { /* */ });
   }, []);
 
   useEffect(() => {
@@ -77,6 +79,7 @@ const OpsCommand: React.FC = () => {
         <div className="flex items-center gap-4 mt-3 text-xs font-bold">
           <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-300" /> 22/30 AI đang chạy</span>
           <span className="inline-flex items-center gap-1.5"><Server className="w-4 h-4 text-sky-300" /> {loading ? '...' : `${d.vmUp} VM hoạt động`}</span>
+          {overdue > 0 && <span className="inline-flex items-center gap-1.5 bg-rose-500/30 px-2 py-0.5 rounded-md"><AlertTriangle className="w-4 h-4 text-rose-200" /> {overdue} việc quá hạn</span>}
         </div>
       </div>
 

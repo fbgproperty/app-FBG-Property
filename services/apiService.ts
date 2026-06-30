@@ -1130,6 +1130,11 @@ class ApiService {
     if (!res.ok) throw new Error(`summary ${res.status}`);
     return res.json();
   }
+  public async opsOverdue(): Promise<{ items: any[]; total: number; asOf: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/overdue`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`overdue ${res.status}`);
+    return res.json();
+  }
   public async opsBriefLatest(): Promise<{ text: string; ts: number; stats?: any }> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/brief/latest`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
     if (!res.ok) throw new Error(`brief latest ${res.status}`);

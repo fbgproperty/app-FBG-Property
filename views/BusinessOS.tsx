@@ -5,18 +5,22 @@ import NextActionPanel from './NextActionPanel';
 import SalesReport from './SalesReport';
 import CDP from './CDP';
 import MyLeads from './MyLeads';
+import { isAdminRole } from '../services/permissions';
 
 type Sec = 'overview' | 'mine' | 'customers' | 'action' | 'report';
-const SECTIONS: { id: Sec; label: string; icon: any }[] = [
+const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'mine', label: 'Khách của tôi', icon: Users },
-  { id: 'customers', label: 'Tất cả khách (CDP)', icon: Users },
+  { id: 'customers', label: 'Tất cả khách (CDP)', icon: Users, admin: true },
   { id: 'action', label: 'Hành động AI', icon: Zap },
   { id: 'report', label: 'Báo cáo kinh doanh', icon: BarChart3 },
 ];
 
 const BusinessOS: React.FC = () => {
   const [sec, setSec] = useState<Sec>('overview');
+  const role = (typeof localStorage !== 'undefined' && localStorage.getItem('fbg_role')) || 'ctv';
+  const admin = isAdminRole(role);
+  const sections = SECTIONS.filter(s => !s.admin || admin);
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
@@ -28,7 +32,7 @@ const BusinessOS: React.FC = () => {
       </header>
 
       <div className="flex items-center gap-1.5 bg-white rounded-2xl border border-slate-100 p-1.5 shadow-sm overflow-x-auto">
-        {SECTIONS.map(s => {
+        {sections.map(s => {
           const active = sec === s.id; const Icon = s.icon;
           return (
             <button key={s.id} onClick={() => setSec(s.id)} className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black text-sm whitespace-nowrap transition ${active ? 'bg-emerald-600 text-white shadow' : 'text-slate-500 hover:bg-slate-50'}`}>
@@ -41,7 +45,7 @@ const BusinessOS: React.FC = () => {
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <BusinessAgency onOpen={(s) => setSec(s as Sec)} />}
         {sec === 'mine' && <MyLeads />}
-        {sec === 'customers' && <CDP />}
+        {sec === 'customers' && admin && <CDP />}
         {sec === 'action' && <NextActionPanel />}
         {sec === 'report' && <SalesReport />}
       </div>
