@@ -9,7 +9,7 @@ const OfficeEmbed: React.FC = () => {
   const openFull = () => window.open(OFFICE_URL, '_blank');
 
   return (
-    <div className="relative bg-slate-900 rounded-[28px] overflow-hidden border border-slate-200 shadow-sm" style={{ height: '78vh', minHeight: 560 }}>
+    <div className="relative bg-slate-900 rounded-[28px] overflow-hidden border border-slate-200 shadow-sm h-full" style={{ minHeight: 520 }}>
       {!loaded && !err && (
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white/80 z-10">
           <Loader2 className="w-9 h-9 animate-spin mb-3" />
