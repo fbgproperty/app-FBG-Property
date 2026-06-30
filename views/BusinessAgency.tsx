@@ -14,18 +14,17 @@ const BADGE: Record<St, { t: string; c: string }> = {
 };
 
 const BusinessAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) => {
-  const [k, setK] = useState({ khach: 0, lead: 0, hot: 0 });
+  const [k, setK] = useState({ khach: 0, lead: 0, hot: 0, scoped: false });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const tot = (x: any) => (x?.total ?? x?.totalItems ?? x?.data?.total ?? (x?.items?.length) ?? 0);
-      const [cdp, leads] = await Promise.allSettled([
-        api.getCdpCustomers({ page: 1, pageSize: 1 }),
-        api.getLeads({ page: 1, pageSize: 1 } as any),
-      ]);
-      const lv: any = leads.status === 'fulfilled' ? leads.value : {};
-      setK({ khach: cdp.status === 'fulfilled' ? tot(cdp.value) : 0, lead: tot(lv), hot: lv?.hot ?? lv?.nong ?? 0 });
+      try {
+        const s: any = await api.erpMySummary();
+        setK({ khach: s.total || 0, lead: (s.Open || 0) + (s.Replied || 0), hot: s.Opportunity || 0, scoped: !!s.scoped });
+      } catch {
+        try { const cdp: any = await api.getCdpCustomers({ page: 1, pageSize: 1 }); setK(p => ({ ...p, khach: cdp?.total ?? 0 })); } catch { /* */ }
+      }
       setLoading(false);
     })();
   }, []);
@@ -45,9 +44,9 @@ const BusinessAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) =
   const liveCount = AGENTS.filter(a => a.status === 'live').length;
 
   const KPIS = [
-    { label: 'Khách trong CDP', val: k.khach, icon: Users },
-    { label: 'Lead phễu', val: k.lead, icon: MessageSquare },
-    { label: 'Lead nóng', val: k.hot, icon: Flame },
+    { label: k.scoped ? 'Khách của tôi (ERP)' : 'Tổng khách (ERP)', val: k.khach, icon: Users },
+    { label: 'Đang xử lý', val: k.lead, icon: MessageSquare },
+    { label: 'Cơ hội (nóng)', val: k.hot, icon: Flame },
     { label: 'AI đang chạy', val: `${liveCount}/10`, icon: ShieldCheck },
   ];
 

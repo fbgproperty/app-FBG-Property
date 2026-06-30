@@ -32,6 +32,7 @@ import TroLyAI from './views/TroLyAI';
 import QuangCaoDaKenh from './views/QuangCaoDaKenh';
 import SaleProjects from './views/SaleProjects';
 import MyCustomers from './views/MyCustomers';
+import MyLeads from './views/MyLeads';
 import OrgChart from './views/OrgChart';
 import { canAccess } from './services/permissions';
 
@@ -115,7 +116,7 @@ const App: React.FC = () => {
               <Route path="/bao-cao" element={<Guard path="/bao-cao"><ReportOS /></Guard>} />
               {/* Sale */}
               <Route path="/sale-projects" element={<SaleProjects />} />
-              <Route path="/my-customers" element={<MyCustomers />} />
+              <Route path="/my-customers" element={<MyLeads />} />
 
               {/* Trang chủ mặc định */}
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
