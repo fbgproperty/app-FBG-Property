@@ -1250,14 +1250,6 @@ class ApiService {
     if (!res.ok) throw new Error(`infra ${res.status}`);
     return res.json();
   }
-  public async cdpImport(rows: any[], source: string): Promise<any> {
-    const res = await fetch(`${this.cdpBaseUrl}/cdp/import`, {
-      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rows, source }),
-    });
-    if (!res.ok) throw new Error(`cdp import ${res.status}`);
-    return res.json();
-  }
   // ===== Marketing (Flash Zalo + fb-collect) qua bridge /mkt/* — token giữ server-side, CÔ LẬP theo user =====
   private mktUserEmail(): string {
     try { return (JSON.parse(localStorage.getItem('fbg_user') || '{}').email) || localStorage.getItem('fbg_owner') || ''; } catch { return ''; }
