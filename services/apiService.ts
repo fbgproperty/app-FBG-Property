@@ -1156,6 +1156,19 @@ class ApiService {
     if (!res.ok) throw new Error(`overdue ${res.status}`);
     return res.json();
   }
+  /** Autopilot: trạng thái vòng đời tự trị mỗi ngày (đồng bộ → bản tin → nhắc quá hạn). */
+  public async autopilotStatus(): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/autopilot/status`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`autopilot status ${res.status}`);
+    return res.json();
+  }
+  public async autopilotRun(): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/autopilot/run`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey },
+    });
+    if (!res.ok) throw new Error(`autopilot run ${res.status}`);
+    return res.json();
+  }
   public async opsBriefLatest(): Promise<{ text: string; ts: number; stats?: any }> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/brief/latest`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
     if (!res.ok) throw new Error(`brief latest ${res.status}`);

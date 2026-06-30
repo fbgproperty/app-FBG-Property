@@ -16,13 +16,15 @@ const OpsCommand: React.FC = () => {
   const [brief, setBrief] = useState('');
   const [briefTs, setBriefTs] = useState(0);
   const [overdue, setOverdue] = useState(0);
+  const [ap, setAp] = useState<any>(null);
   const [gen, setGen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // Tự tải bản tin Hermes mới nhất (cron sinh mỗi sáng) + task quá hạn
+    // Tự tải bản tin Hermes mới nhất (cron sinh mỗi sáng) + task quá hạn + trạng thái autopilot
     api.opsBriefLatest().then((r) => { if (r?.text) { setBrief(r.text); setBriefTs(r.ts || 0); } }).catch(() => { /* */ });
     api.opsOverdue().then((r) => setOverdue(r?.total || 0)).catch(() => { /* */ });
+    api.autopilotStatus().then((r) => setAp(r)).catch(() => { /* */ });
   }, []);
 
   useEffect(() => {
@@ -75,11 +77,11 @@ const OpsCommand: React.FC = () => {
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-slate-900 to-indigo-700 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Hermes — Giám đốc vận hành AI (COO)</span></div>
-        <p className="text-sm opacity-90">Điều phối <b>3 phòng × 10 chuyên viên AI = 30 chuyên viên</b> + nhân sự + hạ tầng. Một màn hình thấy toàn bộ tổ chức đang chạy gì, ưu tiên gì.</p>
+        <p className="text-sm opacity-90">Điều phối <b>{ap?.staff ?? 24} nhân sự — mỗi người 1 trợ lý Hermes riêng</b> (chat · ERP · n8n) + 3 phòng chuyên viên AI + hạ tầng. Một màn hình thấy toàn bộ tổ chức đang chạy gì, ưu tiên gì.</p>
         <div className="flex items-center gap-4 mt-3 text-xs font-bold">
-          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-300" /> 22/30 AI đang chạy</span>
+          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-300" /> {ap?.staff ?? 24} Hermes trực · {ap?.managers ?? 8} quản lý</span>
           <span className="inline-flex items-center gap-1.5"><Server className="w-4 h-4 text-sky-300" /> {loading ? '...' : `${d.vmUp} VM hoạt động`}</span>
-          {overdue > 0 && <span className="inline-flex items-center gap-1.5 bg-rose-500/30 px-2 py-0.5 rounded-md"><AlertTriangle className="w-4 h-4 text-rose-200" /> {overdue} việc quá hạn</span>}
+          {(ap?.overdue ?? overdue) > 0 && <span className="inline-flex items-center gap-1.5 bg-rose-500/30 px-2 py-0.5 rounded-md"><AlertTriangle className="w-4 h-4 text-rose-200" /> {ap?.overdue ?? overdue} việc quá hạn</span>}
         </div>
       </div>
 
