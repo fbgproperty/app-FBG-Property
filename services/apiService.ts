@@ -1082,6 +1082,22 @@ class ApiService {
     if (!res.ok) throw new Error(`rag ${res.status}`);
     return res.json();
   }
+  public async imageDraft(payload: { project: string; type: string; note?: string; count?: number }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/image/draft`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`image ${res.status}`);
+    return res.json();
+  }
+  public async analystReport(stats: any, period?: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/analyst/report`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stats, period: period || 'tuần này' }),
+    });
+    if (!res.ok) throw new Error(`analyst ${res.status}`);
+    return res.json();
+  }
   public async videoRender(payload: { title: string; subtitle?: string; images: string[]; captions?: string[]; music?: string }): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/video/render`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },

@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, Users, Target, Building2, DollarSign, TrendingUp, Loader2, Bot, Clock } from 'lucide-react';
+import { BarChart3, Users, Target, Building2, DollarSign, TrendingUp, Loader2, Bot, Clock, Sparkles, FileText } from 'lucide-react';
 import { api } from '../services/apiService';
 
 const MarketingROI: React.FC = () => {
   const [d, setD] = useState({ cdp: 0, leads: 0, projects: 0 });
   const [loading, setLoading] = useState(true);
+  const [report, setReport] = useState('');
+  const [genning, setGenning] = useState(false);
+  const genReport = async () => {
+    setGenning(true); setReport('');
+    try {
+      const r = await api.analystReport({ khach_cdp: d.cdp, lead: d.leads, du_an_dang_ban: d.projects }, 'tuần này');
+      setReport(r?.text || 'Không có dữ liệu.');
+    } catch (e: any) { setReport('Lỗi: ' + (e?.message || '')); }
+    setGenning(false);
+  };
   useEffect(() => {
     (async () => {
       const [cdp, leads, proj] = await Promise.allSettled([
@@ -61,6 +71,18 @@ const MarketingROI: React.FC = () => {
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-100 p-5">
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+          <div className="flex items-center gap-2"><FileText className="w-5 h-5 text-fuchsia-600" /><span className="font-black text-slate-900">Analyst — Báo cáo phân tích AI</span></div>
+          <button onClick={genReport} disabled={genning} className="inline-flex items-center gap-2 px-4 py-2 bg-fuchsia-600 text-white rounded-xl font-black text-sm hover:bg-fuchsia-700 disabled:opacity-60">
+            {genning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Tạo báo cáo AI
+          </button>
+        </div>
+        {report
+          ? <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50 rounded-xl p-4">{report}</div>
+          : <p className="text-[12px] text-slate-400">AI phân tích số liệu hiện có (CDP · lead · dự án) → tổng quan, điểm mạnh/yếu, 3 đề xuất hành động. Nối đủ Ads + ERP sẽ có ROI đầy đủ.</p>}
       </div>
 
       <div className="bg-gradient-to-br from-indigo-600 to-fuchsia-600 rounded-3xl p-6 text-white">

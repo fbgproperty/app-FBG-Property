@@ -41,14 +41,14 @@ const AgencyDashboard: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) 
   const AGENTS: { n: string; role: string; icon: any; status: St; sec?: string; metric: string }[] = [
     { n: 'Giám đốc chiến lược', role: 'Lập kế hoạch chiến dịch theo dự án', icon: Brain, status: 'live', sec: 'content', metric: 'Lập kế hoạch (AI)' },
     { n: 'Copywriter', role: 'Viết nội dung bám tài liệu dự án', icon: FileText, status: 'live', sec: 'content', metric: 'Sinh content RAG' },
-    { n: 'Designer', role: 'Banner / ảnh quảng cáo', icon: ImageIcon, status: 'locked', metric: 'Cần image-model' },
+    { n: 'Designer', role: 'Banner / ảnh quảng cáo AI', icon: ImageIcon, status: 'live', sec: 'content', metric: 'Ảnh AI (Pollinations)' },
     { n: 'Video editor', role: 'Dựng video từ ảnh dự án thật', icon: Video, status: 'live', sec: 'content', metric: 'Video AI (OpenMontage)' },
     { n: 'Channel manager', role: 'Đăng / gửi đa kênh', icon: Share2, status: 'live', sec: 'channels', metric: `${k.zalo} kênh Zalo` },
     { n: 'Ads manager', role: 'Tạo + tối ưu quảng cáo trả phí', icon: Target, status: 'locked', sec: 'ads', metric: 'Cần token Google' },
     { n: 'Lead hunter', role: 'Săn lead FB/Gmaps → CDP', icon: Search, status: 'live', sec: 'channels', metric: `${k.jobs} việc cào` },
     { n: 'Nurture bot', role: 'Chăm khách tự động (Zalo)', icon: MessageCircle, status: 'live', sec: 'channels', metric: 'Gửi + AI gợi ý' },
     { n: 'Community manager', role: 'Trả lời inbox/comment 24/7', icon: Bot, status: 'soon', sec: 'channels', metric: 'Auto-reply (cần gcloud)' },
-    { n: 'Analyst', role: 'Báo cáo hiệu quả + ROI', icon: BarChart3, status: 'partial', sec: 'roi', metric: 'Dashboard ROI' },
+    { n: 'Analyst', role: 'Báo cáo hiệu quả + ROI', icon: BarChart3, status: 'live', sec: 'roi', metric: 'Báo cáo AI + ROI' },
   ];
   const liveCount = AGENTS.filter(a => a.status === 'live').length;
 
