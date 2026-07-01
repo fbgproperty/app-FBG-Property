@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
   Brain, FileText, Image as ImageIcon, Video, Share2, Target, Search, MessageCircle, Bot, BarChart3,
-  CheckCircle2, Clock, Lock, Users, Database, Loader2, ArrowRight, ShieldCheck
+  CheckCircle2, Clock, Lock, Users, Database, Loader2, ArrowRight, ShieldCheck, Sparkles
 } from 'lucide-react';
 import { api } from '../services/apiService';
+import AgentRunner from './AgentRunner';
 
 const arr = (x: any): any[] => { const c = Array.isArray(x) ? x : (x?.data?.items || x?.items || x?.data?.data || x?.data); return Array.isArray(c) ? c : []; };
 type St = 'live' | 'partial' | 'soon' | 'locked';
@@ -18,6 +19,7 @@ const AgencyDashboard: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) 
   const [k, setK] = useState({ zalo: 0, fb: 0, jobs: 0, cdp: 0 });
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('bạn');
+  const [runAgent, setRunAgent] = useState<{ n: string; role: string } | null>(null);
 
   useEffect(() => {
     try { const u = JSON.parse(localStorage.getItem('fbg_user') || '{}'); if (u?.name) setName(u.name); } catch { /* */ }
@@ -41,10 +43,10 @@ const AgencyDashboard: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) 
   const AGENTS: { n: string; role: string; icon: any; status: St; sec?: string; metric: string }[] = [
     { n: 'Giám đốc chiến lược', role: 'Lập kế hoạch chiến dịch theo dự án', icon: Brain, status: 'live', sec: 'content', metric: 'Lập kế hoạch (AI)' },
     { n: 'Copywriter', role: 'Viết nội dung bám tài liệu dự án', icon: FileText, status: 'live', sec: 'content', metric: 'Sinh content RAG' },
-    { n: 'Designer', role: 'Banner / ảnh quảng cáo AI', icon: ImageIcon, status: 'live', sec: 'content', metric: 'Ảnh AI (Pollinations)' },
-    { n: 'Video editor', role: 'Dựng video từ ảnh dự án thật', icon: Video, status: 'live', sec: 'content', metric: 'Video AI (OpenMontage)' },
+    { n: 'Designer', role: 'Banner / ảnh quảng cáo AI', icon: ImageIcon, status: 'live', sec: 'content', metric: 'Ảnh AI' },
+    { n: 'Video editor', role: 'Dựng video từ ảnh dự án thật', icon: Video, status: 'live', sec: 'content', metric: 'Video AI' },
     { n: 'Channel manager', role: 'Đăng / gửi đa kênh', icon: Share2, status: 'live', sec: 'channels', metric: `${k.zalo} kênh Zalo` },
-    { n: 'Ads manager', role: 'AI tạo chiến dịch + creative quảng cáo', icon: Target, status: 'live', sec: 'ads', metric: 'AI chiến dịch (đẩy ads cần token)' },
+    { n: 'Ads manager', role: 'AI tạo chiến dịch + creative quảng cáo', icon: Target, status: 'live', sec: 'ads', metric: 'AI chiến dịch (cần kết nối kênh ads)' },
     { n: 'Lead hunter', role: 'Săn lead FB/Gmaps → CDP', icon: Search, status: 'live', sec: 'channels', metric: `${k.jobs} việc cào` },
     { n: 'Nurture bot', role: 'Chăm khách tự động (Zalo)', icon: MessageCircle, status: 'live', sec: 'channels', metric: 'Gửi + AI gợi ý' },
     { n: 'Community manager', role: 'Trả lời inbox Zalo 24/7', icon: Bot, status: 'live', sec: 'community', metric: 'Auto-reply (AI + RAG)' },
@@ -100,6 +102,15 @@ const AgencyDashboard: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) 
                   <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${BADGE[a.status].c}`}>{BADGE[a.status].t}</span>
                   <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">{a.metric}{open && <ArrowRight className="w-3 h-3 text-fuchsia-500" />}</span>
                 </div>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => { e.stopPropagation(); setRunAgent({ n: a.n, role: a.role }); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); setRunAgent({ n: a.n, role: a.role }); } }}
+                  className="mt-3 w-full py-2 bg-fuchsia-600 text-white text-[11px] font-black rounded-xl hover:bg-fuchsia-700 transition flex items-center justify-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Giao việc
+                </div>
               </button>
             );
           })}
@@ -108,8 +119,10 @@ const AgencyDashboard: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) 
 
       <div className="bg-white rounded-2xl border border-slate-100 p-5">
         <div className="flex items-center gap-2 mb-1"><CheckCircle2 className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Việc cần bạn duyệt</span></div>
-        <p className="text-[12px] text-slate-400">Khi AI soạn nội dung / tin gửi / chiến dịch Ads, việc cần duyệt sẽ hiện ở đây để bạn bấm duyệt 1 chạm. (Hàng đợi duyệt — nối ở giai đoạn tự động hoá.)</p>
+        <p className="text-[12px] text-slate-400">Khi AI soạn nội dung / tin gửi / chiến dịch quảng cáo, việc cần duyệt sẽ hiện ở đây để bạn bấm duyệt 1 chạm. (Hàng đợi duyệt — nối ở giai đoạn tự động hoá.)</p>
       </div>
+
+      {runAgent && <AgentRunner agent={runAgent} onClose={() => setRunAgent(null)} />}
     </div>
   );
 };

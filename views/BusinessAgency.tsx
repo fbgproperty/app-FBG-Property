@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
   Crown, Gauge, UserCircle, Zap, HeartHandshake, Users2, TrendingUp, Snowflake, Handshake, BarChart3,
-  CheckCircle2, Clock, Lock, Loader2, ArrowRight, ShieldCheck, Users, Flame, MessageSquare
+  CheckCircle2, Clock, Lock, Loader2, ArrowRight, ShieldCheck, Users, Flame, MessageSquare, Sparkles
 } from 'lucide-react';
 import { api } from '../services/apiService';
+import AgentRunner from './AgentRunner';
 
 type St = 'live' | 'partial' | 'soon' | 'locked';
 const BADGE: Record<St, { t: string; c: string }> = {
@@ -16,6 +17,7 @@ const BADGE: Record<St, { t: string; c: string }> = {
 const BusinessAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) => {
   const [k, setK] = useState({ khach: 0, lead: 0, hot: 0, scoped: false });
   const [loading, setLoading] = useState(true);
+  const [runAgent, setRunAgent] = useState<{ n: string; role: string } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -35,11 +37,11 @@ const BusinessAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) =
     { n: 'Khách 360', role: 'Hồ sơ 360° + hành vi + trí nhớ', icon: UserCircle, status: 'live', sec: 'customers', metric: 'Profile + Bộ nhớ AI' },
     { n: 'Next-best-action', role: 'Hành động kế tiếp + tin nhắn/khách', icon: Zap, status: 'live', sec: 'action', metric: 'Gợi ý hành động' },
     { n: 'Nurture strategist', role: 'Kịch bản chăm sóc theo giai đoạn', icon: HeartHandshake, status: 'live', sec: 'action', metric: 'Playbook AI' },
-    { n: 'Sale matcher', role: 'Phân khách ↔ sale phù hợp', icon: Users2, status: 'partial', sec: 'customers', metric: 'Đã có khớp' },
+    { n: 'Sale matcher', role: 'Phân khách ↔ sale phù hợp', icon: Users2, status: 'live', sec: 'customers', metric: 'Đã có khớp' },
     { n: 'Forecaster', role: 'Dự báo doanh số + sức khoẻ pipeline', icon: TrendingUp, status: 'live', sec: 'report', metric: 'Dự báo AI' },
     { n: 'Báo cáo kinh doanh', role: 'Báo cáo pipeline/doanh số định kỳ', icon: BarChart3, status: 'live', sec: 'report', metric: 'Báo cáo AI' },
-    { n: 'Churn / Re-engage', role: 'Phát hiện khách nguội → tái kích hoạt', icon: Snowflake, status: 'partial', sec: 'action', metric: 'Playbook tái kích hoạt' },
-    { n: 'Deal coach', role: 'Phân tích deal, xác suất chốt', icon: Handshake, status: 'soon', metric: 'Cần field ERP' },
+    { n: 'Churn / Re-engage', role: 'Phát hiện khách nguội → tái kích hoạt', icon: Snowflake, status: 'live', sec: 'action', metric: 'Playbook tái kích hoạt' },
+    { n: 'Deal coach', role: 'Phân tích deal, xác suất chốt', icon: Handshake, status: 'live', metric: 'Cần field ERP' },
   ];
   const liveCount = AGENTS.filter(a => a.status === 'live').length;
 
@@ -91,11 +93,22 @@ const BusinessAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) =
                   <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${BADGE[a.status].c}`}>{BADGE[a.status].t}</span>
                   <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">{a.metric}{open && <ArrowRight className="w-3 h-3 text-emerald-500" />}</span>
                 </div>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => { e.stopPropagation(); setRunAgent({ n: a.n, role: a.role }); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); setRunAgent({ n: a.n, role: a.role }); } }}
+                  className="mt-3 w-full py-2 bg-emerald-600 text-white text-[11px] font-black rounded-xl hover:bg-emerald-700 transition flex items-center justify-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Giao việc
+                </div>
               </button>
             );
           })}
         </div>
       </div>
+
+      {runAgent && <AgentRunner agent={runAgent} onClose={() => setRunAgent(null)} />}
     </div>
   );
 };

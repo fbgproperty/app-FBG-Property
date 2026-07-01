@@ -1170,6 +1170,15 @@ class ApiService {
     if (!res.ok) throw new Error(`campaigns ${res.status}`);
     return res.json();
   }
+  /** Giao việc cho 1 chuyên viên AI: chạy AI thật theo vai trò + bám tài liệu dự án. */
+  public async agentRun(body: { agent: string; role: string; message: string }): Promise<{ reply: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/office/chat`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`agent ${res.status}`);
+    return res.json();
+  }
   /** Phễu nguồn khách nét từ website (khách xem / quan tâm / để lại liên hệ). */
   public async trackSummary(): Promise<{ visitors: number; views: number; interested: number; identified: number; recent: any[] }> {
     const res = await fetch(`${this.cdpBaseUrl}/track/summary`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });

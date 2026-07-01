@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 
 import { api } from '../services/apiService';
+import AgentRunner from './AgentRunner';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -23,6 +24,7 @@ const AIAgents: React.FC = () => {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Partial<AIAgent> | null>(null);
+  const [runAgent, setRunAgent] = useState<{ n: string; role: string } | null>(null);
 
   const normalizeAgent = (a: any): AIAgent => ({
     id: String(a.id ?? a.Id ?? ''),
@@ -369,6 +371,13 @@ const AIAgents: React.FC = () => {
                   </div>
                   <div className="flex gap-2">
                     <button
+                      onClick={(e) => { e.stopPropagation(); setRunAgent({ n: agent.name, role: agent.role }); }}
+                      className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-100 transition-all shadow-sm"
+                      title="Giao việc"
+                    >
+                      <Sparkles className="w-6 h-6" />
+                    </button>
+                    <button
                       onClick={() => toggleAgent(agent.id)}
                       className={`p-3 rounded-2xl transition-all duration-300 ${agent.status === 'Active'
                         ? 'bg-green-50 text-green-600 shadow-sm'
@@ -507,6 +516,13 @@ const AIAgents: React.FC = () => {
 
                   <td className="px-8 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setRunAgent({ n: agent.name, role: agent.role }); }}
+                        className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                        title="Giao việc"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => toggleAgent(agent.id)}
                         className={`p-2 rounded-xl border transition-all ${agent.status === 'Active'
@@ -700,6 +716,7 @@ const AIAgents: React.FC = () => {
         </div>
       )}
 
+      {runAgent && <AgentRunner agent={runAgent} onClose={() => setRunAgent(null)} />}
     </div>
   );
 };
