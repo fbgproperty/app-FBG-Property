@@ -1170,6 +1170,12 @@ class ApiService {
     if (!res.ok) throw new Error(`campaigns ${res.status}`);
     return res.json();
   }
+  /** Phễu nguồn khách nét từ website (khách xem / quan tâm / để lại liên hệ). */
+  public async trackSummary(): Promise<{ visitors: number; views: number; interested: number; identified: number; recent: any[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/track/summary`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`track ${res.status}`);
+    return res.json();
+  }
   /** Khách được giao cho tôi (sale thấy của mình, admin thấy tất cả). */
   public async deployMyAssigned(): Promise<{ items: any[]; total: number }> {
     const res = await fetch(`${this.cdpBaseUrl}/deploy/my-assigned`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
