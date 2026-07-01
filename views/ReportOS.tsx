@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { BarChart3, LayoutDashboard, Briefcase, Megaphone, TrendingUp, LineChart } from 'lucide-react';
+import { BarChart3, LayoutDashboard, Briefcase, Megaphone, TrendingUp, LineChart, Newspaper } from 'lucide-react';
 import ReportOverview from './ReportOverview';
 import SalesReport from './SalesReport';
 import MarketingROI from './MarketingROI';
 import AnalyticsBoard from './AnalyticsBoard';
 import ForecastPanel from './ForecastPanel';
+import ExecutiveDigest from './ExecutiveDigest';
 
-type Sec = 'overview' | 'sales' | 'marketing' | 'analytics' | 'forecast';
+type Sec = 'overview' | 'digest' | 'sales' | 'marketing' | 'analytics' | 'forecast';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'overview', label: 'Tổng hợp', icon: LayoutDashboard },
+  { id: 'digest', label: 'Bản tin điều hành', icon: Newspaper },
   { id: 'sales', label: 'Kinh doanh', icon: Briefcase },
   { id: 'marketing', label: 'Marketing', icon: Megaphone },
   { id: 'analytics', label: 'Phân tích', icon: TrendingUp },
@@ -40,6 +42,7 @@ const ReportOS: React.FC = () => {
 
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <ReportOverview />}
+        {sec === 'digest' && <ExecutiveDigest />}
         {sec === 'sales' && <SalesReport />}
         {sec === 'marketing' && <MarketingROI />}
         {sec === 'analytics' && <AnalyticsBoard />}

@@ -1188,6 +1188,49 @@ class ApiService {
     if (!res.ok) throw new Error(`campaigns ${res.status}`);
     return res.json();
   }
+  /** Phiên bản 3 — Đặt lịch chiến dịch tự chạy (ngày/tuần). */
+  public async deployScheduleSet(body: { project: string; cadence: 'daily' | 'weekly'; mode?: string; keywords?: string[] }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/schedule`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`schedule ${res.status}`);
+    return res.json();
+  }
+  public async deployScheduleList(): Promise<{ items: any[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/schedule`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`schedule ${res.status}`);
+    return res.json();
+  }
+  public async deployScheduleRemove(project: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/schedule/remove`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    if (!res.ok) throw new Error(`schedule ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 3 — AI xếp hạng dự án nên đẩy bán. */
+  public async estateRanking(): Promise<{ items: { project: string; score: number; reason: string }[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/estate/ranking`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`ranking ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 3 — Chuỗi chăm sóc: AI soạn tin theo giai đoạn cho từng khách. */
+  public async salesSequence(stage: string, limit = 8): Promise<{ items: { id: string; name: string; project: string; message: string }[]; stage: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/sequence`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage, limit }),
+    });
+    if (!res.ok) throw new Error(`sequence ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 3 — Bản tin điều hành + xu hướng theo thời gian. */
+  public async reportDigest(): Promise<{ digest: string; current: any; trends: any[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/report/digest`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`digest ${res.status}`);
+    return res.json();
+  }
   /** Phiên bản 2 — Lịch nội dung marketing đa kênh (AI lên lịch theo dự án). */
   public async contentCalendar(project: string, days = 7): Promise<{ project: string; days: number; items: { day: number; channel: string; title: string; angle: string }[]; sources: number }> {
     const res = await fetch(`${this.cdpBaseUrl}/content/calendar`, {

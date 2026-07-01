@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, LayoutDashboard, ClipboardList, TrendingUp, Newspaper, Boxes, Rocket, Layers, Home, FileSearch } from 'lucide-react';
+import { Building2, LayoutDashboard, ClipboardList, TrendingUp, Newspaper, Boxes, Rocket, Layers, Home, FileSearch, CalendarClock, Trophy } from 'lucide-react';
 import EstateAgency from './EstateAgency';
 import SalePlanner from './SalePlanner';
 import ProjectDossier from './ProjectDossier';
@@ -9,13 +9,17 @@ import Projects from './Property/Project/Projects';
 import HousesApartments from './Property/Properties/HousesApartments';
 import Deployment from './Deployment';
 import DeployLaunch from './DeployLaunch';
+import CampaignSchedule from './CampaignSchedule';
+import ProjectRanking from './ProjectRanking';
 import { isAdminRole } from '../services/permissions';
 
-type Sec = 'overview' | 'data' | 'trienkhai' | 'deploy' | 'dossier' | 'saleplan' | 'market' | 'listing';
+type Sec = 'overview' | 'data' | 'trienkhai' | 'lichchiendich' | 'xephang' | 'deploy' | 'dossier' | 'saleplan' | 'market' | 'listing';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'data', label: 'Dữ liệu BĐS', icon: Boxes },
   { id: 'trienkhai', label: 'Triển khai', icon: Rocket, admin: true },
+  { id: 'lichchiendich', label: 'Lịch chiến dịch', icon: CalendarClock, admin: true },
+  { id: 'xephang', label: 'Xếp hạng', icon: Trophy },
   { id: 'deploy', label: 'Triển khai hạ tầng', icon: Rocket, admin: true },
   { id: 'dossier', label: 'Hồ sơ dự án', icon: FileSearch },
   { id: 'saleplan', label: 'Kế hoạch bán', icon: ClipboardList },
@@ -76,6 +80,8 @@ const RealEstateOS: React.FC = () => {
         {sec === 'overview' && <EstateAgency onOpen={(s) => setSec(s as Sec)} />}
         {sec === 'data' && <DataSection />}
         {sec === 'trienkhai' && admin && <DeployLaunch />}
+        {sec === 'lichchiendich' && admin && <CampaignSchedule />}
+        {sec === 'xephang' && <ProjectRanking />}
         {sec === 'deploy' && admin && <Deployment />}
         {sec === 'dossier' && <ProjectDossier />}
         {sec === 'saleplan' && <SalePlanner />}
