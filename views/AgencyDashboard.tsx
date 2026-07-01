@@ -42,14 +42,14 @@ const AgencyDashboard: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) 
 
   const AGENTS: { n: string; role: string; icon: any; status: St; sec?: string; metric: string }[] = [
     { n: 'Giám đốc chiến lược', role: 'Lập kế hoạch chiến dịch theo dự án', icon: Brain, status: 'live', sec: 'content', metric: 'Lập kế hoạch (AI)' },
-    { n: 'Copywriter', role: 'Viết nội dung bám tài liệu dự án', icon: FileText, status: 'live', sec: 'content', metric: 'Sinh content RAG' },
+    { n: 'Copywriter', role: 'Viết nội dung bám tài liệu dự án', icon: FileText, status: 'live', sec: 'content', metric: 'Sinh nội dung AI' },
     { n: 'Designer', role: 'Banner / ảnh quảng cáo AI', icon: ImageIcon, status: 'live', sec: 'content', metric: 'Ảnh AI' },
     { n: 'Video editor', role: 'Dựng video từ ảnh dự án thật', icon: Video, status: 'live', sec: 'content', metric: 'Video AI' },
     { n: 'Channel manager', role: 'Đăng / gửi đa kênh', icon: Share2, status: 'live', sec: 'channels', metric: `${k.zalo} kênh Zalo` },
     { n: 'Ads manager', role: 'AI tạo chiến dịch + creative quảng cáo', icon: Target, status: 'live', sec: 'ads', metric: 'AI chiến dịch (cần kết nối kênh ads)' },
     { n: 'Lead hunter', role: 'Săn lead FB/Gmaps → CDP', icon: Search, status: 'live', sec: 'channels', metric: `${k.jobs} việc cào` },
     { n: 'Nurture bot', role: 'Chăm khách tự động (Zalo)', icon: MessageCircle, status: 'live', sec: 'channels', metric: 'Gửi + AI gợi ý' },
-    { n: 'Community manager', role: 'Trả lời inbox Zalo 24/7', icon: Bot, status: 'live', sec: 'community', metric: 'Auto-reply (AI + RAG)' },
+    { n: 'Community manager', role: 'Trả lời inbox Zalo 24/7', icon: Bot, status: 'live', sec: 'community', metric: 'Auto-reply (AI)' },
     { n: 'Analyst', role: 'Báo cáo hiệu quả + ROI', icon: BarChart3, status: 'live', sec: 'roi', metric: 'Báo cáo AI + ROI' },
   ];
   const liveCount = AGENTS.filter(a => a.status === 'live').length;
@@ -65,7 +65,7 @@ const AgencyDashboard: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) 
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-indigo-600 to-fuchsia-600 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><ShieldCheck className="w-5 h-5" /><span className="font-black">Phòng Marketing AI của {name}</span></div>
-        <p className="text-sm opacity-90">Đội <b>10 chuyên viên AI</b> phục vụ riêng bạn — sản xuất nội dung, chạy kênh, săn lead, chăm khách, báo cáo — do <b>Trợ lý AI</b> chỉ huy, nối CDP·ERP·RAG·Bộ nhớ AI. Bạn chỉ <b>duyệt + chốt deal</b>.</p>
+        <p className="text-sm opacity-90">Đội <b>10 chuyên viên AI</b> phục vụ riêng bạn — sản xuất nội dung, chạy kênh, săn lead, chăm khách, báo cáo — do <b>Trợ lý AI</b> chỉ huy, nối CDP·ERP·kho tài liệu·Bộ nhớ AI. Bạn chỉ <b>duyệt + chốt deal</b>.</p>
       </div>
 
       {loading ? <div className="flex justify-center py-6 text-indigo-600"><Loader2 className="w-7 h-7 animate-spin" /></div> : (

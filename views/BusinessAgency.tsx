@@ -56,7 +56,7 @@ const BusinessAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) =
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-emerald-700 to-indigo-600 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><ShieldCheck className="w-5 h-5" /><span className="font-black">Phòng Kinh doanh tự trị bằng AI</span></div>
-        <p className="text-sm opacity-90">Đội <b>10 chuyên viên AI</b> vận hành pipeline — chấm điểm, hồ sơ 360, phân khách, chăm sóc, hành động kế tiếp, dự báo, báo cáo — do <b>Trợ lý AI</b> chỉ huy, nối CDP·ERP·RAG·Bộ nhớ AI. Bạn chỉ <b>chốt deal</b>.</p>
+        <p className="text-sm opacity-90">Đội <b>10 chuyên viên AI</b> vận hành pipeline — chấm điểm, hồ sơ 360, phân khách, chăm sóc, hành động kế tiếp, dự báo, báo cáo — do <b>Trợ lý AI</b> chỉ huy, nối CDP·ERP·kho tài liệu·Bộ nhớ AI. Bạn chỉ <b>chốt deal</b>.</p>
       </div>
 
       {loading ? <div className="flex justify-center py-6 text-indigo-600"><Loader2 className="w-7 h-7 animate-spin" /></div> : (

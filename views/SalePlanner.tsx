@@ -47,7 +47,7 @@ const SalePlanner: React.FC = () => {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 p-5 space-y-4">
       <div className="flex items-center gap-2"><ClipboardList className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Sales planner — AI lập kế hoạch bán dự án</span></div>
-      <p className="text-xs text-slate-400 -mt-2">AI bám tài liệu dự án (RAG) lập kế hoạch: mục tiêu · giai đoạn · kênh · đội sale · chính sách giá · KPI · rủi ro. Lưu vào hồ sơ triển khai.</p>
+      <p className="text-xs text-slate-400 -mt-2">AI bám tài liệu dự án lập kế hoạch: mục tiêu · giai đoạn · kênh · đội sale · chính sách giá · KPI · rủi ro. Lưu vào hồ sơ triển khai.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <select value={project} onChange={e => setProject(e.target.value)} className="p-2.5 rounded-xl border border-slate-200 text-sm">
           <option value="">— chọn dự án —</option>

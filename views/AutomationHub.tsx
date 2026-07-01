@@ -16,7 +16,7 @@ const PIPELINES = [
   {
     name: 'Content Factory', desc: 'Sinh nội dung theo dự án → duyệt → đăng đa kênh theo lịch.',
     steps: [
-      STEP(FileText, 'AI sinh nội dung (RAG)', true),
+      STEP(FileText, 'AI sinh nội dung', true),
       STEP(CheckCircle2, 'Duyệt', false),
       STEP(Megaphone, 'Đăng FB/Zalo/TikTok', false),
       STEP(Clock, 'Lên lịch (Tự động hoá)', false),

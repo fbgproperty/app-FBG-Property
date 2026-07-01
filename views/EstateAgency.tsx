@@ -40,7 +40,7 @@ const EstateAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) => 
 
   const AGENTS: { n: string; role: string; icon: any; status: St; sec?: string; metric: string }[] = [
     { n: 'Giám đốc sàn', role: 'Tổng hợp rổ hàng, xếp ưu tiên đẩy bán', icon: Crown, status: 'live', sec: 'saleplan', metric: 'Chiến lược danh mục' },
-    { n: 'Sales planner', role: 'Lập kế hoạch bán từng dự án', icon: ClipboardList, status: 'live', sec: 'saleplan', metric: 'Kế hoạch bán (AI+RAG)' },
+    { n: 'Sales planner', role: 'Lập kế hoạch bán từng dự án', icon: ClipboardList, status: 'live', sec: 'saleplan', metric: 'Kế hoạch bán (AI)' },
     { n: 'Market researcher', role: 'Nghiên cứu thị trường đa nguồn', icon: TrendingUp, status: 'live', sec: 'market', metric: 'Báo cáo thị trường' },
     { n: 'Pricing analyst', role: 'Định vị & khuyến nghị giá', icon: DollarSign, status: 'live', sec: 'market', metric: 'Benchmark giá' },
     { n: 'Auto-poster', role: 'Sinh + đăng tin đa kênh', icon: Newspaper, status: 'live', sec: 'listing', metric: 'Tin đăng (web/FB/Zalo)' },
@@ -63,7 +63,7 @@ const EstateAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) => 
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-indigo-700 to-emerald-600 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><ShieldCheck className="w-5 h-5" /><span className="font-black">Sàn BĐS tự trị bằng AI</span></div>
-        <p className="text-sm opacity-90">Đội <b>10 chuyên viên AI</b> vận hành toàn bộ sàn — rổ hàng, kế hoạch bán, nghiên cứu thị trường, đăng tin, phân phối — do <b>Trợ lý AI</b> chỉ huy, nối ERP·RAG·CDP·Website. Bạn chỉ <b>duyệt + chốt</b>.</p>
+        <p className="text-sm opacity-90">Đội <b>10 chuyên viên AI</b> vận hành toàn bộ sàn — rổ hàng, kế hoạch bán, nghiên cứu thị trường, đăng tin, phân phối — do <b>Trợ lý AI</b> chỉ huy, nối ERP·kho tài liệu·CDP·Website. Bạn chỉ <b>duyệt + chốt</b>.</p>
       </div>
 
       {loading ? <div className="flex justify-center py-6 text-indigo-600"><Loader2 className="w-7 h-7 animate-spin" /></div> : (

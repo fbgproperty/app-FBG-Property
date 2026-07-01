@@ -49,7 +49,7 @@ const CommunityInbox: React.FC = () => {
         if (need.length >= 10) break;
       }
       setItems(need);
-      // soạn AI tuần tự (RAG) + auto-gửi nếu bật
+      // soạn AI tuần tự + auto-gửi nếu bật
       for (let i = 0; i < need.length; i++) {
         const d = await draftFor(need[i].last, need[i].name);
         setItems(prev => prev.map((x, j) => j === i ? { ...x, draft: d } : x));
