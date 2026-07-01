@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Megaphone, LayoutDashboard, FileText, Target, Share2, Workflow, BarChart3,
-  Users, Database, Loader2, Sparkles, ShieldCheck, Bot, ArrowRight, Clock, Radar
+  Users, Database, Loader2, Sparkles, ShieldCheck, Bot, ArrowRight, Clock, Radar, CalendarDays
 } from 'lucide-react';
 import { api } from '../services/apiService';
 import Marketing from './Marketing';
@@ -14,11 +14,13 @@ import MarketingROI from './MarketingROI';
 import AgencyDashboard from './AgencyDashboard';
 import CommunityInbox from './CommunityInbox';
 import WebTracking from './WebTracking';
+import ContentCalendar from './ContentCalendar';
 
-type Sec = 'overview' | 'content' | 'ads' | 'channels' | 'community' | 'tracking' | 'automation' | 'roi';
+type Sec = 'overview' | 'content' | 'calendar' | 'ads' | 'channels' | 'community' | 'tracking' | 'automation' | 'roi';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'content', label: 'Content AI', icon: FileText },
+  { id: 'calendar', label: 'Lịch nội dung', icon: CalendarDays },
   { id: 'ads', label: 'Quảng cáo', icon: Target },
   { id: 'channels', label: 'Kênh (FB/Zalo)', icon: Share2 },
   { id: 'community', label: 'Trực inbox', icon: Bot },
@@ -56,7 +58,7 @@ const Overview: React.FC = () => {
     { label: 'Khách trong CDP', val: k.cdp, icon: Users, color: 'emerald' },
   ];
   const FLOWS = [
-    { t: 'Content Factory', d: 'Trợ lý AI + RAG sinh bài/caption/kịch bản theo dự án → duyệt → đăng đa kênh', s: 'Đang phát triển (GĐ B)' },
+    { t: 'Content Factory', d: 'Trợ lý AI + kho tài liệu AI sinh bài/caption/kịch bản theo dự án → duyệt → đăng đa kênh', s: 'Đang phát triển (GĐ B)' },
     { t: 'Lead Engine', d: 'Cào lead → CDP → AI chấm điểm → giao 1 sale → Zalo nurture → ERP deal', s: 'Một phần đã chạy' },
     { t: 'Ad Optimizer', d: 'Kéo số liệu Ads → AI tối ưu ngân sách + cảnh báo', s: 'Chờ token Google (GĐ D)' },
     { t: 'Báo cáo ROI', d: 'Trợ lý AI tổng hợp chi phí marketing ↔ doanh thu deal mỗi sáng', s: 'GĐ E' },
@@ -77,7 +79,7 @@ const Overview: React.FC = () => {
       )}
       <div className="bg-gradient-to-br from-indigo-600 to-fuchsia-600 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Điều phối bởi Trợ lý AI</span></div>
-        <p className="text-sm opacity-90">Trợ lý AI lập kế hoạch chiến dịch + giao việc + báo cáo, nối Tự động hoá · CDP · ERP · RAG · Bộ nhớ AI để tự động hoá. Mọi nội dung/quảng cáo/tin gửi khách <b>cần người duyệt</b> trước khi ra ngoài.</p>
+        <p className="text-sm opacity-90">Trợ lý AI lập kế hoạch chiến dịch + giao việc + báo cáo, nối Tự động hoá · CDP · ERP · kho tài liệu AI · Bộ nhớ AI để tự động hoá. Mọi nội dung/quảng cáo/tin gửi khách <b>cần người duyệt</b> trước khi ra ngoài.</p>
       </div>
       <div>
         <h3 className="font-black text-slate-900 mb-3 flex items-center gap-2"><Sparkles className="w-5 h-5 text-fuchsia-600" /> 4 luồng tự động hoá lõi</h3>
@@ -138,6 +140,7 @@ const MarketingOS: React.FC = () => {
         {sec === 'channels' && <Marketing />}
         {sec === 'community' && <CommunityInbox />}
         {sec === 'content' && <div className="space-y-5"><ContentFactory /><ImageFactory /><VideoFactory /></div>}
+        {sec === 'calendar' && <ContentCalendar />}
         {sec === 'tracking' && <WebTracking />}
         {sec === 'automation' && <AutomationHub />}
         {sec === 'roi' && <MarketingROI />}

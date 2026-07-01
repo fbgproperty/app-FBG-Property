@@ -17,15 +17,15 @@ const OS = [
 
 const VALUES = [
   { icon: Brain, t: 'Mỗi nhân sự có một đội AI riêng', d: '30+ chuyên viên AI chia 3 phòng (Marketing · BĐS · Kinh doanh) hỗ trợ từng người tự động.' },
-  { icon: MessageSquare, t: 'Bám tài liệu thật của dự án', d: 'Mọi nội dung, tư vấn, kế hoạch đều grounded RAG từ tài liệu chủ đầu tư — không bịa.' },
+  { icon: MessageSquare, t: 'Bám tài liệu thật của dự án', d: 'Mọi nội dung, tư vấn, kế hoạch đều bám sát tài liệu chủ đầu tư — không bịa.' },
   { icon: TrendingUp, t: 'Tăng hiệu quả, giảm việc tay', d: 'AI soạn content, dựng video, chấm điểm khách, gợi ý hành động — nhân sự chỉ duyệt & chốt deal.' },
-  { icon: Zap, t: 'Trợ lý AI điều phối tự trị', d: 'Một bộ não AI nối ERP · CDP · RAG · Bộ nhớ AI · Website · Zalo — vận hành xuyên suốt.' },
+  { icon: Zap, t: 'Trợ lý AI điều phối tự trị', d: 'Một bộ não AI nối ERP · CDP · kho tài liệu AI · Bộ nhớ AI · Website · Zalo — vận hành xuyên suốt.' },
 ];
 
 const STATS = [
   { v: '7', l: 'Hệ điều hành AI (OS)' },
   { v: '30+', l: 'Chuyên viên AI' },
-  { v: '13', l: 'Dự án grounded RAG' },
+  { v: '13', l: 'Dự án có tài liệu' },
   { v: '6.000+', l: 'Khách trong CDP' },
 ];
 

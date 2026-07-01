@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Loader2, RefreshCw, Sparkles, Check, X, ClipboardList, ListChecks,
   CheckCircle2, PlayCircle, Flag, ChevronDown, ChevronRight, Route, History, Square, CheckSquare,
+  Bot, Copy,
 } from 'lucide-react';
 import { api } from '../services/apiService';
 
@@ -28,6 +29,8 @@ const WorkApproval: React.FC = () => {
   const [planning, setPlanning] = useState('');
   const [previews, setPreviews] = useState<Record<string, { t: string; done: boolean }[]>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [autorun, setAutorun] = useState('');
+  const [copied, setCopied] = useState('');
   const [err, setErr] = useState('');
 
   const load = async () => {
@@ -69,6 +72,20 @@ const WorkApproval: React.FC = () => {
     try { await api.worklogPlan(id); await load(); }
     catch (e: any) { setErr(e?.message || 'Chưa lập được lộ trình.'); }
     setPlanning('');
+  };
+
+  // AI executes ALL steps of an item, attaching a result deliverable to each, then reload
+  const doAutorun = async (id: string) => {
+    setAutorun(id); setErr('');
+    setExpanded(e => ({ ...e, [id]: true }));
+    try { await api.worklogAutorun(id); await load(); }
+    catch (e: any) { setErr(e?.message || 'Trợ lý AI chưa thực hiện được việc này.'); }
+    setAutorun('');
+  };
+
+  const copyResult = (key: string, text: string) => {
+    try { navigator.clipboard?.writeText(text || ''); } catch { /* */ }
+    setCopied(key); setTimeout(() => setCopied(''), 1500);
   };
 
   const advance = async (id: string, action: 'start' | 'step' | 'done', index?: number) => {
@@ -209,13 +226,25 @@ const WorkApproval: React.FC = () => {
                             <div className="space-y-1">
                               {steps.map((s: any, k: number) => {
                                 const stepBusy = busy === it.id + ':' + k;
+                                const result = s?.result;
+                                const rKey = it.id + '#' + k;
                                 return (
-                                  <button key={k} onClick={() => advance(it.id, 'step', k)} disabled={stepBusy} className="w-full flex items-start gap-2.5 text-left px-3 py-2 rounded-xl hover:bg-slate-50 disabled:opacity-60">
-                                    <span className="shrink-0 mt-0.5" style={{ color: s?.done ? c : '#cbd5e1' }}>
-                                      {stepBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : s?.done ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
-                                    </span>
-                                    <span className={`text-[13px] ${s?.done ? 'line-through text-slate-400' : 'text-slate-700'}`}>{s?.t}</span>
-                                  </button>
+                                  <div key={k}>
+                                    <button onClick={() => advance(it.id, 'step', k)} disabled={stepBusy} className="w-full flex items-start gap-2.5 text-left px-3 py-2 rounded-xl hover:bg-slate-50 disabled:opacity-60">
+                                      <span className="shrink-0 mt-0.5" style={{ color: s?.done ? c : '#cbd5e1' }}>
+                                        {stepBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : s?.done ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+                                      </span>
+                                      <span className={`text-[13px] ${s?.done ? 'line-through text-slate-400' : 'text-slate-700'}`}>{s?.t}</span>
+                                    </button>
+                                    {result && (
+                                      <div className="ml-8 mb-1.5 relative">
+                                        <button onClick={() => copyResult(rKey, String(result))} className="absolute top-1.5 right-1.5 inline-flex items-center gap-1 text-[10px] font-black bg-white border border-slate-200 rounded-lg px-1.5 py-0.5 hover:bg-slate-50">
+                                          {copied === rKey ? <><Check className="w-3 h-3 text-emerald-500" />Đã chép</> : <><Copy className="w-3 h-3" />Chép</>}
+                                        </button>
+                                        <div className="text-[12px] text-slate-600 whitespace-pre-wrap leading-relaxed bg-slate-50 border border-slate-100 rounded-xl p-3 pr-14">{String(result)}</div>
+                                      </div>
+                                    )}
+                                  </div>
                                 );
                               })}
                             </div>
@@ -224,6 +253,9 @@ const WorkApproval: React.FC = () => {
 
                         {/* Action buttons */}
                         <div className="flex items-center gap-2 flex-wrap">
+                          <button onClick={() => doAutorun(it.id)} disabled={autorun === it.id} className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-violet-600 text-white rounded-xl font-black text-xs hover:bg-violet-700 disabled:opacity-60">
+                            {autorun === it.id ? <><Loader2 className="w-4 h-4 animate-spin" /> Trợ lý AI đang thực hiện…</> : <><Bot className="w-4 h-4" /> Trợ lý AI tự làm</>}
+                          </button>
                           {it.status === 'approved' && (
                             <button onClick={() => advance(it.id, 'start')} disabled={busy === it.id} className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 text-white rounded-xl font-black text-xs hover:bg-indigo-700 disabled:opacity-60">
                               {busy === it.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />} Bắt đầu

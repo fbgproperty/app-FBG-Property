@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { Server, Activity, UserCog, Lock } from 'lucide-react';
+import { Server, Activity, UserCog, Lock, ShieldAlert } from 'lucide-react';
 import Billing from './Billing';
 import UsersPage from './UsersPage';
 import RolesPage from './RolesPage';
+import InfraMonitor from './InfraMonitor';
 
-type Sec = 'infra' | 'users' | 'roles';
+type Sec = 'monitor' | 'infra' | 'users' | 'roles';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
+  { id: 'monitor', label: 'Giám sát', icon: ShieldAlert },
   { id: 'infra', label: 'Hạ tầng & Chi phí', icon: Activity },
   { id: 'users', label: 'Người dùng', icon: UserCog },
   { id: 'roles', label: 'Vai trò & Phân quyền', icon: Lock },
 ];
 
 const TechnologyOS: React.FC = () => {
-  const [sec, setSec] = useState<Sec>('infra');
+  const [sec, setSec] = useState<Sec>('monitor');
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
@@ -35,6 +37,7 @@ const TechnologyOS: React.FC = () => {
       </div>
 
       <div className="animate-in fade-in duration-300">
+        {sec === 'monitor' && <InfraMonitor />}
         {sec === 'infra' && <Billing />}
         {sec === 'users' && <UsersPage />}
         {sec === 'roles' && <RolesPage />}

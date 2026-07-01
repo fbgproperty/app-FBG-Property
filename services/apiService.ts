@@ -1188,6 +1188,36 @@ class ApiService {
     if (!res.ok) throw new Error(`campaigns ${res.status}`);
     return res.json();
   }
+  /** Phiên bản 2 — Lịch nội dung marketing đa kênh (AI lên lịch theo dự án). */
+  public async contentCalendar(project: string, days = 7): Promise<{ project: string; days: number; items: { day: number; channel: string; title: string; angle: string }[]; sources: number }> {
+    const res = await fetch(`${this.cdpBaseUrl}/content/calendar`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project, days }),
+    });
+    if (!res.ok) throw new Error(`calendar ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 2 — Giám sát & cảnh báo hạ tầng/chi phí (số dư, chi phí, sự cố). */
+  public async infraAlerts(): Promise<{ healthy: boolean; alerts: { level: string; msg: string }[]; summary: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/infra/alerts`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`alerts ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 2 — Trợ lý AI tự thực hiện toàn bộ lộ trình một công việc (tạo kết quả từng bước). */
+  public async worklogAutorun(id: string): Promise<{ ok: boolean; item: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/worklog/autorun`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) throw new Error(`autorun ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 2 — Dự báo doanh số 4 tuần (biểu đồ xu hướng + nhận định AI). */
+  public async reportForecast(): Promise<{ series: { label: string; value: number }[]; summary: string; assumption: string; inputs: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/report/forecast`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`forecast ${res.status}`);
+    return res.json();
+  }
   /** Phiên bản 2 — Hồ sơ dự án AI (dossier đầy đủ). */
   public async estateDossier(project: string): Promise<{ text: string; project: string; sources: number }> {
     const res = await fetch(`${this.cdpBaseUrl}/estate/dossier`, {
