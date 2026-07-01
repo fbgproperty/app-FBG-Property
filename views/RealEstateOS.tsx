@@ -7,13 +7,15 @@ import ListingPublisher from './ListingPublisher';
 import Projects from './Property/Project/Projects';
 import HousesApartments from './Property/Properties/HousesApartments';
 import Deployment from './Deployment';
+import DeployLaunch from './DeployLaunch';
 import { isAdminRole } from '../services/permissions';
 
-type Sec = 'overview' | 'data' | 'deploy' | 'saleplan' | 'market' | 'listing';
+type Sec = 'overview' | 'data' | 'trienkhai' | 'deploy' | 'saleplan' | 'market' | 'listing';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'data', label: 'Dữ liệu BĐS', icon: Boxes },
-  { id: 'deploy', label: 'Triển khai', icon: Rocket, admin: true },
+  { id: 'trienkhai', label: 'Triển khai', icon: Rocket, admin: true },
+  { id: 'deploy', label: 'Triển khai hạ tầng', icon: Rocket, admin: true },
   { id: 'saleplan', label: 'Kế hoạch bán', icon: ClipboardList },
   { id: 'market', label: 'Nghiên cứu thị trường', icon: TrendingUp },
   { id: 'listing', label: 'Đăng tin', icon: Newspaper },
@@ -71,6 +73,7 @@ const RealEstateOS: React.FC = () => {
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <EstateAgency onOpen={(s) => setSec(s as Sec)} />}
         {sec === 'data' && <DataSection />}
+        {sec === 'trienkhai' && admin && <DeployLaunch />}
         {sec === 'deploy' && admin && <Deployment />}
         {sec === 'saleplan' && <SalePlanner />}
         {sec === 'market' && <MarketResearch />}

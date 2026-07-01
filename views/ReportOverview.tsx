@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Users, MessageSquare, Building2, Boxes, Share2, ClipboardCheck, Server, Loader2, Sparkles, Copy, Check, Bot } from 'lucide-react';
+import { Users, MessageSquare, Building2, Boxes, Share2, ClipboardCheck, Server, Loader2, Sparkles, Copy, Check, Bot, Rocket, Radar, Target, UserCheck } from 'lucide-react';
 import { api } from '../services/apiService';
 
 const tot = (x: any) => (x?.total ?? x?.totalItems ?? x?.data?.total ?? (x?.items?.length) ?? 0);
 const arr = (x: any): any[] => { const c = Array.isArray(x) ? x : (x?.data?.items || x?.items || x?.data?.data || x?.data); return Array.isArray(c) ? c : []; };
+const nn = (x: any) => Number(x) || 0;
 
 const ReportOverview: React.FC = () => {
   const [d, setD] = useState<any>({ khach: 0, lead: 0, duan: 0, listing: 0, kenh: 0, congviec: 0, vmUp: 0 });
@@ -11,6 +12,7 @@ const ReportOverview: React.FC = () => {
   const [report, setReport] = useState('');
   const [gen, setGen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [camps, setCamps] = useState<any[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -39,7 +41,10 @@ const ReportOverview: React.FC = () => {
       });
       setLoading(false);
     })();
+    api.deployCampaigns().then((r: any) => setCamps(arr(r))).catch(() => { /* */ });
   }, []);
+
+  const lastCamp = Array.isArray(camps) && camps.length ? camps[0] : null;
 
   const genReport = async () => {
     setGen(true); setReport('');
@@ -72,6 +77,33 @@ const ReportOverview: React.FC = () => {
       <div className="bg-gradient-to-br from-indigo-700 to-slate-900 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Báo cáo tổng hợp toàn hệ thống</span></div>
         <p className="text-sm opacity-90">Gom số liệu thật từ 3 phòng AI + vận hành + hạ tầng. Trợ lý AI viết báo cáo tổng cho CEO.</p>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-100 p-5">
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+          <div className="flex items-center gap-2"><Rocket className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Phễu chiến dịch triển khai</span></div>
+          <span className="text-[11px] font-black px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600">{Array.isArray(camps) ? camps.length : 0} chiến dịch</span>
+        </div>
+        {lastCamp ? (
+          <div>
+            <div className="text-[12px] text-slate-400 font-bold mb-2">Gần nhất: <span className="text-slate-700">{lastCamp.project}</span></div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {[
+                { label: 'Đã quét', val: nn(lastCamp.reach), icon: Radar, c: 'bg-slate-700' },
+                { label: 'Quan tâm', val: nn(lastCamp.interested), icon: Target, c: 'bg-fuchsia-600' },
+                { label: 'Đã giao', val: nn(lastCamp.assigned), icon: UserCheck, c: 'bg-emerald-600' },
+              ].map((x, i, a) => (
+                <React.Fragment key={x.label}>
+                  <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2">
+                    <div className={`w-7 h-7 rounded-lg ${x.c} flex items-center justify-center text-white`}><x.icon className="w-3.5 h-3.5" /></div>
+                    <div><p className="text-lg font-black text-slate-900 leading-none">{x.val}</p><p className="text-[10px] text-slate-400 font-bold">{x.label}</p></div>
+                  </div>
+                  {i < a.length - 1 && <span className="text-slate-300 font-black">→</span>}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        ) : <p className="text-[12px] text-slate-400">Chưa có chiến dịch triển khai nào.</p>}
       </div>
 
       <a href="https://openclaw.fbgproperty.vn" target="_blank" rel="noreferrer" className="block bg-gradient-to-br from-rose-600 to-orange-500 rounded-3xl p-6 text-white hover:opacity-95 transition">

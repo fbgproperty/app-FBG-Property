@@ -1156,6 +1156,32 @@ class ApiService {
     if (!res.ok) throw new Error(`overdue ${res.status}`);
     return res.json();
   }
+  /** Triển khai dự án tự trị: 1 lệnh → AI dựng bộ bán hàng + lọc khách quan tâm + giao đều sale. */
+  public async deployLaunch(body: { project: string; keywords?: string[]; mode?: 'match' | 'broad'; scan?: number; assignCap?: number; notify?: boolean }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/launch`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`launch ${res.status}`);
+    return res.json();
+  }
+  public async deployCampaigns(): Promise<{ items: any[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/campaigns`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`campaigns ${res.status}`);
+    return res.json();
+  }
+  /** Khách được giao cho tôi (sale thấy của mình, admin thấy tất cả). */
+  public async deployMyAssigned(): Promise<{ items: any[]; total: number }> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/my-assigned`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`my-assigned ${res.status}`);
+    return res.json();
+  }
+  /** Hồ sơ khách 360°: hồ sơ + hoạt động + phân công + tư vấn chốt của AI. */
+  public async customer360(id: string): Promise<{ profile: any; activity: any[]; assignment: any; closeBrief: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/cdp/customers/${encodeURIComponent(id)}/360`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`360 ${res.status}`);
+    return res.json();
+  }
   /** Autopilot: trạng thái vòng đời tự trị mỗi ngày (đồng bộ → bản tin → nhắc quá hạn). */
   public async autopilotStatus(): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/autopilot/status`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
