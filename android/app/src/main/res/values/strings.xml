@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FBG Property</string>
+    <string name="title_activity_main">FBG Property</string>
+    <string name="package_name">vn.fbgproperty.app</string>
+    <string name="custom_url_scheme">vn.fbgproperty.app</string>
+</resources>

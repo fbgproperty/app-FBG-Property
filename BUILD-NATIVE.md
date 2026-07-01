@@ -2,6 +2,11 @@
 
 App đã là **PWA cài được** (Thêm vào màn hình chính / Install). Để có **bản app-store thật** (`.ipa` / `.apk`), dùng **Capacitor** bọc bản web `dist/`.
 
+> **Trạng thái hiện tại (đã dựng sẵn):**
+> - ✅ Đã cài Capacitor + **tạo khung `android/` và `ios/`** (bước 1–2 bên dưới đã xong).
+> - ✅ Đã bật **live-update** (`server.url = https://app.fbgproperty.vn`) → app native luôn hiển thị bản web mới nhất, sửa web là app tự cập nhật, không cần nộp lại kho.
+> - ⏳ Còn lại: cài **toolchain** trên máy Mac + mở IDE xuất file + tài khoản nhà phát triển (bước 3).
+
 > Cần máy có **Xcode** (iOS) và/hoặc **Android Studio** (Android) — không build được trong môi trường CI thường.
 
 ## 1. Cài Capacitor (1 lần)

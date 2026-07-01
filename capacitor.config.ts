@@ -9,8 +9,9 @@ const config: CapacitorConfig = {
   backgroundColor: '#0f172a',
   server: {
     androidScheme: 'https',
-    // Khi muốn app native trỏ thẳng web đã deploy (live-update), bỏ comment:
-    // url: 'https://app.fbgproperty.vn', cleartext: false,
+    // Live-update: app native luôn tải bản web mới nhất (sửa web → app tự cập nhật, không cần nộp lại kho).
+    url: 'https://app.fbgproperty.vn',
+    cleartext: false,
   },
   ios: { contentInset: 'always' },
   android: { allowMixedContent: false },
