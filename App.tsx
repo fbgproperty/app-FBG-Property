@@ -34,6 +34,7 @@ import SaleProjects from './views/SaleProjects';
 import MyCustomers from './views/MyCustomers';
 import MyLeads from './views/MyLeads';
 import OrgChart from './views/OrgChart';
+import CrmBoard from './views/CrmBoard';
 import { canAccess } from './services/permissions';
 
 const TOKEN_KEY = 'salesagent_access_token';
@@ -111,6 +112,7 @@ const App: React.FC = () => {
               <Route path="/marketing" element={<Guard path="/marketing"><MarketingOS /></Guard>} />
               <Route path="/san-bds" element={<Guard path="/san-bds"><RealEstateOS /></Guard>} />
               <Route path="/kinh-doanh" element={<Guard path="/kinh-doanh"><BusinessOS /></Guard>} />
+              <Route path="/crm" element={<Guard path="/kinh-doanh"><CrmBoard /></Guard>} />
               <Route path="/billing" element={<Guard path="/billing"><Billing /></Guard>} />
               <Route path="/cong-nghe" element={<Guard path="/cong-nghe"><TechnologyOS /></Guard>} />
               <Route path="/bao-cao" element={<Guard path="/bao-cao"><ReportOS /></Guard>} />

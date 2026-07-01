@@ -36,6 +36,7 @@ export const canAccess = (route: string, role: string = getRole()): boolean => {
   if (route === '/marketing') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
   if (route === '/san-bds') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
   if (route === '/kinh-doanh') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
+  if (route === '/crm') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
   if (route === '/cong-nghe' || route.startsWith('/cong-nghe/')) return ['ceo', 'gd_du_an', 'admin_du_an'].includes(role);
   if (route === '/bao-cao' || route.startsWith('/bao-cao/')) return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing'].includes(role);
   return p.some((r) => route === r || route.startsWith(r + '/'));

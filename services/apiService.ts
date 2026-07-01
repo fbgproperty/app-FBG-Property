@@ -1188,6 +1188,31 @@ class ApiService {
     if (!res.ok) throw new Error(`campaigns ${res.status}`);
     return res.json();
   }
+  /** CRM (ERP) — tổng hợp phễu Lead + Opportunity (scoped theo người). */
+  public async crmSummary(): Promise<{ scoped: boolean; lead: { total: number; byStatus: Record<string, number> }; opportunity: { total: number; byStatus: Record<string, number> } }> {
+    const res = await fetch(`${this.cdpBaseUrl}/crm/summary`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`crm ${res.status}`);
+    return res.json();
+  }
+  public async crmLeads(): Promise<{ items: any[]; scoped: boolean }> {
+    const res = await fetch(`${this.cdpBaseUrl}/crm/leads`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`leads ${res.status}`);
+    return res.json();
+  }
+  public async crmOpportunities(): Promise<{ items: any[]; scoped: boolean }> {
+    const res = await fetch(`${this.cdpBaseUrl}/crm/opportunities`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`opps ${res.status}`);
+    return res.json();
+  }
+  /** CRM — nạp toàn bộ việc Agent (24 nhân sự) vào ERP dưới dạng công việc (ToDo). */
+  public async crmSyncWorklog(limit = 200): Promise<{ synced: number; errors: number; totalSynced: number; totalWorklog: number }> {
+    const res = await fetch(`${this.cdpBaseUrl}/crm/sync-worklog`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ limit }),
+    });
+    if (!res.ok) throw new Error(`sync ${res.status}`);
+    return res.json();
+  }
   /** Agent OS — danh sách 24 Agent (đồng bộ nhân sự + slug điều khiển). */
   public async agentsRoster(): Promise<{ items: { email: string; name: string; role: string; dept: string; slug: string; ready: boolean; hasTelegram: boolean }[]; total: number; ready: number; depts: string[] }> {
     const res = await fetch(`${this.cdpBaseUrl}/agents/roster`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
