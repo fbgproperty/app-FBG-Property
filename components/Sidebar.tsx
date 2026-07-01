@@ -29,8 +29,7 @@ import {
   Cpu,
   Server,
   BarChart3,
-  Megaphone,
-  Contact
+  Megaphone
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -71,7 +70,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/san-bds', label: 'Bất động sản', icon: Building2 },
     { to: '/marketing', label: 'Marketing', icon: Megaphone },
     { to: '/kinh-doanh', label: 'Kinh doanh', icon: Briefcase },
-    { to: '/crm', label: 'CRM', icon: Contact },
     { to: '/van-hanh', label: 'Vận hành', icon: Cpu },
     { to: '/cong-nghe', label: 'Công nghệ', icon: Server },
     { to: '/bao-cao', label: 'Báo cáo', icon: BarChart3 },
