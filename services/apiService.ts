@@ -1188,6 +1188,12 @@ class ApiService {
     if (!res.ok) throw new Error(`campaigns ${res.status}`);
     return res.json();
   }
+  /** Agent OS — danh sách 24 Agent (đồng bộ nhân sự + slug điều khiển). */
+  public async agentsRoster(): Promise<{ items: { email: string; name: string; role: string; dept: string; slug: string; ready: boolean; hasTelegram: boolean }[]; total: number; ready: number; depts: string[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/agents/roster`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`roster ${res.status}`);
+    return res.json();
+  }
   /** Phiên bản 5 — Việc ưu tiên hôm nay (gom toàn tổ chức). */
   public async opsNextActions(): Promise<{ actions: { icon: string; level: string; text: string; link: string }[]; summary: any }> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/nextactions`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });

@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Sparkles, LayoutDashboard, MessageSquare, ClipboardList, ListChecks } from 'lucide-react';
+import { Sparkles, LayoutDashboard, MessageSquare, ClipboardList, ListChecks, Users } from 'lucide-react';
 import OpsCommand from './OpsCommand';
 import TroLyAI from './TroLyAI';
 import WorkApproval from './WorkApproval';
 import ExecutiveCockpit from './ExecutiveCockpit';
+import AgentControl from './AgentControl';
 
-type Sec = 'today' | 'command' | 'work' | 'chat';
+type Sec = 'today' | 'agents' | 'command' | 'work' | 'chat';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'today', label: 'Ưu tiên hôm nay', icon: ListChecks },
+  { id: 'agents', label: '24 Agent', icon: Users },
   { id: 'command', label: 'Chỉ huy', icon: LayoutDashboard },
   { id: 'work', label: 'Công việc', icon: ClipboardList },
   { id: 'chat', label: 'Trò chuyện Trợ lý AI', icon: MessageSquare },
@@ -20,8 +22,8 @@ const AssistantOS: React.FC = () => {
       <header className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg"><Sparkles className="w-6 h-6" /></div>
         <div>
-          <h2 className="text-2xl font-black text-slate-900 leading-none">Trợ lý AI</h2>
-          <p className="text-sm text-slate-400 font-semibold mt-1">Bộ não chỉ huy toàn bộ các OS · ra lệnh trực tiếp bằng hội thoại</p>
+          <h2 className="text-2xl font-black text-slate-900 leading-none">Agent OS</h2>
+          <p className="text-sm text-slate-400 font-semibold mt-1">Tổng hợp & đồng bộ 24 Agent · điều khiển toàn bộ, vào từng Agent ra lệnh</p>
         </div>
       </header>
 
@@ -38,6 +40,7 @@ const AssistantOS: React.FC = () => {
 
       <div className="animate-in fade-in duration-300">
         {sec === 'today' && <ExecutiveCockpit />}
+        {sec === 'agents' && <AgentControl />}
         {sec === 'command' && <OpsCommand />}
         {sec === 'work' && <WorkApproval />}
         {sec === 'chat' && <TroLyAI />}
