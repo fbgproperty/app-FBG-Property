@@ -1156,6 +1156,24 @@ class ApiService {
     if (!res.ok) throw new Error(`overdue ${res.status}`);
     return res.json();
   }
+  /** Lập lộ trình thực hiện (AI sinh các bước) cho một công việc. */
+  public async worklogPlan(id: string): Promise<{ ok: boolean; steps: { t: string; done: boolean }[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/worklog/plan`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) throw new Error(`plan ${res.status}`);
+    return res.json();
+  }
+  /** Tiến độ thực hiện: action = 'start' | 'step' (kèm index) | 'done'. */
+  public async worklogAdvance(id: string, action: 'start' | 'step' | 'done', index?: number): Promise<{ ok: boolean; item: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/worklog/advance`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action, index }),
+    });
+    if (!res.ok) throw new Error(`advance ${res.status}`);
+    return res.json();
+  }
   /** Triển khai dự án tự trị: 1 lệnh → AI dựng bộ bán hàng + lọc khách quan tâm + giao đều sale. */
   public async deployLaunch(body: { project: string; keywords?: string[]; mode?: 'match' | 'broad'; scan?: number; assignCap?: number; notify?: boolean }): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/deploy/launch`, {

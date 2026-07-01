@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, Clock, Bot, ClipboardCheck, Send, RefreshCw, Sparkles, Check, X, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, Clock, RefreshCw, CheckCircle2, XCircle, PlayCircle, Flag } from 'lucide-react';
 import { api } from '../services/apiService';
 
 const ago = (ts: number) => {
@@ -11,36 +11,28 @@ const ago = (ts: number) => {
   return Math.floor(s / 86400) + ' ngày trước';
 };
 
+const STATUS: Record<string, { label: string; color: string; icon: any }> = {
+  approved: { label: 'Đã duyệt', color: '#10b981', icon: CheckCircle2 },
+  rejected: { label: 'Đã từ chối', color: '#f43f5e', icon: XCircle },
+  doing: { label: 'Đang thực hiện', color: '#6366f1', icon: PlayCircle },
+  done: { label: 'Hoàn thành', color: '#0d9488', icon: Flag },
+};
+
 const WorkTimeline: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [gen, setGen] = useState(false);
-  const [busy, setBusy] = useState('');
-  const [err, setErr] = useState('');
 
   const load = async () => {
-    try { const r = await api.opsWorklog(); setItems(Array.isArray(r.items) ? r.items : []); }
+    setLoading(true);
+    try { const r = await api.opsWorklog(); setItems(Array.isArray(r?.items) ? r.items : []); }
     catch { setItems([]); }
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
 
-  const generate = async () => {
-    setGen(true); setErr('');
-    try { await api.worklogGenerate(); await load(); }
-    catch (e: any) { setErr(e?.message || 'Chưa sinh được việc (backend đang cập nhật).'); }
-    setGen(false);
-  };
-  const decide = async (id: string, decision: 'approve' | 'reject') => {
-    setBusy(id);
-    try {
-      await api.worklogDecide(id, decision);
-      setItems(its => its.map(i => i.id === id ? { ...i, status: decision === 'approve' ? 'approved' : 'rejected', decidedAt: Math.floor(Date.now() / 1000) } : i));
-    } catch (e: any) { setErr(e?.message || 'Lỗi'); }
-    setBusy('');
-  };
-
-  const pending = items.filter(i => i.status === 'pending');
+  const decided = items
+    .filter(i => i && i.status !== 'pending')
+    .sort((a, b) => (b?.decidedAt || b?.ts || 0) - (a?.decidedAt || a?.ts || 0));
 
   return (
     <div className="bg-white rounded-[28px] border border-gray-100 shadow-sm h-full flex flex-col overflow-hidden">
@@ -49,38 +41,38 @@ const WorkTimeline: React.FC = () => {
           <div className="flex items-center gap-2"><Clock className="w-5 h-5 text-indigo-600" /><span className="font-black text-slate-900">Trao đổi công việc</span></div>
           <button onClick={load} className="text-slate-300 hover:text-slate-500"><RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /></button>
         </div>
-        <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-sky-600 bg-sky-50 rounded-lg px-2.5 py-1.5">
-          <Send className="w-3.5 h-3.5" /> Trợ lý AI tự sinh việc · báo Telegram · duyệt/từ chối tại đây
-        </div>
-        <button onClick={generate} disabled={gen} className="mt-2 w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-xl font-black text-xs hover:bg-indigo-700 disabled:opacity-60">
-          {gen ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Trợ lý AI sinh việc {pending.length > 0 && `· ${pending.length} chờ duyệt`}
-        </button>
+        <div className="mt-1 text-[11px] font-semibold text-slate-400">Việc đã duyệt · từ chối · đang thực hiện · hoàn thành</div>
+        <div className="mt-2 text-[11px] font-bold text-sky-600 bg-sky-50 rounded-lg px-2.5 py-1.5">Duyệt việc mới tại Trợ lý AI › Công việc</div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 pb-5">
-        {err && <div className="text-[11px] text-amber-600 bg-amber-50 rounded-lg px-2.5 py-1.5 mb-2 font-bold">{err}</div>}
         {loading ? <div className="flex justify-center py-10 text-indigo-600"><Loader2 className="w-6 h-6 animate-spin" /></div> :
-          items.length === 0 ? <div className="text-center text-slate-400 text-xs py-8">Chưa có việc. Bấm <b>"Trợ lý AI sinh việc"</b> để Trợ lý AI đề xuất việc hôm nay.</div> : (
+          decided.length === 0 ? <div className="text-center text-slate-400 text-xs py-8 leading-relaxed">Chưa có việc nào được duyệt. Vào <b>Trợ lý AI › Công việc</b> để duyệt việc Trợ lý AI đề xuất.</div> : (
             <div className="relative pl-4">
               <div className="absolute left-[6px] top-1 bottom-1 w-0.5 bg-slate-100" />
-              {items.map((it) => {
-                const st = it.status;
-                const c = st === 'approved' ? '#10b981' : st === 'rejected' ? '#ef4444' : '#7c3aed';
-                const Icon = st === 'approved' ? CheckCircle2 : st === 'rejected' ? XCircle : Bot;
+              {decided.map((it) => {
+                const meta = STATUS[it.status] || STATUS.approved;
+                const c = meta.color;
+                const Icon = meta.icon;
+                const steps = Array.isArray(it.steps) ? it.steps : [];
+                const done = steps.filter((s: any) => s?.done).length;
+                const hist = Array.isArray(it.history) ? it.history : [];
+                const last = hist.length ? hist[hist.length - 1] : null;
                 return (
                   <div key={it.id} className="relative mb-4 pl-3">
                     <div className="absolute -left-[10px] top-1 w-3 h-3 rounded-full border-2 border-white" style={{ background: c }} />
-                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider" style={{ color: c }}><Icon className="w-3 h-3" />{it.dept || 'Trợ lý AI'} · {ago(it.decidedAt || it.ts)}</div>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md" style={{ background: c + '22', color: c }}><Icon className="w-3 h-3" />{meta.label}</span>
+                    <div className="mt-1 text-[10px] font-black uppercase tracking-wider text-slate-400">{it.dept || 'Trợ lý AI'} · {ago(it.decidedAt || it.ts)}</div>
                     <div className="font-bold text-slate-800 text-[13px] leading-tight mt-0.5">{it.title}</div>
-                    {it.desc && <div className="text-[11px] text-slate-400 mt-0.5">{it.desc}</div>}
-                    {st === 'pending' ? (
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <button onClick={() => decide(it.id, 'approve')} disabled={busy === it.id} className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg font-black text-[11px] hover:bg-emerald-100 disabled:opacity-50">{busy === it.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />} Duyệt</button>
-                        <button onClick={() => decide(it.id, 'reject')} disabled={busy === it.id} className="inline-flex items-center gap-1 px-2.5 py-1 bg-rose-50 text-rose-700 rounded-lg font-black text-[11px] hover:bg-rose-100 disabled:opacity-50"><X className="w-3 h-3" /> Từ chối</button>
+                    {steps.length > 0 && (
+                      <div className="mt-1.5">
+                        <div className="text-[10px] font-black text-slate-500">{done}/{steps.length} bước</div>
+                        <div className="mt-0.5 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                          <div className="h-full rounded-full transition-all" style={{ width: `${steps.length ? (done / steps.length) * 100 : 0}%`, background: c }} />
+                        </div>
                       </div>
-                    ) : (
-                      <span className="inline-block mt-1 text-[10px] font-black px-2 py-0.5 rounded-md" style={{ background: c + '22', color: c }}>{st === 'approved' ? '✓ Đã duyệt' : '✕ Đã từ chối'}</span>
                     )}
+                    {last && <div className="mt-1 text-[11px] text-slate-400 italic">{last.ev} · {ago(last.ts)}</div>}
                   </div>
                 );
               })}
