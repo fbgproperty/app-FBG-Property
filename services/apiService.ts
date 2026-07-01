@@ -1188,6 +1188,45 @@ class ApiService {
     if (!res.ok) throw new Error(`campaigns ${res.status}`);
     return res.json();
   }
+  /** Phiên bản 2 — Hồ sơ dự án AI (dossier đầy đủ). */
+  public async estateDossier(project: string): Promise<{ text: string; project: string; sources: number }> {
+    const res = await fetch(`${this.cdpBaseUrl}/estate/dossier`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    if (!res.ok) throw new Error(`dossier ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 2 — Bảng hiệu suất đội (số liệu thật từ công việc + khách được giao). */
+  public async teamPerformance(): Promise<{ team: any[]; count: number }> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/team-performance`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`team ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 2 — Phân tích tổng (phễu + web + theo dự án + xu hướng). */
+  public async reportAnalytics(): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/report/analytics`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`analytics ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 2 — Ra lệnh bằng hội thoại: hiểu ý định + trích dự án. */
+  public async assistantCommand(text: string): Promise<{ intent: string; project?: string; reply: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/assistant/command`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) throw new Error(`command ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 2 — Chuyển giai đoạn 1 khách trong pipeline. */
+  public async deployAssignStage(id: string, stage: string): Promise<{ ok: boolean; stages: string[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/deploy/assign-stage`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, stage }),
+    });
+    if (!res.ok) throw new Error(`stage ${res.status}`);
+    return res.json();
+  }
   /** Giao việc cho 1 chuyên viên AI: chạy AI thật theo vai trò + bám tài liệu dự án. */
   public async agentRun(body: { agent: string; role: string; message: string }): Promise<{ reply: string }> {
     const res = await fetch(`${this.cdpBaseUrl}/office/chat`, {

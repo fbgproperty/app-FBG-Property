@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { BarChart3, LayoutDashboard, Briefcase, Megaphone } from 'lucide-react';
+import { BarChart3, LayoutDashboard, Briefcase, Megaphone, TrendingUp } from 'lucide-react';
 import ReportOverview from './ReportOverview';
 import SalesReport from './SalesReport';
 import MarketingROI from './MarketingROI';
+import AnalyticsBoard from './AnalyticsBoard';
 
-type Sec = 'overview' | 'sales' | 'marketing';
+type Sec = 'overview' | 'sales' | 'marketing' | 'analytics';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'overview', label: 'Tổng hợp', icon: LayoutDashboard },
   { id: 'sales', label: 'Kinh doanh', icon: Briefcase },
   { id: 'marketing', label: 'Marketing', icon: Megaphone },
+  { id: 'analytics', label: 'Phân tích', icon: TrendingUp },
 ];
 
 const ReportOS: React.FC = () => {
@@ -38,6 +40,7 @@ const ReportOS: React.FC = () => {
         {sec === 'overview' && <ReportOverview />}
         {sec === 'sales' && <SalesReport />}
         {sec === 'marketing' && <MarketingROI />}
+        {sec === 'analytics' && <AnalyticsBoard />}
       </div>
     </div>
   );

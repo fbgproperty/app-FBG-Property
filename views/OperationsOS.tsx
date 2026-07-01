@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { Cpu, ClipboardCheck, Workflow, Bot, Network } from 'lucide-react';
+import { Cpu, ClipboardCheck, Workflow, Bot, Network, Trophy } from 'lucide-react';
 import ErpTasks from './ErpTasks';
 import AutomationOps from './AutomationOps';
 import AIAgents from './AIAgents';
 import AIOrgChart from './AIOrgChart';
 import OrgChart from './OrgChart';
+import TeamPerformance from './TeamPerformance';
 
-type Sec = 'tasks' | 'automation' | 'agents' | 'org';
+type Sec = 'tasks' | 'automation' | 'agents' | 'org' | 'performance';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'tasks', label: 'Công việc (ERP)', icon: ClipboardCheck },
   { id: 'automation', label: 'Tự động hoá', icon: Workflow },
   { id: 'agents', label: 'Đội ngũ AI', icon: Bot },
+  { id: 'performance', label: 'Hiệu suất đội', icon: Trophy },
   { id: 'org', label: 'Tổ chức', icon: Network },
 ];
 
@@ -41,6 +43,7 @@ const OperationsOS: React.FC = () => {
         {sec === 'tasks' && <ErpTasks />}
         {sec === 'automation' && <AutomationOps />}
         {sec === 'agents' && <AIAgents />}
+        {sec === 'performance' && <TeamPerformance />}
         {sec === 'org' && <div className="space-y-6"><AIOrgChart /><OrgChart /></div>}
       </div>
     </div>

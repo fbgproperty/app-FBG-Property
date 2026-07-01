@@ -5,6 +5,7 @@ import {
   ShieldCheck, Activity, AlertTriangle, CheckCircle2
 } from 'lucide-react';
 import { api } from '../services/apiService';
+import CommandBar from './CommandBar';
 
 const tot = (x: any) => (x?.total ?? x?.totalItems ?? x?.data?.total ?? (x?.items?.length) ?? 0);
 const arr = (x: any): any[] => { const c = Array.isArray(x) ? x : (x?.data?.items || x?.items || x?.data?.data || x?.data); return Array.isArray(c) ? c : []; };
@@ -75,6 +76,8 @@ const OpsCommand: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <CommandBar />
+
       <div className="bg-gradient-to-br from-slate-900 to-indigo-700 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Trợ lý điều hành AI của FBG</span></div>
         <p className="text-sm opacity-90">Điều phối <b>{ap?.staff ?? 24} nhân sự — mỗi người 1 trợ lý AI riêng</b> (chat · ERP · tự động hoá) + 3 phòng chuyên viên AI + hạ tầng. Một màn hình thấy toàn bộ tổ chức đang chạy gì, ưu tiên gì.</p>
