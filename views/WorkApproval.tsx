@@ -141,7 +141,7 @@ const WorkApproval: React.FC = () => {
               const preview = previews[it.id];
               return (
                 <div key={it.id} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{it.dept || 'Trợ lý AI'} · {ago(it.ts)}</div>
+                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{it.byName && <span className="text-indigo-600">Agent {it.byName} · </span>}{it.dept || 'Trợ lý AI'} · {ago(it.ts)}</div>
                   <div className="font-black text-slate-900 mt-0.5">{it.title}</div>
                   {it.desc && <div className="text-sm text-slate-500 mt-1">{it.desc}</div>}
 
@@ -199,7 +199,7 @@ const WorkApproval: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md" style={{ background: c + '22', color: c }}><Icon className="w-3 h-3" />{meta.label}</span>
-                          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">{it.dept || 'Trợ lý AI'} · {ago(it.decidedAt || it.ts)}</span>
+                          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">{it.byName && <span className="text-indigo-600">Agent {it.byName} · </span>}{it.dept || 'Trợ lý AI'} · {ago(it.decidedAt || it.ts)}</span>
                         </div>
                         <div className="font-black text-slate-900 mt-1">{it.title}</div>
                         <div className="mt-2">

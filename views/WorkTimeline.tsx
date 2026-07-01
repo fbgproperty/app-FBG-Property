@@ -62,7 +62,7 @@ const WorkTimeline: React.FC = () => {
                   <div key={it.id} className="relative mb-4 pl-3">
                     <div className="absolute -left-[10px] top-1 w-3 h-3 rounded-full border-2 border-white" style={{ background: c }} />
                     <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md" style={{ background: c + '22', color: c }}><Icon className="w-3 h-3" />{meta.label}</span>
-                    <div className="mt-1 text-[10px] font-black uppercase tracking-wider text-slate-400">{it.dept || 'Trợ lý AI'} · {ago(it.decidedAt || it.ts)}</div>
+                    <div className="mt-1 text-[10px] font-black uppercase tracking-wider text-slate-400">{it.byName && <span className="text-indigo-600">Agent {it.byName} · </span>}{it.dept || 'Trợ lý AI'} · {ago(it.decidedAt || it.ts)}</div>
                     <div className="font-bold text-slate-800 text-[13px] leading-tight mt-0.5">{it.title}</div>
                     {steps.length > 0 && (
                       <div className="mt-1.5">

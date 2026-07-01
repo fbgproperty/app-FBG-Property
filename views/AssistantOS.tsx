@@ -8,15 +8,15 @@ import AgentControl from './AgentControl';
 
 type Sec = 'today' | 'agents' | 'command' | 'work' | 'chat';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
-  { id: 'today', label: 'Ưu tiên hôm nay', icon: ListChecks },
-  { id: 'agents', label: '24 Agent', icon: Users },
   { id: 'command', label: 'Chỉ huy', icon: LayoutDashboard },
+  { id: 'agents', label: '24 Agent', icon: Users },
+  { id: 'today', label: 'Ưu tiên hôm nay', icon: ListChecks },
   { id: 'work', label: 'Công việc', icon: ClipboardList },
   { id: 'chat', label: 'Trò chuyện Trợ lý AI', icon: MessageSquare },
 ];
 
 const AssistantOS: React.FC = () => {
-  const [sec, setSec] = useState<Sec>('today');
+  const [sec, setSec] = useState<Sec>('command');
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
