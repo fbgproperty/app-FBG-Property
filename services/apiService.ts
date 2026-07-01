@@ -1188,6 +1188,52 @@ class ApiService {
     if (!res.ok) throw new Error(`campaigns ${res.status}`);
     return res.json();
   }
+  /** Phiên bản 5 — Việc ưu tiên hôm nay (gom toàn tổ chức). */
+  public async opsNextActions(): Promise<{ actions: { icon: string; level: string; text: string; link: string }[]; summary: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/nextactions`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`nextactions ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 5 — Dự đoán khả năng chốt từng khách (%). */
+  public async salesPredict(): Promise<{ items: any[]; total: number }> {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/predict`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`predict ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 5 — Phân tích thắng/thua (AI). */
+  public async dealsInsights(): Promise<{ insights: string; stats: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/deals/insights`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`insights ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 5 — Tối ưu tập trung theo chuyển đổi (AI). */
+  public async reportOptimize(): Promise<{ optimize: string; byProject: any[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/report/optimize`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`optimize ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 5 — Xếp hàng chờ gửi khách (outreach chờ duyệt). */
+  public async outreachQueue(body: { cid?: string; name?: string; channel?: string; type?: string; message: string }): Promise<{ ok: boolean; item: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/outreach/queue`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`queue ${res.status}`);
+    return res.json();
+  }
+  public async outreachList(): Promise<{ items: any[]; counts: { pending: number; sent: number } }> {
+    const res = await fetch(`${this.cdpBaseUrl}/outreach`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`outreach ${res.status}`);
+    return res.json();
+  }
+  public async outreachDecide(id: string, decision: 'approve' | 'reject'): Promise<{ ok: boolean; item: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/outreach/decide`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, decision }),
+    });
+    if (!res.ok) throw new Error(`decide ${res.status}`);
+    return res.json();
+  }
   /** Phiên bản 4 — Ghi kết quả chốt deal (thắng/thua). */
   public async dealsOutcome(body: { id: string; result: 'won' | 'lost'; value?: number; reason?: string }): Promise<{ ok: boolean; assignment: any }> {
     const res = await fetch(`${this.cdpBaseUrl}/deals/outcome`, {

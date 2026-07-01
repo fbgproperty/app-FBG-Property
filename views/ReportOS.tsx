@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BarChart3, LayoutDashboard, Briefcase, Megaphone, TrendingUp, LineChart, Newspaper, Target } from 'lucide-react';
+import { BarChart3, LayoutDashboard, Briefcase, Megaphone, TrendingUp, LineChart, Newspaper, Target, Sparkles, Scale } from 'lucide-react';
 import ReportOverview from './ReportOverview';
 import SalesReport from './SalesReport';
 import MarketingROI from './MarketingROI';
@@ -7,8 +7,10 @@ import AnalyticsBoard from './AnalyticsBoard';
 import ForecastPanel from './ForecastPanel';
 import ExecutiveDigest from './ExecutiveDigest';
 import ConversionAnalytics from './ConversionAnalytics';
+import OptimizePanel from './OptimizePanel';
+import DealInsights from './DealInsights';
 
-type Sec = 'overview' | 'digest' | 'sales' | 'marketing' | 'analytics' | 'conversion' | 'forecast';
+type Sec = 'overview' | 'digest' | 'sales' | 'marketing' | 'analytics' | 'conversion' | 'forecast' | 'optimize' | 'deals';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'overview', label: 'Tổng hợp', icon: LayoutDashboard },
   { id: 'digest', label: 'Bản tin điều hành', icon: Newspaper },
@@ -17,6 +19,8 @@ const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'analytics', label: 'Phân tích', icon: TrendingUp },
   { id: 'conversion', label: 'Chuyển đổi', icon: Target },
   { id: 'forecast', label: 'Dự báo', icon: LineChart },
+  { id: 'optimize', label: 'Tối ưu', icon: Sparkles },
+  { id: 'deals', label: 'Thắng/thua', icon: Scale },
 ];
 
 const ReportOS: React.FC = () => {
@@ -50,6 +54,8 @@ const ReportOS: React.FC = () => {
         {sec === 'analytics' && <AnalyticsBoard />}
         {sec === 'conversion' && <ConversionAnalytics />}
         {sec === 'forecast' && <ForecastPanel />}
+        {sec === 'optimize' && <OptimizePanel />}
+        {sec === 'deals' && <DealInsights />}
       </div>
     </div>
   );

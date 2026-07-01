@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { Sparkles, LayoutDashboard, MessageSquare, ClipboardList } from 'lucide-react';
+import { Sparkles, LayoutDashboard, MessageSquare, ClipboardList, ListChecks } from 'lucide-react';
 import OpsCommand from './OpsCommand';
 import TroLyAI from './TroLyAI';
 import WorkApproval from './WorkApproval';
+import ExecutiveCockpit from './ExecutiveCockpit';
 
-type Sec = 'command' | 'work' | 'chat';
+type Sec = 'today' | 'command' | 'work' | 'chat';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
+  { id: 'today', label: 'Ưu tiên hôm nay', icon: ListChecks },
   { id: 'command', label: 'Chỉ huy', icon: LayoutDashboard },
   { id: 'work', label: 'Công việc', icon: ClipboardList },
   { id: 'chat', label: 'Trò chuyện Trợ lý AI', icon: MessageSquare },
 ];
 
 const AssistantOS: React.FC = () => {
-  const [sec, setSec] = useState<Sec>('command');
+  const [sec, setSec] = useState<Sec>('today');
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
@@ -35,6 +37,7 @@ const AssistantOS: React.FC = () => {
       </div>
 
       <div className="animate-in fade-in duration-300">
+        {sec === 'today' && <ExecutiveCockpit />}
         {sec === 'command' && <OpsCommand />}
         {sec === 'work' && <WorkApproval />}
         {sec === 'chat' && <TroLyAI />}

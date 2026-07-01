@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Briefcase, LayoutDashboard, Users, Zap, BarChart3, UserCheck, Columns3, HeartHandshake, Flame } from 'lucide-react';
+import { Briefcase, LayoutDashboard, Users, Zap, BarChart3, UserCheck, Columns3, HeartHandshake, Flame, Percent, Send } from 'lucide-react';
 import BusinessAgency from './BusinessAgency';
 import PipelineBoard from './PipelineBoard';
 import NextActionPanel from './NextActionPanel';
@@ -9,18 +9,22 @@ import CDP from './CDP';
 import MyLeads from './MyLeads';
 import AssignedLeads from './AssignedLeads';
 import HotLeads from './HotLeads';
+import PredictLeads from './PredictLeads';
+import OutreachQueue from './OutreachQueue';
 import { isAdminRole } from '../services/permissions';
 
-type Sec = 'overview' | 'mine' | 'hot' | 'assigned' | 'pipeline' | 'customers' | 'action' | 'nurture' | 'report';
+type Sec = 'overview' | 'mine' | 'hot' | 'predict' | 'assigned' | 'pipeline' | 'customers' | 'action' | 'nurture' | 'outreach' | 'report';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'mine', label: 'Khách của tôi', icon: Users },
   { id: 'hot', label: 'Khách nóng', icon: Flame },
+  { id: 'predict', label: 'Dự đoán chốt', icon: Percent },
   { id: 'assigned', label: 'Khách được giao', icon: UserCheck },
   { id: 'pipeline', label: 'Pipeline', icon: Columns3 },
   { id: 'customers', label: 'Tất cả khách (CDP)', icon: Users, admin: true },
   { id: 'action', label: 'Hành động AI', icon: Zap },
   { id: 'nurture', label: 'Chăm sóc tự động', icon: HeartHandshake },
+  { id: 'outreach', label: 'Hàng chờ gửi', icon: Send },
   { id: 'report', label: 'Báo cáo kinh doanh', icon: BarChart3 },
 ];
 
@@ -54,11 +58,13 @@ const BusinessOS: React.FC = () => {
         {sec === 'overview' && <BusinessAgency onOpen={(s) => setSec(s as Sec)} />}
         {sec === 'mine' && <MyLeads />}
         {sec === 'hot' && <HotLeads />}
+        {sec === 'predict' && <PredictLeads />}
         {sec === 'assigned' && <AssignedLeads />}
         {sec === 'pipeline' && <PipelineBoard />}
         {sec === 'customers' && admin && <CDP />}
         {sec === 'action' && <NextActionPanel />}
         {sec === 'nurture' && <NurtureSequence />}
+        {sec === 'outreach' && <OutreachQueue />}
         {sec === 'report' && <SalesReport />}
       </div>
     </div>
