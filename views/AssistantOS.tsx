@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { Sparkles, LayoutDashboard, MessageSquare, ClipboardList, ListChecks, Users } from 'lucide-react';
+import { Sparkles, LayoutDashboard, MessageSquare, ClipboardList, ListChecks, Users, Contact } from 'lucide-react';
 import OpsCommand from './OpsCommand';
 import TroLyAI from './TroLyAI';
 import WorkApproval from './WorkApproval';
 import ExecutiveCockpit from './ExecutiveCockpit';
 import AgentControl from './AgentControl';
+import CrmBoard from './CrmBoard';
 
-type Sec = 'today' | 'agents' | 'command' | 'work' | 'chat';
+type Sec = 'today' | 'agents' | 'command' | 'work' | 'crm' | 'chat';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'command', label: 'Chỉ huy', icon: LayoutDashboard },
   { id: 'agents', label: '24 Agent', icon: Users },
   { id: 'today', label: 'Ưu tiên hôm nay', icon: ListChecks },
   { id: 'work', label: 'Công việc', icon: ClipboardList },
+  { id: 'crm', label: 'CRM', icon: Contact },
   { id: 'chat', label: 'Trò chuyện Trợ lý AI', icon: MessageSquare },
 ];
 
@@ -43,6 +45,7 @@ const AssistantOS: React.FC = () => {
         {sec === 'agents' && <AgentControl />}
         {sec === 'command' && <OpsCommand />}
         {sec === 'work' && <WorkApproval />}
+        {sec === 'crm' && <CrmBoard />}
         {sec === 'chat' && <TroLyAI />}
       </div>
     </div>
