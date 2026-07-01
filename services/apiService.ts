@@ -1188,6 +1188,45 @@ class ApiService {
     if (!res.ok) throw new Error(`campaigns ${res.status}`);
     return res.json();
   }
+  /** Phiên bản 4 — Ghi kết quả chốt deal (thắng/thua). */
+  public async dealsOutcome(body: { id: string; result: 'won' | 'lost'; value?: number; reason?: string }): Promise<{ ok: boolean; assignment: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/deals/outcome`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`outcome ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 4 — Phân tích tỷ lệ chuyển đổi thật (chốt/dự án/sale). */
+  public async dealsAnalytics(): Promise<{ summary: any; byProject: any[]; bySale: any[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/deals/analytics`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`deals ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 4 — Khách nóng nhất hôm nay (xếp theo độ nóng). */
+  public async salesHot(): Promise<{ items: any[]; total: number }> {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/hot`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`hot ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 4 — AI huấn luyện một nhân viên kinh doanh. */
+  public async salesCoach(email: string): Promise<{ coach: string; stats: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/coach`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) throw new Error(`coach ${res.status}`);
+    return res.json();
+  }
+  /** Phiên bản 4 — Kịch bản gọi điện AI cho một khách. */
+  public async salesCallscript(id: string): Promise<{ script: string; customer: any }> {
+    const res = await fetch(`${this.cdpBaseUrl}/sales/callscript`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) throw new Error(`callscript ${res.status}`);
+    return res.json();
+  }
   /** Phiên bản 3 — Đặt lịch chiến dịch tự chạy (ngày/tuần). */
   public async deployScheduleSet(body: { project: string; cadence: 'daily' | 'weekly'; mode?: string; keywords?: string[] }): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/deploy/schedule`, {

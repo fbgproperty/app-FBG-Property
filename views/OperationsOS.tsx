@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { Cpu, ClipboardCheck, Workflow, Bot, Network, Trophy } from 'lucide-react';
+import { Cpu, ClipboardCheck, Workflow, Bot, Network, Trophy, GraduationCap } from 'lucide-react';
 import ErpTasks from './ErpTasks';
 import AutomationOps from './AutomationOps';
 import AIAgents from './AIAgents';
 import AIOrgChart from './AIOrgChart';
 import OrgChart from './OrgChart';
 import TeamPerformance from './TeamPerformance';
+import SalesCoach from './SalesCoach';
 
-type Sec = 'tasks' | 'automation' | 'agents' | 'org' | 'performance';
+type Sec = 'tasks' | 'automation' | 'agents' | 'org' | 'performance' | 'coach';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'tasks', label: 'Công việc (ERP)', icon: ClipboardCheck },
   { id: 'automation', label: 'Tự động hoá', icon: Workflow },
   { id: 'agents', label: 'Đội ngũ AI', icon: Bot },
   { id: 'performance', label: 'Hiệu suất đội', icon: Trophy },
+  { id: 'coach', label: 'Huấn luyện', icon: GraduationCap },
   { id: 'org', label: 'Tổ chức', icon: Network },
 ];
 
@@ -44,6 +46,7 @@ const OperationsOS: React.FC = () => {
         {sec === 'automation' && <AutomationOps />}
         {sec === 'agents' && <AIAgents />}
         {sec === 'performance' && <TeamPerformance />}
+        {sec === 'coach' && <SalesCoach />}
         {sec === 'org' && <div className="space-y-6"><AIOrgChart /><OrgChart /></div>}
       </div>
     </div>

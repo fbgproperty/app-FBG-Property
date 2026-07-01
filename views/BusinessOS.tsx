@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Briefcase, LayoutDashboard, Users, Zap, BarChart3, UserCheck, Columns3, HeartHandshake } from 'lucide-react';
+import { Briefcase, LayoutDashboard, Users, Zap, BarChart3, UserCheck, Columns3, HeartHandshake, Flame } from 'lucide-react';
 import BusinessAgency from './BusinessAgency';
 import PipelineBoard from './PipelineBoard';
 import NextActionPanel from './NextActionPanel';
@@ -8,12 +8,14 @@ import SalesReport from './SalesReport';
 import CDP from './CDP';
 import MyLeads from './MyLeads';
 import AssignedLeads from './AssignedLeads';
+import HotLeads from './HotLeads';
 import { isAdminRole } from '../services/permissions';
 
-type Sec = 'overview' | 'mine' | 'assigned' | 'pipeline' | 'customers' | 'action' | 'nurture' | 'report';
+type Sec = 'overview' | 'mine' | 'hot' | 'assigned' | 'pipeline' | 'customers' | 'action' | 'nurture' | 'report';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'mine', label: 'Khách của tôi', icon: Users },
+  { id: 'hot', label: 'Khách nóng', icon: Flame },
   { id: 'assigned', label: 'Khách được giao', icon: UserCheck },
   { id: 'pipeline', label: 'Pipeline', icon: Columns3 },
   { id: 'customers', label: 'Tất cả khách (CDP)', icon: Users, admin: true },
@@ -51,6 +53,7 @@ const BusinessOS: React.FC = () => {
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <BusinessAgency onOpen={(s) => setSec(s as Sec)} />}
         {sec === 'mine' && <MyLeads />}
+        {sec === 'hot' && <HotLeads />}
         {sec === 'assigned' && <AssignedLeads />}
         {sec === 'pipeline' && <PipelineBoard />}
         {sec === 'customers' && admin && <CDP />}
