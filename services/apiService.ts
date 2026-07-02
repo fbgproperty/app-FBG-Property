@@ -1188,6 +1188,28 @@ class ApiService {
     if (!res.ok) throw new Error(`campaigns ${res.status}`);
     return res.json();
   }
+  /** Chiến dịch — lập kế hoạch phân bổ data cho dự án (GĐKD Agent). */
+  public async campaignPlan(project: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/campaign/plan`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project }),
+    });
+    if (!res.ok) throw new Error(`plan ${res.status}`);
+    return res.json();
+  }
+  public async campaignStatus(): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/campaign/status`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`camp ${res.status}`);
+    return res.json();
+  }
+  /** Chiến dịch — Giám đốc/Admin duyệt → hệ thống chia data + đẩy Telegram cho sale. */
+  public async campaignApprove(): Promise<{ ok: boolean; status: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/ops/campaign/approve`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+    });
+    if (!res.ok) throw new Error(`approve ${res.status}`);
+    return res.json();
+  }
   /** CRM (ERP) — tổng hợp phễu Lead + Opportunity (scoped theo người). */
   public async crmSummary(): Promise<{ scoped: boolean; lead: { total: number; byStatus: Record<string, number> }; opportunity: { total: number; byStatus: Record<string, number> } }> {
     const res = await fetch(`${this.cdpBaseUrl}/crm/summary`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
