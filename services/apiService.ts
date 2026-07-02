@@ -1210,6 +1210,28 @@ class ApiService {
     if (!res.ok) throw new Error(`approve ${res.status}`);
     return res.json();
   }
+  /** Proxy Zalo — danh sách proxy (che mật khẩu) + proxy của tôi. */
+  public async proxyList(): Promise<{ items: { id: string; host: string; port: string; type: string; status: 'available' | 'claimed' | 'mine'; claimedByName: string | null }[]; mine: { id: string; host: string; port: string; user: string; pass: string; type: string } | null; available: number; total: number }> {
+    const res = await fetch(`${this.cdpBaseUrl}/proxy/list`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`proxy ${res.status}`);
+    return res.json();
+  }
+  /** Chọn 1 proxy (quy tắc mỗi người 1 proxy) — trả về đầy đủ để điền form kết nối. */
+  public async proxyClaim(id: string): Promise<{ ok: boolean; proxy?: { id: string; host: string; port: string; user: string; pass: string; type: string }; error?: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/proxy/claim`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) throw new Error(`claim ${res.status}`);
+    return res.json();
+  }
+  public async proxyRelease(): Promise<{ ok: boolean; released: number }> {
+    const res = await fetch(`${this.cdpBaseUrl}/proxy/release`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+    });
+    if (!res.ok) throw new Error(`release ${res.status}`);
+    return res.json();
+  }
   /** CRM (ERP) — tổng hợp phễu Lead + Opportunity (scoped theo người). */
   public async crmSummary(): Promise<{ scoped: boolean; lead: { total: number; byStatus: Record<string, number> }; opportunity: { total: number; byStatus: Record<string, number> } }> {
     const res = await fetch(`${this.cdpBaseUrl}/crm/summary`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });

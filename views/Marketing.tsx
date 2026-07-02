@@ -113,6 +113,22 @@ const Marketing: React.FC = () => {
     return () => clearInterval(iv);
   }, [qr?.proxyId]);
 
+  // ===== Chọn proxy từ kho chung (mỗi người 1 proxy) =====
+  const [pool, setPool] = useState<{ items: any[]; mine: any; available: number; total: number }>({ items: [], mine: null, available: 0, total: 0 });
+  const loadPool = async () => { try { setPool(await api.proxyList()); } catch { /* */ } };
+  useEffect(() => { loadPool(); }, []);
+  const pickProxy = async (id: string) => {
+    setMsg('');
+    try {
+      const r = await api.proxyClaim(id);
+      if (r.ok && r.proxy) {
+        setPxForm({ host: r.proxy.host, port: r.proxy.port, username: r.proxy.user, password: r.proxy.pass });
+        setMsg(`✓ Đã chọn proxy ${r.proxy.host}:${r.proxy.port}. Bấm "Thêm proxy" rồi "Tạo QR" để quét Zalo.`);
+        loadPool();
+      } else { setMsg('⚠ ' + (r.error || 'Không chọn được proxy')); }
+    } catch (e: any) { setMsg('⚠ ' + (e?.message || 'Lỗi')); }
+  };
+
   // ===== Zalo: gửi tin / kết bạn hàng loạt =====
   const [zModal, setZModal] = useState<'send' | 'friend' | null>(null);
   const [zForm, setZForm] = useState({ accountId: '', phones: '', message: '' });
@@ -265,7 +281,29 @@ const Marketing: React.FC = () => {
           {/* Proxy + QR */}
           <div className="bg-sky-50/40 rounded-2xl border border-sky-100 p-5 space-y-4">
             <div className="font-black text-slate-900 text-sm flex items-center gap-2"><Server className="w-4 h-4 text-sky-600" /> Kết nối Zalo (cần proxy + quét QR)</div>
-            <p className="text-[12px] text-slate-500">Mỗi tài khoản Zalo chạy qua 1 proxy riêng (nên dùng proxy Việt Nam). Thêm proxy → tạo QR → mở app Zalo quét.</p>
+            <p className="text-[12px] text-slate-500">Mỗi người chọn 1 proxy từ kho chung (hoặc nhập tay) → Thêm proxy → tạo QR → mở app Zalo quét.</p>
+
+            {/* Chọn proxy từ kho chung — mỗi người 1 proxy */}
+            <div className="bg-white rounded-xl border border-sky-100 p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[12px] font-black text-slate-700">Chọn proxy từ kho · {pool.available}/{pool.total} còn trống · mỗi người 1 proxy</span>
+                {pool.mine && <button onClick={async () => { try { await api.proxyRelease(); setPxForm({ host: '', port: '', username: '', password: '' }); loadPool(); } catch { /* */ } }} className="text-[11px] font-black text-rose-500 hover:text-rose-600">Nhả proxy</button>}
+              </div>
+              {pool.mine && <div className="text-[12px] font-black text-emerald-700 bg-emerald-50 rounded-lg px-3 py-1.5 mb-2">Proxy của bạn: {pool.mine.host}:{pool.mine.port}</div>}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 max-h-44 overflow-y-auto">
+                {(Array.isArray(pool.items) ? pool.items : []).map((p: any) => {
+                  const mine = p.status === 'mine'; const taken = p.status === 'claimed';
+                  return (
+                    <button key={p.id} disabled={taken} onClick={() => pickProxy(p.id)}
+                      className={`text-left text-[11px] font-bold px-2.5 py-2 rounded-lg border transition ${mine ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : taken ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white border-slate-200 text-slate-600 hover:border-sky-400 hover:bg-sky-50'}`}>
+                      <div className="truncate">{p.host}:{p.port}</div>
+                      <div className="text-[9px] font-black uppercase tracking-wide">{mine ? '● Của bạn' : taken ? '● ' + (p.claimedByName || 'đã dùng') : 'Chọn ▸'}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               <input value={pxForm.host} onChange={e => setPxForm(f => ({ ...f, host: e.target.value }))} placeholder="host/IP" className="p-2.5 rounded-xl border border-slate-200 text-sm" />
               <input value={pxForm.port} onChange={e => setPxForm(f => ({ ...f, port: e.target.value }))} placeholder="port" className="p-2.5 rounded-xl border border-slate-200 text-sm" />
