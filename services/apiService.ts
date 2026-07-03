@@ -2528,6 +2528,60 @@ class ApiService {
       return { ok: false, error: e?.message || 'AI tự học thất bại.' };
     }
   }
+
+  // =====================
+  // ĐỒNG BỘ & CẤU HÌNH CÁ NHÂN
+  // =====================
+
+  /** Trạng thái kết nối của từng nguồn dữ liệu / kênh. */
+  public async syncStatus(): Promise<{ items: { key: string; name: string; connected: boolean; detail: string }[]; connected: number; total: number }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/sync/status`, {
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`sync status ${res.status}`);
+      return await res.json();
+    } catch {
+      return { items: [], connected: 0, total: 0 };
+    }
+  }
+  /** Kích hoạt đồng bộ lại dữ liệu. */
+  public async syncRun(): Promise<{ ok: boolean; synced: string[]; ts?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/sync/run`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`sync run ${res.status}`);
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, synced: [], ts: '' };
+    }
+  }
+  /** Cấu hình cá nhân (thông báo, ngôn ngữ, tự động đồng bộ). */
+  public async meSettings(): Promise<{ notifyLead: boolean; notifyReport: boolean; autoSync: boolean; lang: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/me/settings`, {
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`me settings ${res.status}`);
+      return await res.json();
+    } catch {
+      return { notifyLead: true, notifyReport: true, autoSync: true, lang: 'vi' };
+    }
+  }
+  /** Lưu cấu hình cá nhân (gửi phần nào cần đổi). */
+  public async meSettingsSave(payload: { notifyLead?: boolean; notifyReport?: boolean; autoSync?: boolean; lang?: string }): Promise<{ ok: boolean; settings?: { notifyLead: boolean; notifyReport: boolean; autoSync: boolean; lang: string } }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/me/settings`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`me settings save ${res.status}`);
+      return await res.json();
+    } catch {
+      return { ok: false };
+    }
+  }
 }
 
 export const api = new ApiService();

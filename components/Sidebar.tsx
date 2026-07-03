@@ -1,13 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { canAccess, ROLE_LABELS, isAdminRole } from '../services/permissions';
-import { 
-  LayoutDashboard, 
-  Building2, 
-  Users, 
-  Bot, 
-  Target, 
+import SettingsModal, { SettingsTab } from './SettingsModal';
+import {
+  LayoutDashboard,
+  Building2,
+  Users,
+  Bot,
+  Target,
   CreditCard,
   Home,
   Sparkles,
@@ -30,7 +31,11 @@ import {
   Server,
   BarChart3,
   Megaphone,
-  GraduationCap
+  GraduationCap,
+  Settings,
+  RefreshCw,
+  HelpCircle,
+  Info
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -40,15 +45,42 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  
+
   // Trạng thái mở/đóng của menu con
   const [isProjectsOpen, setIsProjectsOpen] = useState(location.pathname.startsWith('/bat-dong-san'));
   const [isIdentityOpen, setIsIdentityOpen] = useState(location.pathname.startsWith('/identity'));
+
+  // Menu tài khoản (mở lên trên) + modal cài đặt
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('tai-khoan');
+  const [helpOpen, setHelpOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (location.pathname.startsWith('/bat-dong-san')) setIsProjectsOpen(true);
     if (location.pathname.startsWith('/identity')) setIsIdentityOpen(true);
   }, [location.pathname]);
+
+  // Đóng menu tài khoản khi bấm ra ngoài
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountMenuOpen(false);
+        setHelpOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [accountMenuOpen]);
+
+  const openSettings = (tab: SettingsTab) => {
+    setSettingsTab(tab);
+    setSettingsOpen(true);
+    setAccountMenuOpen(false);
+    setHelpOpen(false);
+  };
 
   const realEstateSubMenus = [
     { id: 'nha-can-ho', label: 'Nhà - Căn hộ', icon: Home },
@@ -158,37 +190,81 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
         })}
       </nav>
 
-      <div className="p-4 border-t border-indigo-800 bg-indigo-950/30 space-y-4">
-        {/* Thông tin tài khoản người dùng */}
-        <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : 'px-2'}`}>
-           <div className="w-10 h-10 rounded-xl bg-indigo-700 border border-indigo-600 flex items-center justify-center text-white font-bold shrink-0 shadow-lg relative group overflow-hidden">
+      <div className="p-4 border-t border-indigo-800 bg-indigo-950/30 space-y-3">
+        {/* Khối tài khoản — bấm để mở menu (mở LÊN TRÊN) */}
+        <div className="relative" ref={accountRef}>
+          <button
+            onClick={() => setAccountMenuOpen((v) => !v)}
+            className={`w-full flex items-center gap-3 rounded-xl transition-all hover:bg-indigo-800/60 ${isCollapsed ? 'justify-center px-0 py-2' : 'px-2 py-2'}`}
+            title={isCollapsed ? (fbUser.name || 'Tài khoản') : ''}
+          >
+            <div className="w-10 h-10 rounded-xl bg-indigo-700 border border-indigo-600 flex items-center justify-center text-white font-bold shrink-0 shadow-lg relative overflow-hidden">
               {fbUser.photo ? <img src={fbUser.photo} alt="" className="w-full h-full object-cover" /> : (fbUser.name || 'U').slice(0, 2).toUpperCase()}
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-indigo-900 rounded-full"></div>
-           </div>
-           {!isCollapsed && (
-             <div className="flex-1 overflow-hidden">
-               <p className="text-sm font-bold text-white truncate leading-tight">{fbUser.name || fbUser.email || 'Người dùng'}</p>
-               <p className="text-[10px] text-indigo-300 font-medium uppercase tracking-wider mt-0.5">
-                 {ROLE_LABELS[myRole] || 'Sale cộng tác viên'}
-               </p>
-             </div>
-           )}
-        </div>
+            </div>
+            {!isCollapsed && (
+              <div className="flex-1 overflow-hidden text-left">
+                <p className="text-sm font-bold text-white truncate leading-tight">{fbUser.name || fbUser.email || 'Người dùng'}</p>
+                <p className="text-[10px] text-indigo-300 font-medium uppercase tracking-wider mt-0.5">
+                  {ROLE_LABELS[myRole] || 'Sale cộng tác viên'}
+                </p>
+              </div>
+            )}
+            {!isCollapsed && (
+              <ChevronDown size={16} className={`text-indigo-300 shrink-0 transition-transform ${accountMenuOpen ? 'rotate-180' : ''}`} />
+            )}
+          </button>
 
-        {/* Nút Đăng xuất */}
-        <button 
-          onClick={handleLogoutClick} 
-          className={`w-full flex items-center gap-3 text-red-300 hover:bg-red-500/10 rounded-lg transition-all font-bold uppercase text-[10px] tracking-widest group ${isCollapsed ? 'justify-center px-0 py-3' : 'px-4 py-3'}`}
-          title={isCollapsed ? "Đăng xuất" : ""}
-        >
-          <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
-          {!isCollapsed && <span>Đăng xuất</span>}
-        </button>
+          {/* Popup menu — định vị absolute, bottom-full để mở LÊN TRÊN khối tài khoản */}
+          {accountMenuOpen && (
+            <div className="absolute bottom-full left-0 mb-2 w-64 rounded-2xl bg-white shadow-2xl border border-slate-100 overflow-hidden z-50 animate-fadeIn">
+              {/* Header: avatar + tên + email */}
+              <div className="flex items-center gap-3 px-4 py-3 bg-slate-50/70 border-b border-slate-100">
+                <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shrink-0 overflow-hidden shadow">
+                  {fbUser.photo ? <img src={fbUser.photo} alt="" className="w-full h-full object-cover" /> : (fbUser.name || fbUser.email || 'U').slice(0, 2).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-slate-900 truncate">{fbUser.name || fbUser.email || 'Người dùng'}</p>
+                  <p className="text-xs text-slate-400 truncate">{fbUser.email || '—'}</p>
+                </div>
+              </div>
+
+              {/* Nhóm mục */}
+              <div className="py-1.5">
+                <button onClick={() => openSettings('tai-khoan')} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">
+                  <Settings className="w-4 h-4 shrink-0" /> Cài đặt
+                </button>
+                <button onClick={() => openSettings('dong-bo')} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">
+                  <RefreshCw className="w-4 h-4 shrink-0" /> Cấu hình đồng bộ
+                </button>
+                <button onClick={() => setHelpOpen((v) => !v)} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">
+                  <HelpCircle className="w-4 h-4 shrink-0" /> Trợ giúp
+                </button>
+                {helpOpen && (
+                  <p className="px-4 pb-2 pt-0.5 text-xs text-slate-500 leading-relaxed">
+                    Cần hỗ trợ? Liên hệ quản trị viên hệ thống hoặc mục Cài đặt để kiểm tra kết nối và đồng bộ dữ liệu.
+                  </p>
+                )}
+                <button onClick={() => openSettings('ve-he-thong')} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">
+                  <Info className="w-4 h-4 shrink-0" /> Về hệ thống
+                </button>
+              </div>
+
+              <div className="border-t border-slate-100 py-1.5">
+                <button onClick={handleLogoutClick} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition">
+                  <LogOut className="w-4 h-4 shrink-0" /> Đăng xuất
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {!isCollapsed && (
           <p className="text-center text-[10px] font-bold text-indigo-400/60 tracking-widest">v10.0</p>
         )}
       </div>
+
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} initialTab={settingsTab} />
     </aside>
   );
 };
