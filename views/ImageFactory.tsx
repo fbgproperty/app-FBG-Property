@@ -81,7 +81,7 @@ const ImageFactory: React.FC = () => {
       )}
       {loading && <div className="text-xs text-slate-400">Đang sinh ảnh... (vài giây, ảnh tải dần)</div>}
 
-      <p className="text-[11px] text-slate-400 flex items-start gap-1"><Sparkles className="w-3 h-3 mt-0.5 shrink-0" /> Ảnh AI minh hoạ (Pollinations, miễn phí) — KHÔNG phải ảnh thật của căn hộ. Dùng cho banner/ý tưởng; ghi rõ "ảnh minh hoạ" khi đăng.</p>
+      <p className="text-[11px] text-slate-400 flex items-start gap-1"><Sparkles className="w-3 h-3 mt-0.5 shrink-0" /> Ảnh AI minh hoạ — KHÔNG phải ảnh thật của căn hộ. Dùng cho banner/ý tưởng; ghi rõ "ảnh minh hoạ" khi đăng.</p>
     </div>
   );
 };

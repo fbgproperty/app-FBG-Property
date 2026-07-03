@@ -235,7 +235,7 @@ const AIAgents: React.FC = () => {
       <div className="h-full flex flex-col items-center justify-center text-indigo-600">
         <Loader2 className="w-12 h-12 animate-spin mb-4" />
         <p className="font-black text-xs uppercase tracking-widest animate-pulse">
-          Gemini đang điều phối đội ngũ Nhân viên AI...
+          AI đang điều phối đội ngũ Nhân viên AI...
         </p>
       </div>
     );

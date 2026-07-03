@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Megaphone, CheckCircle2, Circle, ExternalLink, Loader2, ChevronRight, Sparkles, Target, Copy, Check } from 'lucide-react';
+import { Megaphone, CheckCircle2, Circle, Loader2, ChevronRight, Sparkles, Target, Copy, Check } from 'lucide-react';
 import { api } from '../services/apiService';
 
 const AdsAIPanel: React.FC = () => {
@@ -81,17 +81,6 @@ const GOOGLE_STEPS = [
 
 const QuangCaoDaKenh: React.FC = () => {
   const [showSteps, setShowSteps] = useState(true);
-  const [connecting, setConnecting] = useState(false);
-
-  const handleConnectGoogle = async () => {
-    setConnecting(true);
-    try {
-      // Khi đã cấu hình OAuth client + có Developer Token, nút này sẽ chuyển sang luồng OAuth thật.
-      alert('Để kết nối thật Google Ads, cần: (1) tài khoản Google Ads, (2) Developer Token đã được Google duyệt, (3) cấp OAuth client. Xem checklist bên dưới.');
-    } finally {
-      setConnecting(false);
-    }
-  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
@@ -122,12 +111,12 @@ const QuangCaoDaKenh: React.FC = () => {
             </div>
           </div>
           <button
-            onClick={handleConnectGoogle}
-            disabled={connecting}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            disabled
+            title="Tính năng kết nối đang được thiết lập"
+            className="px-6 py-3 bg-slate-100 text-slate-400 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-not-allowed"
           >
-            {connecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
-            Bắt đầu kết nối
+            <Loader2 className="w-4 h-4" />
+            Đang thiết lập kết nối
           </button>
         </div>
 

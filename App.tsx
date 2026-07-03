@@ -73,9 +73,9 @@ const App: React.FC = () => {
 
   return (
     <>
-      {/* Kết nối ERPNext thật (erp.fbgproperty.vn) */}
+      {/* Kết nối dữ liệu thật */}
       <div className="fixed bottom-3 right-3 z-[9999] pointer-events-none select-none px-3 py-1.5 rounded-full bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-300/40">
-        ● Dữ liệu thật · ERPNext
+        ● Dữ liệu thật
       </div>
     <HashRouter>
       {!isAuthenticated ? (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, Users, Target, Building2, DollarSign, TrendingUp, Loader2, Bot, Clock, Sparkles, FileText } from 'lucide-react';
+import { BarChart3, Users, Target, Building2, DollarSign, TrendingUp, Loader2, Bot, Sparkles, FileText } from 'lucide-react';
 import { api } from '../services/apiService';
 
 const MarketingROI: React.FC = () => {
@@ -38,9 +38,9 @@ const MarketingROI: React.FC = () => {
     { label: 'Dự án đang bán', val: d.projects, icon: Building2, color: 'indigo' },
   ];
   const soon = [
-    { label: 'Chi phí quảng cáo', icon: DollarSign, note: 'Nối Google/FB Ads (GĐ D)' },
-    { label: 'Doanh thu deal', icon: DollarSign, note: 'Nối ERP (cọc/hợp đồng)' },
-    { label: 'ROI marketing', icon: TrendingUp, note: 'Doanh thu ÷ chi phí' },
+    { label: 'Chi phí quảng cáo', icon: DollarSign },
+    { label: 'Doanh thu deal', icon: DollarSign },
+    { label: 'ROI marketing', icon: TrendingUp },
   ];
   const C: Record<string, string> = { emerald: 'bg-emerald-600', fuchsia: 'bg-fuchsia-600', indigo: 'bg-indigo-600' };
 
@@ -60,14 +60,14 @@ const MarketingROI: React.FC = () => {
       )}
 
       <div>
-        <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Chỉ số ROI (đang nối nguồn dữ liệu)</p>
+        <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Chỉ số ROI</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {soon.map(x => (
             <div key={x.label} className="bg-white rounded-2xl border border-dashed border-slate-200 p-5">
               <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 mb-2"><x.icon className="w-5 h-5" /></div>
               <p className="text-2xl font-black text-slate-300">—</p>
               <p className="text-[11px] text-slate-500 font-bold mt-0.5">{x.label}</p>
-              <p className="text-[10px] text-amber-600 font-bold mt-1 flex items-center gap-1"><Clock className="w-3 h-3" />{x.note}</p>
+              <p className="text-[10px] text-slate-400 font-bold mt-1">Chưa có dữ liệu</p>
             </div>
           ))}
         </div>
@@ -87,7 +87,7 @@ const MarketingROI: React.FC = () => {
 
       <div className="bg-gradient-to-br from-indigo-600 to-fuchsia-600 rounded-3xl p-6 text-white">
         <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Báo cáo ROI hằng ngày — Trợ lý AI</span></div>
-        <p className="text-sm opacity-90">Khi đã nối đủ Ads (chi phí) + ERP (doanh thu), Trợ lý AI sẽ tổng hợp lead theo nguồn ↔ chi phí ↔ doanh thu deal từng dự án/kênh, tính ROI và gửi Anh Duy mỗi sáng (Telegram + app). <b>Cần</b>: token Ads + cron Trợ lý AI (bật ở backend).</p>
+        <p className="text-sm opacity-90">Khi đã nối đủ Ads (chi phí) + ERP (doanh thu), Trợ lý AI sẽ tổng hợp lead theo nguồn ↔ chi phí ↔ doanh thu deal từng dự án/kênh, tính ROI và gửi báo cáo mỗi sáng (kênh thông báo + app). <b>Cần</b>: token Ads + cron Trợ lý AI (bật ở backend).</p>
       </div>
     </div>
   );

@@ -104,7 +104,7 @@ const Dashboard: React.FC = () => {
     return (
       <div className="h-full flex flex-col items-center justify-center text-indigo-600">
         <Loader2 className="w-12 h-12 animate-spin mb-4" />
-        <p className="font-bold uppercase tracking-widest text-xs">Đang đồng bộ hạ tầng GCP...</p>
+        <p className="font-bold uppercase tracking-widest text-xs">Đang đồng bộ hạ tầng...</p>
       </div>
     );
 
@@ -113,11 +113,11 @@ const Dashboard: React.FC = () => {
       <header className="flex justify-between items-center mb-3 shrink-0">
         <div>
           <h2 className="text-xl font-black text-gray-900 leading-none">Office FBG</h2>
-          <p className="text-gray-400 font-medium mt-1 text-xs">Văn phòng 3D — toàn bộ nhân viên AI trao đổi công việc tập trung qua Trợ lý AI · Trung tâm giám sát (Telegram)</p>
+          <p className="text-gray-400 font-medium mt-1 text-xs">Văn phòng 3D — toàn bộ nhân viên AI trao đổi công việc tập trung qua Trợ lý AI · Trung tâm giám sát (kênh thông báo)</p>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-green-100 shrink-0">
           <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-          GCP Multi-Region Active
+          Hạ tầng đa vùng
         </div>
       </header>
 

@@ -64,7 +64,7 @@ const MyLeads: React.FC = () => {
             ))}
         </div>
       )}
-      <p className="text-[11px] text-slate-400">Nguồn: ERP (erp.fbgproperty.vn) · cô lập theo người đăng nhập — nhân sự xem dữ liệu riêng, admin đồng bộ toàn bộ.</p>
+      <p className="text-[11px] text-slate-400">Nguồn: hệ thống CRM · cô lập theo người đăng nhập — nhân sự xem dữ liệu riêng, admin đồng bộ toàn bộ.</p>
     </div>
   );
 };

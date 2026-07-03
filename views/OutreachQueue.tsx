@@ -86,7 +86,7 @@ const OutreachQueue: React.FC = () => {
       </div>
 
       <div className="text-[12px] text-slate-500 font-bold bg-slate-50 rounded-xl px-3 py-2">
-        Khi kênh gửi được kết nối, tin duyệt sẽ tự gửi. Hiện tại “Duyệt gửi” đánh dấu đã xử lý.
+        Tin đã duyệt sẽ tự gửi khi kênh gửi được kết nối. Hiện tại việc duyệt sẽ đánh dấu đã xử lý.
       </div>
 
       {err && <div className="text-amber-700 bg-amber-50 rounded-xl px-3 py-2 text-sm font-bold">{err}</div>}

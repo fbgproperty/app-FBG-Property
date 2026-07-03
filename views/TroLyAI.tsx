@@ -89,7 +89,7 @@ const TroLyAI: React.FC = () => {
       {me && me.hasAgent && (
         <div className="mb-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <p className="text-sm font-bold text-emerald-800">Đã kết nối Trợ lý AI <span className="font-black">{me.slug}</span> — gõ lệnh ngay bên dưới là <b>ra lệnh thẳng cho Trợ lý AI</b> (đủ công cụ ERP/CDP/Sale ảo/Tổng đài chat), giống hệt điều khiển qua Telegram.</p>
+          <p className="text-sm font-bold text-emerald-800">Đã kết nối Trợ lý AI <span className="font-black">{me.slug}</span> — gõ lệnh ngay bên dưới là <b>ra lệnh thẳng cho Trợ lý AI</b> (đủ công cụ ERP/CDP/Sale ảo/Tổng đài chat), giống hệt điều khiển qua kênh thông báo.</p>
         </div>
       )}
       {me && !me.hasAgent && (
@@ -127,7 +127,7 @@ const TroLyAI: React.FC = () => {
           <div className="h-full flex flex-col items-center justify-center text-center py-10">
             <div className="w-16 h-16 bg-indigo-50 rounded-3xl flex items-center justify-center mb-4"><Bot className="w-8 h-8 text-indigo-600" /></div>
             <h3 className="text-lg font-black text-gray-900">Chào {user.name || 'Sếp'}! Tôi là Trợ lý AI của bạn.</h3>
-            <p className="text-gray-500 text-sm font-medium mb-6">Gõ lệnh như trên Telegram: hỏi dự án, khách hàng, tạo sale ảo, xem hội thoại… (agent có thể mất 10–30s khi dùng công cụ).</p>
+            <p className="text-gray-500 text-sm font-medium mb-6">Gõ lệnh như trên kênh thông báo: hỏi dự án, khách hàng, tạo sale ảo, xem hội thoại… (agent có thể mất 10–30s khi dùng công cụ).</p>
             <div className="grid gap-2 w-full max-w-md">
               {SUGGEST.map((s, i) => (
                 <button key={i} onClick={() => send(s.text)} className="flex items-center gap-3 text-left px-4 py-3 bg-gray-50 hover:bg-indigo-50 border border-gray-100 hover:border-indigo-200 rounded-2xl transition-all group">

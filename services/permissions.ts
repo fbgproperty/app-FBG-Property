@@ -15,14 +15,14 @@ export const ROLE_LABELS: Record<string, string> = {
 // Mỗi vai trò → các route được phép. '*' = full.
 const PERMS: Record<string, string[]> = {
   ceo: ['*'],
-  gd_du_an: ['/dashboard', '/tro-ly-ai', '/bat-dong-san', '/deployment', '/cdp', '/ai-agents', '/ai-prospects', '/leads', '/org'],
-  gd_kinh_doanh: ['/dashboard', '/tro-ly-ai', '/bat-dong-san', '/deployment', '/cdp', '/ai-agents', '/ai-prospects', '/leads', '/org'],
-  tp_kinh_doanh: ['/dashboard', '/tro-ly-ai', '/bat-dong-san', '/deployment', '/cdp', '/ai-agents', '/ai-prospects', '/my-customers', '/org'],
+  gd_du_an: ['/dashboard', '/tro-ly-ai', '/bat-dong-san', '/deployment', '/cdp', '/ai-agents', '/org'],
+  gd_kinh_doanh: ['/dashboard', '/tro-ly-ai', '/bat-dong-san', '/deployment', '/cdp', '/ai-agents', '/org'],
+  tp_kinh_doanh: ['/dashboard', '/tro-ly-ai', '/bat-dong-san', '/deployment', '/cdp', '/ai-agents', '/my-customers', '/org'],
   sale: ['/dashboard', '/tro-ly-ai', '/bat-dong-san', '/sale-projects', '/my-customers', '/org'],
   ctv: ['/dashboard', '/tro-ly-ai', '/sale-projects', '/my-customers', '/org'],
   admin_du_an: ['/dashboard', '/tro-ly-ai', '/bat-dong-san', '/deployment', '/cdp', '/org'],
-  ke_toan: ['/dashboard', '/billing', '/leads', '/org'],
-  marketing: ['/dashboard', '/bat-dong-san', '/quang-cao', '/ai-prospects', '/org'],
+  ke_toan: ['/dashboard', '/billing', '/org'],
+  marketing: ['/dashboard', '/bat-dong-san', '/quang-cao', '/org'],
 };
 
 export const getRole = (): string =>

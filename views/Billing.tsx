@@ -74,37 +74,37 @@ const Billing: React.FC = () => {
           <p className="text-[11px] opacity-70 mt-1">{d.vms?.length} máy chủ · cố định</p>
         </div>
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">OpenRouter đã dùng</p>
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Chi phí AI đã dùng</p>
           <p className="text-3xl font-black mt-1 text-slate-900">{money(orUsed)}</p>
           <p className="text-[11px] text-slate-400 mt-1">Còn lại {money(orRemain)}{orPct != null ? ` · dùng ${orPct}%` : ''}</p>
         </div>
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Số dư Twilio</p>
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Số dư tổng đài thoại</p>
           <p className="text-3xl font-black mt-1 text-slate-900">{money(t.twilio_balance_usd)}</p>
           <p className="text-[11px] text-slate-400 mt-1">AI gọi chăm khách</p>
         </div>
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Domain đang chạy</p>
           <p className="text-3xl font-black mt-1 text-slate-900">{d.domains?.length}</p>
-          <p className="text-[11px] text-slate-400 mt-1">Cloudflare DNS (free)</p>
+          <p className="text-[11px] text-slate-400 mt-1">Quản lý tên miền</p>
         </div>
       </div>
 
       {orPct != null && (
         <div className="bg-white rounded-2xl border border-slate-100 p-4">
           <div className="flex items-center justify-between text-xs font-black text-slate-500 mb-2">
-            <span>Hạn mức OpenRouter</span><span>{money(orUsed)} / {money(orUsed + orRemain)}</span>
+            <span>Hạn mức AI</span><span>{money(orUsed)} / {money(orUsed + orRemain)}</span>
           </div>
           <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
             <div className={`h-full rounded-full ${orPct > 85 ? 'bg-rose-500' : orPct > 60 ? 'bg-amber-400' : 'bg-emerald-500'}`} style={{ width: `${orPct}%` }} />
           </div>
-          {orPct > 80 && <p className="text-[11px] text-rose-500 font-bold mt-2">⚠ Sắp hết credit OpenRouter — nên nạp thêm để AI không gián đoạn.</p>}
+          {orPct > 80 && <p className="text-[11px] text-rose-500 font-bold mt-2">⚠ Sắp hết hạn mức AI — nên nạp thêm để AI không gián đoạn.</p>}
         </div>
       )}
 
       {/* Máy chủ */}
       <section>
-        <h3 className="font-black text-slate-900 mb-3 flex items-center gap-2"><Server className="w-5 h-5 text-indigo-600" /> Máy chủ (Google Cloud · {d.vm_monthly_total ? money(d.vm_monthly_total) : ''}/tháng)</h3>
+        <h3 className="font-black text-slate-900 mb-3 flex items-center gap-2"><Server className="w-5 h-5 text-indigo-600" /> Máy chủ (hạ tầng đám mây · {d.vm_monthly_total ? money(d.vm_monthly_total) : ''}/tháng)</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {d.vms.map((v: any) => (
             <div key={v.name} className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-4">

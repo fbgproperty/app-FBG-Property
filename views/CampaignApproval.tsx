@@ -73,7 +73,7 @@ const CampaignApproval: React.FC = () => {
   };
 
   const doApprove = async () => {
-    if (!window.confirm('Duyệt kế hoạch? Hệ thống sẽ chia data cho sale và đẩy Telegram yêu cầu chăm qua Zalo.')) return;
+    if (!window.confirm('Duyệt kế hoạch? Hệ thống sẽ chia data cho sale và gửi kênh thông báo yêu cầu chăm qua Zalo.')) return;
     setErr(''); setApproving(true);
     try {
       const r = await api.campaignApprove();

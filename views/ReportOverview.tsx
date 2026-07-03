@@ -69,7 +69,7 @@ const ReportOverview: React.FC = () => {
     { label: 'Listing', val: d.listing, icon: Boxes, c: 'bg-blue-600' },
     { label: 'Kênh', val: d.kenh, icon: Share2, c: 'bg-sky-500' },
     { label: 'Công việc ERP', val: d.congviec, icon: ClipboardCheck, c: 'bg-slate-700' },
-    { label: 'VM hoạt động', val: d.vmUp, icon: Server, c: 'bg-rose-500' },
+    { label: 'Máy chủ hoạt động', val: d.vmUp, icon: Server, c: 'bg-rose-500' },
   ];
 
   return (
@@ -106,15 +106,14 @@ const ReportOverview: React.FC = () => {
         ) : <p className="text-[12px] text-slate-400">Chưa có chiến dịch triển khai nào.</p>}
       </div>
 
-      <a href="https://openclaw.fbgproperty.vn" target="_blank" rel="noreferrer" className="block bg-gradient-to-br from-rose-600 to-orange-500 rounded-3xl p-6 text-white hover:opacity-95 transition">
+      <div className="block bg-gradient-to-br from-rose-600 to-orange-500 rounded-3xl p-6 text-white">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
             <div className="flex items-center gap-2 mb-1"><Bot className="w-5 h-5" /><span className="font-black">Trung tâm giám sát hệ thống</span></div>
-            <p className="text-sm opacity-90 max-w-2xl">Trung tâm giám sát theo dõi toàn bộ Office FBG + nền tảng, tổng hợp báo cáo giám sát toàn hệ thống. Mở trung tâm giám sát để xem giám sát chi tiết.</p>
+            <p className="text-sm opacity-90 max-w-2xl">Trung tâm giám sát theo dõi toàn bộ Office FBG + nền tảng, tổng hợp báo cáo giám sát toàn hệ thống.</p>
           </div>
-          <span className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-rose-600 rounded-xl font-black text-sm shrink-0">Mở Trung tâm giám sát →</span>
         </div>
-      </a>
+      </div>
 
       {loading ? <div className="flex justify-center py-8 text-indigo-600"><Loader2 className="w-7 h-7 animate-spin" /></div> : (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">

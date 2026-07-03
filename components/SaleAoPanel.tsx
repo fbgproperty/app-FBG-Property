@@ -63,7 +63,7 @@ const SaleAoPanel: React.FC = () => {
             <Bot className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-black text-slate-900 tracking-tight leading-none">Sale ảo (ADK)</h2>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight leading-none">Sale ảo</h2>
             <p className="text-[12px] text-slate-400 font-semibold mt-1">
               AI agent tự động chăm khách thật từ CDP · chủ sở hữu: <span className="text-indigo-600 font-black">{owner}</span>
             </p>
@@ -83,7 +83,7 @@ const SaleAoPanel: React.FC = () => {
             placeholder="Tính cách / chuyên môn" className="px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold md:col-span-2" />
           <select value={form.channel} onChange={e => setForm({ ...form, channel: e.target.value })}
             className="px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold">
-            <option value="telegram">Telegram</option>
+            <option value="telegram">Kênh thông báo</option>
             <option value="zalo">Zalo</option>
             <option value="sms">SMS</option>
             <option value="email">Email</option>
@@ -102,7 +102,7 @@ const SaleAoPanel: React.FC = () => {
           <Loader2 className="w-4 h-4 animate-spin" /> Đang tải sale ảo…
         </div>
       ) : agents.length === 0 ? (
-        <p className="text-slate-400 text-sm font-semibold py-6 text-center">Chưa có sale ảo nào. Bấm "Tạo sale ảo" hoặc nhờ Trợ lý AI tạo qua Telegram.</p>
+        <p className="text-slate-400 text-sm font-semibold py-6 text-center">Chưa có sale ảo nào. Bấm "Tạo sale ảo" hoặc nhờ Trợ lý AI tạo qua kênh thông báo.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {agents.map(a => (

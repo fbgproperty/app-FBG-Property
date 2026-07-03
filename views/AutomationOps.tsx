@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Workflow, ExternalLink, Loader2, Database, CheckCircle2, Clock, Zap, XCircle, RefreshCw, Bot } from 'lucide-react';
+import { Workflow, Loader2, Database, CheckCircle2, Clock, Zap, XCircle, RefreshCw, Bot } from 'lucide-react';
 import { api } from '../services/apiService';
 
 const arr = (x: any): any[] => { const c = Array.isArray(x) ? x : (x?.data?.items || x?.items || x?.data?.data || x?.data); return Array.isArray(c) ? c : []; };
@@ -24,7 +24,7 @@ const AutomationOps: React.FC = () => {
   }, []);
 
   const runNow = async () => {
-    if (!window.confirm('Chạy Autopilot ngay? Trợ lý AI sẽ đồng bộ dữ liệu, sinh bản tin và gửi cho 8 quản lý qua Telegram.')) return;
+    if (!window.confirm('Chạy Autopilot ngay? Trợ lý AI sẽ đồng bộ dữ liệu, sinh bản tin và gửi cho 8 quản lý qua kênh thông báo.')) return;
     setRunning(true);
     try { await api.autopilotRun(); await loadAp(); } catch (e: any) { alert('Lỗi: ' + (e?.message || '')); }
     setRunning(false);
@@ -32,7 +32,7 @@ const AutomationOps: React.FC = () => {
 
   const SCHEDULE = [
     { t: '07:00', name: 'Autopilot — đồng bộ + bản tin + nhắc quá hạn → quản lý' },
-    { t: '07:30', name: 'Trợ lý AI sinh việc cho 24 nhân sự → duyệt qua Telegram' },
+    { t: '07:30', name: 'Trợ lý AI sinh việc cho 24 nhân sự → duyệt qua kênh thông báo' },
     { t: '15:00', name: 'Nhắc việc quá hạn buổi chiều → quản lý' },
   ];
 
@@ -51,9 +51,9 @@ const AutomationOps: React.FC = () => {
             <div className="text-[11px] text-slate-400 font-bold flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Engine đang chạy</div>
           </div>
         </div>
-        <a href="https://n8n.fbgproperty.vn" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700">
-          <ExternalLink className="w-4 h-4" /> Mở công cụ tự động hoá quản lý quy trình
-        </a>
+        <span className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl font-black text-sm">
+          <Workflow className="w-4 h-4" /> Quy trình tự động hoá đang vận hành
+        </span>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-100 p-5">
@@ -86,7 +86,7 @@ const AutomationOps: React.FC = () => {
             {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Chạy ngay
           </button>
         </div>
-        <p className="text-sm opacity-90 mt-1">Trợ lý AI tự động đồng bộ dữ liệu, viết bản tin vận hành và nhắc việc quá hạn — gửi thẳng vào Telegram của 8 quản lý. Không cần bấm tay.</p>
+        <p className="text-sm opacity-90 mt-1">Trợ lý AI tự động đồng bộ dữ liệu, viết bản tin vận hành và nhắc việc quá hạn — gửi thẳng vào kênh thông báo của 8 quản lý. Không cần bấm tay.</p>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-3">
           {[['Nhân sự', ap?.staff], ['Quản lý', ap?.managers], ['Việc hôm nay', ap?.worklog_today], ['Chờ duyệt', ap?.worklog_pending], ['Quá hạn', ap?.overdue]].map(([k, v]) => (
             <div key={String(k)} className="bg-white/15 rounded-xl px-3 py-2">

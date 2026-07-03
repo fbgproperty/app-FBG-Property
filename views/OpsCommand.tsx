@@ -83,7 +83,7 @@ const OpsCommand: React.FC = () => {
         <p className="text-sm opacity-90">Điều phối <b>{ap?.staff ?? 24} nhân sự — mỗi người 1 trợ lý AI riêng</b> (chat · ERP · tự động hoá) + 3 phòng chuyên viên AI + hạ tầng. Một màn hình thấy toàn bộ tổ chức đang chạy gì, ưu tiên gì.</p>
         <div className="flex items-center gap-4 mt-3 text-xs font-bold">
           <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-300" /> {ap?.staff ?? 24} trợ lý AI trực · {ap?.managers ?? 8} quản lý</span>
-          <span className="inline-flex items-center gap-1.5"><Server className="w-4 h-4 text-sky-300" /> {loading ? '...' : `${d.vmUp} VM hoạt động`}</span>
+          <span className="inline-flex items-center gap-1.5"><Server className="w-4 h-4 text-sky-300" /> {loading ? '...' : `${d.vmUp} máy chủ hoạt động`}</span>
           {(ap?.overdue ?? overdue) > 0 && <span className="inline-flex items-center gap-1.5 bg-rose-500/30 px-2 py-0.5 rounded-md"><AlertTriangle className="w-4 h-4 text-rose-200" /> {ap?.overdue ?? overdue} việc quá hạn</span>}
         </div>
       </div>
@@ -128,8 +128,8 @@ const OpsCommand: React.FC = () => {
         <div className="flex items-center gap-2 mb-3"><Activity className="w-5 h-5 text-sky-500" /><span className="font-black text-slate-900">Sức khoẻ hạ tầng</span></div>
         {loading ? <Loader2 className="w-5 h-5 animate-spin text-indigo-600" /> : (
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 bg-emerald-50 rounded-xl px-3 py-1.5"><CheckCircle2 className="w-4 h-4" /> {d.vmUp} VM hoạt động</span>
-            {d.vmDown > 0 && <span className="inline-flex items-center gap-1.5 text-sm font-bold text-rose-700 bg-rose-50 rounded-xl px-3 py-1.5"><AlertTriangle className="w-4 h-4" /> {d.vmDown} VM lỗi</span>}
+            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 bg-emerald-50 rounded-xl px-3 py-1.5"><CheckCircle2 className="w-4 h-4" /> {d.vmUp} máy chủ hoạt động</span>
+            {d.vmDown > 0 && <span className="inline-flex items-center gap-1.5 text-sm font-bold text-rose-700 bg-rose-50 rounded-xl px-3 py-1.5"><AlertTriangle className="w-4 h-4" /> {d.vmDown} máy chủ lỗi</span>}
             {(d.vms || []).slice(0, 6).map((v: any, i: number) => (
               <span key={i} className="text-[11px] font-bold text-slate-500 bg-slate-50 rounded-lg px-2 py-1">{v.name || v.vm || v.host || `VM${i + 1}`}</span>
             ))}
