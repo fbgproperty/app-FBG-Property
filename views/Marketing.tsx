@@ -4,6 +4,7 @@ import {
   UserPlus, AlertTriangle, CheckCircle2, Database, Phone, Plus, QrCode, Server, Trash2, X
 } from 'lucide-react';
 import { api } from '../services/apiService';
+import { isManagerRole } from '../services/permissions';
 import ZaloChat from './ZaloChat';
 import ZaloFriends from './ZaloFriends';
 import ZaloGroups from './ZaloGroups';
@@ -115,8 +116,17 @@ const Marketing: React.FC = () => {
 
   // ===== Chọn proxy từ kho chung (mỗi người 1 proxy) =====
   const [pool, setPool] = useState<{ items: any[]; mine: any; available: number; total: number }>({ items: [], mine: null, available: 0, total: 0 });
+  const [reloading, setReloading] = useState(false);
   const loadPool = async () => { try { setPool(await api.proxyList()); } catch { /* */ } };
   useEffect(() => { loadPool(); }, []);
+  const reloadProxies = async () => {
+    setReloading(true); setMsg('');
+    try {
+      const r = await api.proxyReload();
+      if (r.ok) { setMsg(`✓ Đã nạp lại ${r.total} proxy từ sheet.`); loadPool(); }
+      else { setMsg('⚠ ' + (r.error || 'Không nạp được')); }
+    } catch (e: any) { setMsg('⚠ ' + (e?.message || 'Lỗi')); } finally { setReloading(false); }
+  };
   const pickProxy = async (id: string) => {
     setMsg('');
     try {
@@ -285,9 +295,12 @@ const Marketing: React.FC = () => {
 
             {/* Chọn proxy từ kho chung — mỗi người 1 proxy */}
             <div className="bg-white rounded-xl border border-sky-100 p-3">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                 <span className="text-[12px] font-black text-slate-700">Chọn proxy từ kho · {pool.available}/{pool.total} còn trống · mỗi người 1 proxy</span>
-                {pool.mine && <button onClick={async () => { try { await api.proxyRelease(); setPxForm({ host: '', port: '', username: '', password: '' }); loadPool(); } catch { /* */ } }} className="text-[11px] font-black text-rose-500 hover:text-rose-600">Nhả proxy</button>}
+                <div className="flex items-center gap-3">
+                  {isManagerRole() && <button onClick={reloadProxies} disabled={reloading} className="inline-flex items-center gap-1 text-[11px] font-black text-sky-600 hover:text-sky-700 disabled:opacity-50">{reloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />} Nạp lại từ sheet</button>}
+                  {pool.mine && <button onClick={async () => { try { await api.proxyRelease(); setPxForm({ host: '', port: '', username: '', password: '' }); loadPool(); } catch { /* */ } }} className="text-[11px] font-black text-rose-500 hover:text-rose-600">Nhả proxy</button>}
+                </div>
               </div>
               {pool.mine && <div className="text-[12px] font-black text-emerald-700 bg-emerald-50 rounded-lg px-3 py-1.5 mb-2">Proxy của bạn: {pool.mine.host}:{pool.mine.port}</div>}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 max-h-44 overflow-y-auto">

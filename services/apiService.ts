@@ -1225,6 +1225,15 @@ class ApiService {
     if (!res.ok) throw new Error(`claim ${res.status}`);
     return res.json();
   }
+  /** Admin nạp lại toàn bộ proxy từ Google Sheet (giữ proxy ai đã chọn). */
+  public async proxyReload(): Promise<{ ok: boolean; total?: number; kept?: number; error?: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/proxy/reload`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) throw new Error(`reload ${res.status}`);
+    return res.json();
+  }
   public async proxyRelease(): Promise<{ ok: boolean; released: number }> {
     const res = await fetch(`${this.cdpBaseUrl}/proxy/release`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
