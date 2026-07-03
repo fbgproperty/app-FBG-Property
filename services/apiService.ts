@@ -1210,6 +1210,35 @@ class ApiService {
     if (!res.ok) throw new Error(`approve ${res.status}`);
     return res.json();
   }
+  /** SkillOS — thư viện Skill chuyên sâu của Hermes (marketing/bán hàng/tự động hoá). */
+  public async skillsList(): Promise<{ items: { id: string; cat: string; name: string; icon: string; desc: string; inputs: { k: string; label: string }[]; runs: number; good: number; bad: number; learned: number }[]; cats: string[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/skills`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+    if (!res.ok) throw new Error(`skills ${res.status}`);
+    return res.json();
+  }
+  /** Chạy 1 Skill: Hermes làm việc theo Skill (tự học từ mẫu tốt trước đó). */
+  public async skillsRun(body: { skillId: string; inputs: Record<string, string> }): Promise<{ runId?: string; output?: string; learned?: number; error?: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/skills/run`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`run ${res.status}`);
+    return res.json();
+  }
+  /** Đánh giá kết quả Skill (1 tốt / -1 chưa tốt) — Skill tự học để tốt hơn. */
+  public async skillsRate(runId: string, rating: 1 | -1): Promise<{ ok: boolean }> {
+    const res = await fetch(`${this.cdpBaseUrl}/skills/rate`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ runId, rating }),
+    });
+    if (!res.ok) throw new Error(`rate ${res.status}`);
+    return res.json();
+  }
+  public async skillsHistory(): Promise<{ items: any[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/skills/history`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`history ${res.status}`);
+    return res.json();
+  }
   /** Cá nhân hoá theo Sale — URL ảnh thật của sale (dùng cho <img> + canvas). */
   public salePhotoUrl(email: string): string { return `${this.cdpBaseUrl}/sale/photo/${encodeURIComponent(email)}`; }
   public async salePersonas(): Promise<{ items: { email: string; name: string; role: string; hasPhoto: boolean; persona: string }[]; total: number }> {

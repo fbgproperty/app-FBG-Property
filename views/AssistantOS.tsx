@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { Sparkles, LayoutDashboard, MessageSquare, ClipboardList, ListChecks, Users, Contact, Rocket } from 'lucide-react';
+import { Sparkles, LayoutDashboard, MessageSquare, ClipboardList, ListChecks, Users, Contact, Rocket, Wand2 } from 'lucide-react';
 import OpsCommand from './OpsCommand';
 import TroLyAI from './TroLyAI';
 import WorkApproval from './WorkApproval';
 import ExecutiveCockpit from './ExecutiveCockpit';
 import AgentControl from './AgentControl';
+import SkillOS from './SkillOS';
 import CrmBoard from './CrmBoard';
 import CampaignApproval from './CampaignApproval';
 
-type Sec = 'today' | 'agents' | 'command' | 'work' | 'crm' | 'chat' | 'campaign';
+type Sec = 'today' | 'agents' | 'skills' | 'command' | 'work' | 'crm' | 'chat' | 'campaign';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'command', label: 'Chỉ huy', icon: LayoutDashboard },
   { id: 'agents', label: '24 Agent', icon: Users },
+  { id: 'skills', label: 'SkillOS', icon: Wand2 },
   { id: 'today', label: 'Ưu tiên hôm nay', icon: ListChecks },
   { id: 'campaign', label: 'Chiến dịch', icon: Rocket },
   { id: 'work', label: 'Công việc', icon: ClipboardList },
@@ -45,6 +47,7 @@ const AssistantOS: React.FC = () => {
       <div className="animate-in fade-in duration-300">
         {sec === 'today' && <ExecutiveCockpit />}
         {sec === 'agents' && <AgentControl />}
+        {sec === 'skills' && <SkillOS />}
         {sec === 'command' && <OpsCommand />}
         {sec === 'campaign' && <CampaignApproval />}
         {sec === 'work' && <WorkApproval />}
