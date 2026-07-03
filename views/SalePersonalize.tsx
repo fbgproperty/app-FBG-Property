@@ -1,9 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   UserSquare, Loader2, Sparkles, Copy, Check, Save, MessageCircle,
-  FileText, Video, Download, Wand2, ImageDown
+  FileText, Video, Download, Wand2, ImageDown, Film
 } from 'lucide-react';
 import { api } from '../services/apiService';
+
+// Trích ảnh dự án (giống hệ video sẵn có)
+const parseImgs = (p: any): string[] => {
+  let raw = p?.imagesJson ?? p?.images ?? [];
+  if (typeof raw === 'string') { try { raw = JSON.parse(raw); } catch { raw = [raw]; } }
+  return (Array.isArray(raw) ? raw : []).filter((x: any) => typeof x === 'string' && /^https?:\/\//.test(x));
+};
 
 type Sale = { email: string; name: string; role: string; hasPhoto: boolean; persona: string };
 type Kind = 'message' | 'post' | 'video';
@@ -37,6 +44,14 @@ const SalePersonalize: React.FC = () => {
   const [err, setErr] = useState('');
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // ==== Video cá nhân hoá (dùng hệ video sẵn có) ====
+  const [vidProjects, setVidProjects] = useState<any[]>([]);
+  const [vidPid, setVidPid] = useState('');
+  const [vidJob, setVidJob] = useState<{ id: string; status: string; step?: string } | null>(null);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [vidErr, setVidErr] = useState('');
+  const vidPoll = useRef<any>(null);
 
   const sale = sales.find(s => s?.email === selected) || null;
 
@@ -111,6 +126,53 @@ const SalePersonalize: React.FC = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch { /* */ }
+  };
+
+  // ==== Load dự án cho video + dọn dẹp poll ====
+  useEffect(() => {
+    api.getProjectsCbx().then((r: any) => {
+      const items = r?.items || r?.data?.items || r?.data || [];
+      setVidProjects(Array.isArray(items) ? items : []);
+    }).catch(() => setVidErr('Không tải được danh sách dự án.'));
+    return () => { vidPoll.current && clearInterval(vidPoll.current); };
+  }, []);
+
+  const vidBusy = !!(vidJob && vidJob.status !== 'done' && vidJob.status !== 'failed');
+
+  const createVideo = async () => {
+    if (!sale) return;
+    setVidErr(''); setVideoUrl('');
+    const project = vidProjects.find((x: any) => (x?.id || x?.slug || x?.name) === vidPid) || null;
+    const projImgs = parseImgs(project).slice(0, 5);
+    const salePhoto = api.salePhotoUrl(sale.email);
+    // Ảnh sale là frame ĐẦU; nếu dự án chưa có ảnh vẫn dựng được (lặp ảnh sale)
+    const images = projImgs.length ? [salePhoto, ...projImgs] : [salePhoto, salePhoto];
+    const captions = [
+      'Chào bạn, mình là ' + (sale.name || '') + ' — FBG Property',
+      ...projImgs.map((_, i) => ['Vị trí đắc địa', 'Tiện ích đẳng cấp', 'Thiết kế hiện đại', 'Pháp lý minh bạch', 'Chính sách hấp dẫn'][i] || ''),
+    ];
+    try {
+      const r = await api.videoRender({ title: project?.name || 'Dự án', subtitle: sale.name, images, captions });
+      const id = r?.jobId; if (!id) throw new Error('Không tạo được video');
+      setVidJob({ id, status: 'queued' });
+      vidPoll.current && clearInterval(vidPoll.current);
+      vidPoll.current = setInterval(async () => {
+        try {
+          const s = await api.videoStatus(id);
+          setVidJob({ id, status: s.status, step: s.step });
+          if (s.status === 'done') {
+            clearInterval(vidPoll.current);
+            const url = await api.videoBlobUrl((s.url || '').split('/').pop());
+            setVideoUrl(url);
+          } else if (s.status === 'failed') {
+            clearInterval(vidPoll.current);
+            setVidErr('Dựng video chưa xong, thử lại sau ít phút.');
+          }
+        } catch { /* */ }
+      }, 3000);
+    } catch (e: any) {
+      setVidErr(e?.message || 'Không dựng được video. Thử lại.');
+    }
   };
 
   // ==== Canvas share card ====
@@ -421,6 +483,75 @@ const SalePersonalize: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Video cá nhân hoá — dùng hệ video sẵn có */}
+      <div className="bg-white rounded-2xl border border-slate-100 p-5 space-y-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Video className="w-5 h-5 text-fuchsia-600" />
+            <span className="font-black text-slate-900">Video cá nhân hoá (dùng ảnh thật của sale)</span>
+          </div>
+          <p className="text-sm text-slate-500 mt-1">
+            Mở đầu bằng mặt sale → ảnh dự án → lời chào giọng sale. Dựng bằng hệ video sẵn có.
+          </p>
+        </div>
+
+        {!sale ? (
+          <div className="text-sm font-semibold text-slate-400 bg-slate-50 rounded-xl px-3 py-3">
+            Chọn một sale ở trên trước.
+          </div>
+        ) : (
+          <>
+            {vidErr && <p className="text-[12px] font-bold text-amber-600">{vidErr}</p>}
+
+            <div>
+              <label className="text-xs font-black text-slate-500">Dự án</label>
+              <select
+                value={vidPid}
+                onChange={e => { setVidPid(e.target.value); setVideoUrl(''); setVidJob(null); setVidErr(''); }}
+                className="w-full mt-1 p-2.5 rounded-xl border border-slate-200 text-sm"
+              >
+                <option value="">— chọn dự án —</option>
+                {vidProjects.map((p: any) => (
+                  <option key={p?.id || p?.slug || p?.name} value={p?.id || p?.slug || p?.name}>{p?.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={createVideo}
+              disabled={vidBusy}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-fuchsia-600 text-white rounded-xl font-black text-sm hover:bg-fuchsia-700 disabled:opacity-60"
+            >
+              {vidBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Film className="w-4 h-4" />} Tạo video cá nhân hoá
+            </button>
+
+            {vidBusy && (
+              <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 rounded-xl px-3 py-2.5">
+                <Loader2 className="w-4 h-4 animate-spin text-fuchsia-600" />
+                <span className="font-bold">Đang dựng video… (có thể mất 1–2 phút)</span>
+              </div>
+            )}
+
+            {videoUrl && (
+              <div className="space-y-2">
+                <video src={videoUrl} controls className="w-full rounded-2xl border border-slate-100 bg-black" />
+                <a
+                  href={videoUrl}
+                  download={`video-${(sale.name || 'sale').replace(/\s+/g, '-')}.mp4`}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white rounded-xl font-black text-sm hover:bg-emerald-700"
+                >
+                  <Download className="w-4 h-4" /> Tải video
+                </a>
+              </div>
+            )}
+
+            <p className="text-[11px] text-slate-400">
+              Video mở đầu bằng ảnh thật của sale, tiếp nối bằng ảnh dự án — dựng bằng hệ video sẵn có. Duyệt trước khi gửi khách.
+            </p>
+          </>
+        )}
+      </div>
 
       {/* Ảnh card cá nhân hoá */}
       {sale && (
