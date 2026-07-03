@@ -1333,6 +1333,15 @@ class ApiService {
     if (!res.ok) throw new Error(`roster ${res.status}`);
     return res.json();
   }
+  /** Tổng chỉ huy — agent tự chạy công cụ thật theo lệnh hội thoại (trả về các bước đã làm). */
+  public async commandOrchestrate(text: string): Promise<{ reply: string; steps: { tool: string; args: any; result: string }[] }> {
+    const res = await fetch(`${this.cdpBaseUrl}/command/orchestrate`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) throw new Error(`orchestrate ${res.status}`);
+    return res.json();
+  }
   /** Phiên bản 5 — Việc ưu tiên hôm nay (gom toàn tổ chức). */
   public async opsNextActions(): Promise<{ actions: { icon: string; level: string; text: string; link: string }[]; summary: any }> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/nextactions`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
