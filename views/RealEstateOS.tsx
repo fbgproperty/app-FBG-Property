@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, LayoutDashboard, ClipboardList, TrendingUp, Newspaper, Boxes, Rocket, Layers, Home, FileSearch, CalendarClock, Trophy } from 'lucide-react';
+import { Building2, LayoutDashboard, ClipboardList, TrendingUp, Newspaper, Boxes, Rocket, Layers, Home, FileSearch, CalendarClock, Trophy, Radar } from 'lucide-react';
 import EstateAgency from './EstateAgency';
 import SalePlanner from './SalePlanner';
 import ProjectDossier from './ProjectDossier';
@@ -11,9 +11,10 @@ import Deployment from './Deployment';
 import DeployLaunch from './DeployLaunch';
 import CampaignSchedule from './CampaignSchedule';
 import ProjectRanking from './ProjectRanking';
+import MarketRadar from './MarketRadar';
 import { isAdminRole } from '../services/permissions';
 
-type Sec = 'overview' | 'data' | 'trienkhai' | 'lichchiendich' | 'xephang' | 'deploy' | 'dossier' | 'saleplan' | 'market' | 'listing';
+type Sec = 'overview' | 'data' | 'trienkhai' | 'lichchiendich' | 'xephang' | 'deploy' | 'dossier' | 'saleplan' | 'market' | 'radar' | 'listing';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'data', label: 'Dữ liệu BĐS', icon: Boxes },
@@ -24,6 +25,7 @@ const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'dossier', label: 'Hồ sơ dự án', icon: FileSearch },
   { id: 'saleplan', label: 'Kế hoạch bán', icon: ClipboardList },
   { id: 'market', label: 'Nghiên cứu thị trường', icon: TrendingUp },
+  { id: 'radar', label: 'Radar thị trường', icon: Radar },
   { id: 'listing', label: 'Đăng tin', icon: Newspaper },
 ];
 
@@ -86,6 +88,7 @@ const RealEstateOS: React.FC = () => {
         {sec === 'dossier' && <ProjectDossier />}
         {sec === 'saleplan' && <SalePlanner />}
         {sec === 'market' && <MarketResearch />}
+        {sec === 'radar' && <MarketRadar />}
         {sec === 'listing' && <ListingPublisher />}
       </div>
     </div>

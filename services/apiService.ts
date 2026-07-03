@@ -1302,6 +1302,43 @@ class ApiService {
     if (!res.ok) throw new Error(`release ${res.status}`);
     return res.json();
   }
+  /** Radar thị trường — tín hiệu biến động thị trường BĐS công khai (mới nhất trước). */
+  public async marketSignals(): Promise<{ items: any[]; total: number }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/market/signals`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+      if (!res.ok) throw new Error(`signals ${res.status}`);
+      return res.json();
+    } catch { return { items: [], total: 0 }; }
+  }
+  /** Radar thị trường — các nguồn trang công khai đang theo dõi. */
+  public async marketWatches(): Promise<{ items: any[]; total: number }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/market/radar/watches`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+      if (!res.ok) throw new Error(`watches ${res.status}`);
+      return res.json();
+    } catch { return { items: [], total: 0 }; }
+  }
+  /** Radar thị trường — thêm một nguồn trang để theo dõi. */
+  public async marketAddWatch(url: string, title: string): Promise<any> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/market/radar/watch`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, title }),
+      });
+      if (!res.ok) throw new Error(`add watch ${res.status}`);
+      return res.json();
+    } catch { return { ok: false }; }
+  }
+  /** Radar thị trường — gỡ một nguồn trang khỏi danh sách theo dõi. */
+  public async marketDelWatch(uuid: string): Promise<any> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/market/radar/watch/${uuid}`, {
+        method: 'DELETE', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`del watch ${res.status}`);
+      return res.json();
+    } catch { return { ok: false }; }
+  }
   /** CRM (ERP) — tổng hợp phễu Lead + Opportunity (scoped theo người). */
   public async crmSummary(): Promise<{ scoped: boolean; lead: { total: number; byStatus: Record<string, number> }; opportunity: { total: number; byStatus: Record<string, number> } }> {
     const res = await fetch(`${this.cdpBaseUrl}/crm/summary`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
