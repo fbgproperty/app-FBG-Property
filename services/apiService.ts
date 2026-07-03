@@ -2422,6 +2422,112 @@ class ApiService {
       body: JSON.stringify(passwords),
     });
   }
+
+  // =====================
+  // ĐÀO TẠO OS — trung tâm đào tạo (chuyên viên người & AI học · thi · tốt nghiệp)
+  // =====================
+  /** Lộ trình 6 mô-đun + trạng thái học của người đăng nhập. */
+  public async trainCurriculum(): Promise<{ modules: any[]; total: number; passed: number; pass: number; graduated: boolean; certId: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/train/curriculum`, {
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`curriculum ${res.status}`);
+      return await res.json();
+    } catch {
+      return { modules: [], total: 0, passed: 0, pass: 0, graduated: false, certId: '' };
+    }
+  }
+  /** Nội dung bài học (markdown) của 1 mô-đun. */
+  public async trainLesson(moduleId: string | number): Promise<{ moduleId: any; title: string; content: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/train/lesson`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moduleId }),
+      });
+      if (!res.ok) throw new Error(`lesson ${res.status}`);
+      return await res.json();
+    } catch {
+      return { moduleId, title: '', content: '' };
+    }
+  }
+  /** Bộ câu hỏi kiểm tra của 1 mô-đun. */
+  public async trainQuiz(moduleId: string | number): Promise<{ quizId: string; moduleId: any; questions: { q: string; options: string[] }[] }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/train/quiz`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moduleId }),
+      });
+      if (!res.ok) throw new Error(`quiz ${res.status}`);
+      return await res.json();
+    } catch {
+      return { quizId: '', moduleId, questions: [] };
+    }
+  }
+  /** Chấm bài kiểm tra. */
+  public async trainGrade(quizId: string, answers: number[]): Promise<{ score: number; correct: number; total: number; pass: boolean }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/train/grade`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quizId, answers }),
+      });
+      if (!res.ok) throw new Error(`grade ${res.status}`);
+      return await res.json();
+    } catch {
+      return { score: 0, correct: 0, total: 0, pass: false };
+    }
+  }
+  /** Thực chiến: đối thoại với khách hàng AI; finish:true để chấm điểm. */
+  public async trainRoleplay(payload: { history: any[]; scenario?: string; finish?: boolean }): Promise<any> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/train/roleplay`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`roleplay ${res.status}`);
+      return await res.json();
+    } catch {
+      return payload.finish ? { score: 0, feedback: '', strengths: [], improve: [] } : { reply: '' };
+    }
+  }
+  /** Danh sách học viên (người & AI) + thống kê. */
+  public async trainRoster(): Promise<{ items: any[]; total: number; selling: number; learning: number; notStarted: number }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/train/roster`, {
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`roster ${res.status}`);
+      return await res.json();
+    } catch {
+      return { items: [], total: 0, selling: 0, learning: 0, notStarted: 0 };
+    }
+  }
+  /** Cấp bằng tốt nghiệp cho học viên (đã đạt hết mô-đun). */
+  public async trainGraduate(email?: string): Promise<any> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/train/graduate`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(email ? { email } : {}),
+      });
+      if (!res.ok) throw new Error(`graduate ${res.status}`);
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'Cấp bằng thất bại.' };
+    }
+  }
+  /** Cho học viên AI tự học toàn bộ lộ trình rồi được chấm (mất ~30-60s). */
+  public async trainAgentTrain(email: string): Promise<any> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/train/agent/train`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error(`agent train ${res.status}`);
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'AI tự học thất bại.' };
+    }
+  }
 }
 
 export const api = new ApiService();
