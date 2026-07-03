@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Briefcase, LayoutDashboard, Users, Zap, BarChart3, UserCheck, Columns3, HeartHandshake, Flame, Percent, Send } from 'lucide-react';
+import { Briefcase, LayoutDashboard, Users, Zap, BarChart3, UserCheck, Columns3, HeartHandshake, Flame, Percent, Send, Inbox } from 'lucide-react';
 import BusinessAgency from './BusinessAgency';
 import PipelineBoard from './PipelineBoard';
 import NextActionPanel from './NextActionPanel';
@@ -11,9 +11,10 @@ import AssignedLeads from './AssignedLeads';
 import HotLeads from './HotLeads';
 import PredictLeads from './PredictLeads';
 import OutreachQueue from './OutreachQueue';
+import ChannelLeads from './ChannelLeads';
 import { isAdminRole } from '../services/permissions';
 
-type Sec = 'overview' | 'mine' | 'hot' | 'predict' | 'assigned' | 'pipeline' | 'customers' | 'action' | 'nurture' | 'outreach' | 'report';
+type Sec = 'overview' | 'mine' | 'hot' | 'predict' | 'assigned' | 'pipeline' | 'customers' | 'channels' | 'action' | 'nurture' | 'outreach' | 'report';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'mine', label: 'Khách của tôi', icon: Users },
@@ -22,6 +23,7 @@ const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'assigned', label: 'Khách được giao', icon: UserCheck },
   { id: 'pipeline', label: 'Pipeline', icon: Columns3 },
   { id: 'customers', label: 'Tất cả khách (CDP)', icon: Users, admin: true },
+  { id: 'channels', label: 'Kênh khách', icon: Inbox },
   { id: 'action', label: 'Hành động AI', icon: Zap },
   { id: 'nurture', label: 'Chăm sóc tự động', icon: HeartHandshake },
   { id: 'outreach', label: 'Hàng chờ gửi', icon: Send },
@@ -62,6 +64,7 @@ const BusinessOS: React.FC = () => {
         {sec === 'assigned' && <AssignedLeads />}
         {sec === 'pipeline' && <PipelineBoard />}
         {sec === 'customers' && admin && <CDP />}
+        {sec === 'channels' && <ChannelLeads />}
         {sec === 'action' && <NextActionPanel />}
         {sec === 'nurture' && <NurtureSequence />}
         {sec === 'outreach' && <OutreachQueue />}

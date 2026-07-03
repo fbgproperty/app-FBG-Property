@@ -1339,6 +1339,33 @@ class ApiService {
       return res.json();
     } catch { return { ok: false }; }
   }
+  /** Kênh khách tự động — trạng thái kết nối 2 kênh (Zalo OA / Facebook) + tổng khách theo nguồn. */
+  public async channelsStatus(): Promise<any> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/channels/status`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+      if (!res.ok) throw new Error(`channels status ${res.status}`);
+      return res.json();
+    } catch { return { zalo: {}, facebook: {}, totalLeads: 0, bySource: {} }; }
+  }
+  /** Kênh khách tự động — danh sách khách mới về (đã scope theo người ở backend). */
+  public async channelsLeads(): Promise<{ items: any[]; total: number }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/channels/leads`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+      if (!res.ok) throw new Error(`channels leads ${res.status}`);
+      return res.json();
+    } catch { return { items: [], total: 0 }; }
+  }
+  /** Kênh khách tự động — cập nhật trạng thái một khách. */
+  public async channelLeadStatus(id: string, status: string): Promise<any> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/channels/lead/status`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      });
+      if (!res.ok) throw new Error(`lead status ${res.status}`);
+      return res.json();
+    } catch { return { ok: false }; }
+  }
   /** CRM (ERP) — tổng hợp phễu Lead + Opportunity (scoped theo người). */
   public async crmSummary(): Promise<{ scoped: boolean; lead: { total: number; byStatus: Record<string, number> }; opportunity: { total: number; byStatus: Record<string, number> } }> {
     const res = await fetch(`${this.cdpBaseUrl}/crm/summary`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
