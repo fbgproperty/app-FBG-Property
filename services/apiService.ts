@@ -1210,6 +1210,38 @@ class ApiService {
     if (!res.ok) throw new Error(`approve ${res.status}`);
     return res.json();
   }
+  /** Cá nhân hoá theo Sale — URL ảnh thật của sale (dùng cho <img> + canvas). */
+  public salePhotoUrl(email: string): string { return `${this.cdpBaseUrl}/sale/photo/${encodeURIComponent(email)}`; }
+  public async salePersonas(): Promise<{ items: { email: string; name: string; role: string; hasPhoto: boolean; persona: string }[]; total: number }> {
+    const res = await fetch(`${this.cdpBaseUrl}/sale/personas`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+    if (!res.ok) throw new Error(`personas ${res.status}`);
+    return res.json();
+  }
+  public async salePersonaSet(email: string, persona: string): Promise<{ ok: boolean }> {
+    const res = await fetch(`${this.cdpBaseUrl}/sale/persona`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, persona }),
+    });
+    if (!res.ok) throw new Error(`persona ${res.status}`);
+    return res.json();
+  }
+  public async salePersonaSuggest(email: string): Promise<{ persona: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/sale/persona/suggest`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) throw new Error(`suggest ${res.status}`);
+    return res.json();
+  }
+  /** Sinh nội dung cá nhân hoá theo đúng giọng/tính cách sale (kind: message|post|video). */
+  public async salePersonalize(body: { email: string; kind: 'message' | 'post' | 'video'; project?: string; customer?: string; note?: string }): Promise<{ text: string; sale: string; kind: string; project: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/sale/personalize`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`personalize ${res.status}`);
+    return res.json();
+  }
   /** Proxy Zalo — danh sách proxy (che mật khẩu) + proxy của tôi. */
   public async proxyList(): Promise<{ items: { id: string; host: string; port: string; type: string; status: 'available' | 'claimed' | 'mine'; claimedByName: string | null }[]; mine: { id: string; host: string; port: string; user: string; pass: string; type: string } | null; available: number; total: number }> {
     const res = await fetch(`${this.cdpBaseUrl}/proxy/list`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });

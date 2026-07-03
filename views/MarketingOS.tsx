@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Megaphone, LayoutDashboard, FileText, Target, Share2, Workflow, BarChart3,
-  Users, Database, Loader2, Sparkles, ShieldCheck, Bot, ArrowRight, Clock, Radar, CalendarDays
+  Users, Database, Loader2, Sparkles, ShieldCheck, Bot, ArrowRight, Clock, Radar, CalendarDays, UserSquare
 } from 'lucide-react';
 import { api } from '../services/apiService';
 import Marketing from './Marketing';
@@ -15,11 +15,13 @@ import AgencyDashboard from './AgencyDashboard';
 import CommunityInbox from './CommunityInbox';
 import WebTracking from './WebTracking';
 import ContentCalendar from './ContentCalendar';
+import SalePersonalize from './SalePersonalize';
 
-type Sec = 'overview' | 'content' | 'calendar' | 'ads' | 'channels' | 'community' | 'tracking' | 'automation' | 'roi';
+type Sec = 'overview' | 'content' | 'persona' | 'calendar' | 'ads' | 'channels' | 'community' | 'tracking' | 'automation' | 'roi';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'content', label: 'Content AI', icon: FileText },
+  { id: 'persona', label: 'Cá nhân hoá Sale', icon: UserSquare },
   { id: 'calendar', label: 'Lịch nội dung', icon: CalendarDays },
   { id: 'ads', label: 'Quảng cáo', icon: Target },
   { id: 'channels', label: 'Kênh (FB/Zalo)', icon: Share2 },
@@ -140,6 +142,7 @@ const MarketingOS: React.FC = () => {
         {sec === 'channels' && <Marketing />}
         {sec === 'community' && <CommunityInbox />}
         {sec === 'content' && <div className="space-y-5"><ContentFactory /><ImageFactory /><VideoFactory /></div>}
+        {sec === 'persona' && <SalePersonalize />}
         {sec === 'calendar' && <ContentCalendar />}
         {sec === 'tracking' && <WebTracking />}
         {sec === 'automation' && <AutomationHub />}
