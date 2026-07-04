@@ -35,6 +35,7 @@ export const canAccess = (route: string, role: string = getRole()): boolean => {
   if (route === '/van-hanh' || route.startsWith('/van-hanh/')) return true; // Vận hành OS: gộp đội ngũ AI + tổ chức
   if (route === '/marketing') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
   if (route === '/san-bds') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
+  if (route === '/du-an' || route.startsWith('/du-an/')) return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
   if (route === '/dao-tao' || route.startsWith('/dao-tao/')) return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
   if (route === '/kinh-doanh') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);
   if (route === '/crm') return ['ceo', 'gd_du_an', 'gd_kinh_doanh', 'tp_kinh_doanh', 'admin_du_an', 'marketing', 'sale', 'ctv'].includes(role);

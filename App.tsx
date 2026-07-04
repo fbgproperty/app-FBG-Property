@@ -13,6 +13,7 @@ import TeamHub from './views/TeamHub';
 import Marketing from './views/Marketing';
 import MarketingOS from './views/MarketingOS';
 import RealEstateOS from './views/RealEstateOS';
+import ProjectOS from './views/ProjectOS';
 import TrainingOS from './views/TrainingOS';
 import BusinessOS from './views/BusinessOS';
 import OperationsOS from './views/OperationsOS';
@@ -112,6 +113,7 @@ const App: React.FC = () => {
               <Route path="/van-hanh" element={<Guard path="/van-hanh"><OperationsOS /></Guard>} />
               <Route path="/marketing" element={<Guard path="/marketing"><MarketingOS /></Guard>} />
               <Route path="/san-bds" element={<Guard path="/san-bds"><RealEstateOS /></Guard>} />
+              <Route path="/du-an" element={<Guard path="/du-an"><ProjectOS /></Guard>} />
               <Route path="/dao-tao" element={<Guard path="/dao-tao"><TrainingOS /></Guard>} />
               <Route path="/kinh-doanh" element={<Guard path="/kinh-doanh"><BusinessOS /></Guard>} />
               <Route path="/crm" element={<Guard path="/kinh-doanh"><CrmBoard /></Guard>} />

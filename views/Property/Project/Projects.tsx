@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import Pagination from '../../../components/Pagination';
 import { api } from '../../../services/apiService';
 import {
-  Plus, MapPin, Loader2, RefreshCcw,
-  LayoutGrid, Search, Filter, X, Building, Layers, Activity, CloudDownload
+  MapPin, Loader2, RefreshCcw,
+  LayoutGrid, Search, Filter, X, Building, Layers, Activity, CloudDownload, CheckCircle2
 } from 'lucide-react';
 
 const PROJECTS_PER_PAGE = 6;
@@ -145,7 +145,8 @@ const Projects: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');   // ô nhập (chưa debounce)
+  const [searchQuery, setSearchQuery] = useState('');   // đã debounce → gửi server (q)
   const [statusFilter, setStatusFilter] = useState('All');
 
   // Các filter UI cũ (investor/province/type) vẫn giữ để không phải sửa layout:
@@ -155,17 +156,46 @@ const Projects: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState('All');
 
   const [syncing, setSyncing] = useState(false);
+  const [syncCount, setSyncCount] = useState(0);
+  const [toast, setToast] = useState('');
 
+  // Debounce ô tìm kiếm (~400ms) → cập nhật searchQuery gửi server
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearchQuery(searchInput.trim());
+      setCurrentProjectPage(1);
+    }, 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(''), 6000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  // Đồng bộ lại toàn bộ danh mục: kích hoạt nền → poll trạng thái mỗi ~4s
   const syncRaiProjects = async () => {
-    try {
-      setSyncing(true);
-      // Dự án đồng bộ trực tiếp từ website fbgproperty.vn → chỉ cần tải lại
-      await loadProjects(true);
-    } finally {
-      setSyncing(false);
-    }
+    if (syncing) return;
+    setToast('');
+    setSyncing(true);
+    setSyncCount(0);
+    await api.webProjectsSync();
+    const poll = async () => {
+      const st = await api.webSyncStatus();
+      setSyncCount(st.count || 0);
+      if (st.running) {
+        setTimeout(poll, 4000);
+      } else {
+        setSyncing(false);
+        setToast(`Đã đồng bộ xong ${new Intl.NumberFormat('vi-VN').format(st.count || 0)} dự án.`);
+        loadProjects(true);
+      }
+    };
+    setTimeout(poll, 4000);
   };
-  
+
 
   const buildQuery = (params: Record<string, any>) => {
     const sp = new URLSearchParams();
@@ -238,6 +268,7 @@ const Projects: React.FC = () => {
   }, [projects, investorFilter, provinceFilter, typeFilter]);
 
   const resetFilters = () => {
+    setSearchInput('');
     setSearchQuery('');
     setStatusFilter('All');
     setInvestorFilter('All');
@@ -273,19 +304,18 @@ const Projects: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Danh mục Dự án</h2>
-          <p className="text-gray-500">Tìm kiếm dự án theo từ khóa và trạng thái.</p>
+          <p className="text-gray-500">
+            {new Intl.NumberFormat('vi-VN').format(totalItems)} dự án · tìm kiếm theo từ khóa và trạng thái.
+          </p>
         </div>
         <div className="flex gap-2">
-        <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-bold shadow-md">
-            <Plus className="w-5 h-5" /> Thêm dự án
-        </button>
         <button
             onClick={syncRaiProjects}
             disabled={syncing || refreshing}
             className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-black shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
             >
             {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CloudDownload className="w-4 h-4" />}
-            Đồng bộ dữ liệu
+            {syncing ? `Đang đồng bộ… (${new Intl.NumberFormat('vi-VN').format(syncCount)} dự án)` : 'Đồng bộ dữ liệu'}
         </button>
           <button
             onClick={() => loadProjects(true)}
@@ -298,6 +328,12 @@ const Projects: React.FC = () => {
         </div>
       </div>
 
+      {toast && (
+        <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 rounded-xl px-4 py-2.5 text-sm font-bold">
+          <CheckCircle2 className="w-4 h-4 shrink-0" /> {toast}
+        </div>
+      )}
+
       {/* Filter Bar */}
       <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -306,8 +342,8 @@ const Projects: React.FC = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentProjectPage(1); }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Tên dự án, địa chỉ, slug, url..."
               className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
             />

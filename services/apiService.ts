@@ -134,6 +134,7 @@ type ApiErrorPayload = {
 export type ProjectsQuery = {
   status?: string;
   q?: string;
+  city?: string;
   page?: number;
   pageSize?: number;
 };
@@ -836,7 +837,95 @@ class ApiService {
   public async getProjects(query: ProjectsQuery) {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 12;
-    return this.webGet<ApiPagedResponse<ApiProjectItem>>(`/projects?page=${page}&pageSize=${pageSize}`);
+    // Tìm kiếm + lọc chạy phía máy chủ (q/status/city) để quét toàn bộ danh mục đã đồng bộ.
+    const qs = this.buildQuery({ page, pageSize, q: query.q, status: query.status, city: query.city });
+    return this.webGet<ApiPagedResponse<ApiProjectItem>>(`/projects${qs}`);
+  }
+
+  /** Kích hoạt đồng bộ lại toàn bộ danh mục dự án (chạy nền, mất vài phút). */
+  public async webProjectsSync(): Promise<{ ok: boolean; started?: boolean; running?: boolean }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/web/projects/sync`, {
+        method: 'POST',
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`projects sync ${res.status}`);
+      return await res.json();
+    } catch {
+      return { ok: false, started: false, running: false };
+    }
+  }
+
+  /** Theo dõi tiến độ đồng bộ danh mục. */
+  public async webSyncStatus(): Promise<{ running: boolean; count: number; byCity: Record<string, number>; byStatus: Record<string, number> }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/web/sync-status`, {
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`sync status ${res.status}`);
+      return await res.json();
+    } catch {
+      return { running: false, count: 0, byCity: {}, byStatus: {} };
+    }
+  }
+
+  // =====================
+  // TRIỂN KHAI DỰ ÁN TỰ TRỊ (Dự Án OS)
+  // =====================
+
+  /** Danh sách các dự án đang được triển khai tự trị. */
+  public async projectOsList(): Promise<{ items: any[]; total: number; live: number }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/os/list`, {
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`os list ${res.status}`);
+      return await res.json();
+    } catch {
+      return { items: [], total: 0, live: 0 };
+    }
+  }
+
+  /** Trạng thái pipeline 7 bước của một dự án. */
+  public async projectOsStatus(project: string, slug: string): Promise<{ project: string; slug: string; stages: any[]; done: number; total: number; progress: number }> {
+    try {
+      const qs = this.buildQuery({ project, slug });
+      const res = await fetch(`${this.cdpBaseUrl}/project/os/status${qs}`, {
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`os status ${res.status}`);
+      return await res.json();
+    } catch {
+      return { project, slug, stages: [], done: 0, total: 0, progress: 0 };
+    }
+  }
+
+  /** Chạy một bước của pipeline triển khai. */
+  public async projectOsStage(project: string, slug: string, stage: string): Promise<{ ok: boolean; stage?: string; summary?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/os/stage`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project, slug, stage }),
+      });
+      if (!res.ok) throw new Error(`os stage ${res.status}`);
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, summary: e?.message || 'Chạy bước thất bại.' };
+    }
+  }
+
+  /** Triển khai tự trị toàn bộ 7 bước (mất khoảng 40–60 giây). */
+  public async projectOsAutopilot(project: string, slug: string): Promise<{ ok: boolean; project?: string; results?: any[]; done?: number; total?: number }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/os/autopilot`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project, slug }),
+      });
+      if (!res.ok) throw new Error(`os autopilot ${res.status}`);
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, results: [], done: 0, total: 0 };
+    }
   }
 
   public async getProjectDetail(id: string): Promise<ApiProjectDetail> {

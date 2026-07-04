@@ -101,6 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/dashboard', label: 'Office FBG', icon: LayoutDashboard },
     { to: '/tro-ly-ai', label: 'Agent OS', icon: Sparkles },
     { to: '/san-bds', label: 'Bất động sản', icon: Building2 },
+    { to: '/du-an', label: 'Dự Án', icon: Rocket },
     { to: '/dao-tao', label: 'Đào Tạo', icon: GraduationCap },
     { to: '/marketing', label: 'Marketing', icon: Megaphone },
     { to: '/kinh-doanh', label: 'Kinh doanh', icon: Briefcase },
