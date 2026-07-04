@@ -82,6 +82,14 @@ const ProjectDetail: React.FC = () => {
   const [ragQ, setRagQ] = useState('');
   const [ragA, setRagA] = useState<any>(null);
   const [ragBusy, setRagBusy] = useState(false);
+  const [enrichBusy, setEnrichBusy] = useState(false);
+  const [sheetUrl, setSheetUrl] = useState('');
+  const [sheetBusy, setSheetBusy] = useState(false);
+  const [toast, setToast] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+  const flash = (kind: 'ok' | 'err', text: string) => {
+    setToast({ kind, text });
+    setTimeout(() => setToast(null), 6000);
+  };
   const askRag = async () => {
     if (!ragQ.trim()) return;
     setRagBusy(true); setRagA(null);
@@ -89,6 +97,15 @@ const ProjectDetail: React.FC = () => {
     catch (e: any) { setRagA({ answer: '⚠️ ' + (e?.message || 'lỗi') }); }
     finally { setRagBusy(false); }
   };
+
+  // Nạp lại nội dung dự án (project-content) — dùng chung cho lần đầu và sau khi AI đồng bộ.
+  const loadContent = useCallback(async () => {
+    if (!slug) return;
+    const c = await api.getProjectContent(slug).catch(() => ({}));
+    setContent({ ...emptyContent(slug), ...(c || {}), slug });
+    setSheetUrl((c as any)?.unitsSheetUrl || '');
+    setDirty(false);
+  }, [slug]);
 
   useEffect(() => {
     let alive = true;
@@ -103,6 +120,7 @@ const ProjectDetail: React.FC = () => {
         if (!alive) return;
         setDetail(d);
         setContent({ ...emptyContent(slug), ...(c || {}), slug });
+        setSheetUrl((c as any)?.unitsSheetUrl || '');
       } catch (e: any) {
         if (alive) setError(e?.message || 'Không thể tải chi tiết dự án.');
       } finally {
@@ -169,6 +187,45 @@ const ProjectDetail: React.FC = () => {
     }
   };
 
+  // AI đồng bộ dữ liệu dự án: tự động điền các mục nội dung rồi nạp lại tab.
+  const enrichProject = async () => {
+    setEnrichBusy(true); setToast(null);
+    try {
+      const r = await api.projectEnrich(slug);
+      if (r.ok) {
+        await loadContent();
+        const filled = (r.filled && r.filled.length) ? r.filled.join(', ') : 'các mục nội dung';
+        flash('ok', `Đã đồng bộ: ${filled}`);
+      } else {
+        flash('err', r.error || 'Đồng bộ dữ liệu dự án thất bại. Vui lòng thử lại.');
+      }
+    } catch (e: any) {
+      flash('err', e?.message || 'Đồng bộ dữ liệu dự án thất bại.');
+    } finally {
+      setEnrichBusy(false);
+    }
+  };
+
+  // Đồng bộ bảng hàng (quỹ căn) từ Google Trang tính.
+  const syncUnitsSheet = async () => {
+    const url = (sheetUrl || '').trim();
+    if (!url) { flash('err', 'Dán link Google Trang tính bảng hàng trước.'); return; }
+    setSheetBusy(true); setToast(null);
+    try {
+      const r = await api.projectUnitsSyncSheet(slug, url);
+      if (r.error) {
+        flash('err', r.error);
+      } else {
+        await loadContent();
+        flash('ok', `Đã đồng bộ ${r.count ?? 0} căn`);
+      }
+    } catch (e: any) {
+      flash('err', e?.message || 'Đồng bộ bảng hàng thất bại.');
+    } finally {
+      setSheetBusy(false);
+    }
+  };
+
   const images: string[] = useMemo(
     () => (detail?.images?.length ? detail.images : [detail?.imageUrl || FALLBACK]),
     [detail]
@@ -211,13 +268,33 @@ const ProjectDetail: React.FC = () => {
           </div>
         </div>
         {isAdmin && (
-          <button onClick={() => save()} disabled={saving || !dirty}
-            className={`px-5 py-2.5 rounded-xl font-black text-sm flex items-center gap-2 shadow-lg transition-all ${dirty ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {dirty ? 'Lưu thay đổi' : 'Đã lưu'}
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button onClick={enrichProject} disabled={enrichBusy}
+              className="px-5 py-2.5 rounded-xl font-black text-sm flex items-center gap-2 shadow-lg transition-all bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-70">
+              {enrichBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              {enrichBusy ? 'Đang đồng bộ…' : 'AI đồng bộ dữ liệu dự án'}
+            </button>
+            <button onClick={() => save()} disabled={saving || !dirty}
+              className={`px-5 py-2.5 rounded-xl font-black text-sm flex items-center gap-2 shadow-lg transition-all ${dirty ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {dirty ? 'Lưu thay đổi' : 'Đã lưu'}
+            </button>
+          </div>
         )}
       </div>
+
+      {/* Hint khi đang đồng bộ + thông báo kết quả */}
+      {isAdmin && enrichBusy && (
+        <div className="flex items-center gap-2 text-sm font-semibold text-violet-700 bg-violet-50 border border-violet-100 rounded-xl px-4 py-2.5">
+          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+          Đang đồng bộ từ nguồn dự án &amp; kho tài liệu… (~40s)
+        </div>
+      )}
+      {toast && (
+        <div className={`text-sm font-bold rounded-xl px-4 py-2.5 border ${toast.kind === 'ok' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-rose-50 border-rose-100 text-rose-700'}`}>
+          {toast.text}
+        </div>
+      )}
 
       {/* Hỏi AI tài liệu dự án (Kho tài liệu AI) */}
       <div className="bg-violet-50 rounded-2xl border border-violet-100 p-4">
@@ -425,6 +502,21 @@ const ProjectDetail: React.FC = () => {
             <div className="space-y-4">
               <SectionTitle icon={Building2} title={`Quỹ căn (${allUnits.length})`}
                 action={isAdmin && <AddBtn onClick={() => patch((c) => ({ ...c, units: [...c.units, { code: '', type: '', area: '', price: '', direction: '', status: 'Còn' }] }))} />} />
+
+              {isAdmin && (
+                <div className="bg-slate-50/60 border border-slate-100 rounded-2xl p-3 space-y-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input value={sheetUrl} onChange={(e) => setSheetUrl(e.target.value)}
+                      placeholder="Dán link Google Trang tính bảng hàng..."
+                      className="flex-1 p-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
+                    <button onClick={syncUnitsSheet} disabled={sheetBusy}
+                      className="px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 hover:bg-indigo-700 disabled:opacity-60 whitespace-nowrap">
+                      {sheetBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Đồng bộ bảng hàng
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-400 font-semibold">Dán link Google Trang tính bảng hàng gốc (chia sẻ 'Bất kỳ ai có liên kết').</p>
+                </div>
+              )}
 
               <div className="text-sm font-bold text-slate-600">
                 Tổng {allUnits.length} căn ·{' '}

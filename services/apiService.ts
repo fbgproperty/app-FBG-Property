@@ -2223,6 +2223,37 @@ class ApiService {
     return res.json();
   }
 
+  /** AI tự động điền các mục nội dung dự án (~30-45s) từ nguồn dự án + kho tài liệu. */
+  public async projectEnrich(slug: string): Promise<{ ok: boolean; project?: string; filled?: string[]; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/enrich`, {
+        method: 'POST',
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug }),
+      });
+      if (!res.ok) throw new Error(`enrich ${res.status}`);
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'Đồng bộ dữ liệu dự án thất bại.' };
+    }
+  }
+
+  /** Đồng bộ bảng hàng (quỹ căn) từ Google Trang tính vào content.units. */
+  public async projectUnitsSyncSheet(slug: string, sheetUrl: string): Promise<{ ok?: boolean; count?: number; sample?: any[]; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/units/sync-sheet`, {
+        method: 'POST',
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, sheetUrl }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return { error: data?.error || `sync sheet ${res.status}` };
+      return data;
+    } catch (e: any) {
+      return { error: e?.message || 'Đồng bộ bảng hàng thất bại.' };
+    }
+  }
+
   // ===== Triển khai dự án (ERP) =====
   public async getDeployProjects(): Promise<{ items: any[]; total: number }> {
     return this.webApiGet(`/deploy/projects`);
