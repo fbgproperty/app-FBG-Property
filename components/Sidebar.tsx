@@ -35,7 +35,6 @@ import {
   Settings,
   RefreshCw,
   HelpCircle,
-  History,
   Info
 } from 'lucide-react';
 
@@ -109,7 +108,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/van-hanh', label: 'Vận hành', icon: Cpu },
     { to: '/cong-nghe', label: 'Công nghệ', icon: Server },
     { to: '/bao-cao', label: 'Báo cáo', icon: BarChart3 },
-    { to: '/lich-su', label: 'Lịch sử', icon: History },
     { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket },
     { to: '/my-customers', label: 'Khách của tôi', icon: Target },
   ];

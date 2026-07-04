@@ -1556,16 +1556,41 @@ class ApiService {
       return res.json();
     } catch { return { items: [], total: 0 }; }
   }
-  /** Lịch sử hoạt động (lệnh đã ra + câu hỏi cho trợ lý AI). Admin xem tất cả, người khác chỉ xem của mình. */
-  public async appHistory(kind = '', limit = 100): Promise<{ items: any[]; total: number }> {
+  /** Lưu một nội dung đã sinh (video/ảnh/bài viết cá nhân hoá) để bền theo điều hướng. */
+  public async contentSave(rec: { feature: string; sale?: string; kind?: string; title?: string; text?: string; url?: string; meta?: any }): Promise<{ ok: boolean; id?: string }> {
     try {
-      const q = new URLSearchParams();
-      if (kind) q.set('kind', kind);
-      q.set('limit', String(limit));
-      const res = await fetch(`${this.cdpBaseUrl}/history?${q.toString()}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
-      if (!res.ok) throw new Error(`history ${res.status}`);
+      const res = await fetch(`${this.cdpBaseUrl}/content/save`, {
+        method: 'POST',
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(rec),
+      });
+      if (!res.ok) throw new Error(`content save ${res.status}`);
+      return res.json();
+    } catch { return { ok: false }; }
+  }
+  /** Lịch sử nội dung đã sinh trong một tính năng (lọc thêm theo sale/kind). Người thường chỉ thấy của mình. */
+  public async contentHistory(feature: string, opts: { sale?: string; kind?: string; limit?: number } = {}): Promise<{ items: any[]; total: number }> {
+    try {
+      const q = new URLSearchParams({ feature });
+      if (opts.sale) q.set('sale', opts.sale);
+      if (opts.kind) q.set('kind', opts.kind);
+      q.set('limit', String(opts.limit || 50));
+      const res = await fetch(`${this.cdpBaseUrl}/content/history?${q.toString()}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+      if (!res.ok) throw new Error(`content history ${res.status}`);
       return res.json();
     } catch { return { items: [], total: 0 }; }
+  }
+  /** Xoá một mục lịch sử nội dung. */
+  public async contentDelete(id: string): Promise<{ ok: boolean }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/content/delete`, {
+        method: 'POST',
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) throw new Error(`content delete ${res.status}`);
+      return res.json();
+    } catch { return { ok: false }; }
   }
   /** Radar thị trường — các nguồn trang công khai đang theo dõi. */
   public async marketWatches(): Promise<{ items: any[]; total: number }> {

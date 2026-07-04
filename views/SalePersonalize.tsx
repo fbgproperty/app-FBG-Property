@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   UserSquare, Loader2, Sparkles, Copy, Check, Save, MessageCircle,
-  FileText, Video, Download, Wand2, ImageDown, Film
+  FileText, Video, Download, Wand2, ImageDown, Film,
+  History as HistoryIcon, Trash2, Clock, Play, RefreshCw
 } from 'lucide-react';
 import { api } from '../services/apiService';
 
@@ -23,6 +24,21 @@ const KINDS: { id: Kind; label: string; icon: any }[] = [
 
 const initials = (name: string): string =>
   (name || '?').trim().split(/\s+/).slice(-2).map(w => w[0] || '').join('').toUpperCase() || '?';
+
+const timeAgo = (ts: any): string => {
+  if (!ts) return '';
+  const ms = typeof ts === 'number' ? (ts < 1e12 ? ts * 1000 : ts) : Date.parse(String(ts));
+  if (Number.isNaN(ms)) return '';
+  const diff = Date.now() - ms;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'vừa xong';
+  if (m < 60) return `${m} phút trước`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} giờ trước`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d} ngày trước`;
+  return new Date(ms).toLocaleDateString('vi-VN');
+};
 
 const SalePersonalize: React.FC = () => {
   const [sales, setSales] = useState<Sale[]>([]);
@@ -53,7 +69,58 @@ const SalePersonalize: React.FC = () => {
   const [vidErr, setVidErr] = useState('');
   const vidPoll = useRef<any>(null);
 
+  // ==== Lịch sử nội dung đã tạo (bền theo điều hướng, lưu ở database) ====
+  const [history, setHistory] = useState<any[]>([]);
+  const [histBlobs, setHistBlobs] = useState<Record<string, string>>({});
+
   const sale = sales.find(s => s?.email === selected) || null;
+
+  const FEATURE = 'sale-personalize';
+  const vidLSKey = (email: string) => `fbg_salevid_${email}`;
+  const saveActiveVid = (email: string, job: any) => { try { localStorage.setItem(vidLSKey(email), JSON.stringify(job)); } catch { /* */ } };
+  const clearActiveVid = (email: string) => { try { localStorage.removeItem(vidLSKey(email)); } catch { /* */ } };
+
+  const loadHistory = async (email?: string) => {
+    const e = email ?? selected;
+    if (!e) { setHistory([]); return; }
+    try {
+      const r = await api.contentHistory(FEATURE, { sale: e, limit: 40 });
+      setHistory(Array.isArray(r?.items) ? r.items : []);
+    } catch { /* */ }
+  };
+
+  // Poll trạng thái dựng video; khi xong lưu vào lịch sử để không mất khi rời trang
+  const startPoll = (id: string, email: string, projName: string, saleName?: string) => {
+    vidPoll.current && clearInterval(vidPoll.current);
+    vidPoll.current = setInterval(async () => {
+      try {
+        const s = await api.videoStatus(id);
+        setVidJob({ id, status: s.status, step: s.step });
+        saveActiveVid(email, { id, status: s.status, project: projName, saleName });
+        if (s.status === 'done') {
+          clearInterval(vidPoll.current);
+          const fname = (s.url || '').split('/').pop();
+          try { setVideoUrl(await api.videoBlobUrl(fname)); } catch { /* */ }
+          clearActiveVid(email);
+          try { await api.contentSave({ feature: FEATURE, sale: email, kind: 'video', title: projName || 'Video cá nhân hoá', url: fname, meta: { saleName } }); } catch { /* */ }
+          loadHistory(email);
+        } else if (s.status === 'failed') {
+          clearInterval(vidPoll.current);
+          setVidErr('Dựng video chưa xong, thử lại sau ít phút.');
+          clearActiveVid(email);
+        }
+      } catch { /* */ }
+    }, 3000);
+  };
+
+  // Lấy (lười) URL phát lại cho video trong lịch sử
+  const ensureHistBlob = async (fname: string) => {
+    if (!fname || histBlobs[fname]) return;
+    try {
+      const url = await api.videoBlobUrl(fname);
+      setHistBlobs(prev => ({ ...prev, [fname]: url }));
+    } catch { /* */ }
+  };
 
   // ==== Load personas on mount ====
   useEffect(() => {
@@ -76,6 +143,24 @@ const SalePersonalize: React.FC = () => {
     if (sale) setPersona(sale.persona || '');
     setResult('');
     setErr('');
+    if (!selected) return;
+    // Nạp lịch sử nội dung của sale này
+    loadHistory(selected);
+    // Nối lại job dựng video đang chạy dở (nếu có) — không mất khi rời trang
+    vidPoll.current && clearInterval(vidPoll.current);
+    setVideoUrl(''); setVidJob(null); setVidErr('');
+    try {
+      const raw = localStorage.getItem(vidLSKey(selected));
+      if (raw) {
+        const j = JSON.parse(raw);
+        if (j?.id && j.status !== 'done' && j.status !== 'failed') {
+          setVidJob({ id: j.id, status: j.status || 'queued' });
+          startPoll(j.id, selected, j.project || 'Dự án', j.saleName);
+        } else {
+          localStorage.removeItem(vidLSKey(selected));
+        }
+      }
+    } catch { /* */ }
   }, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(''), 1800); };
@@ -112,7 +197,19 @@ const SalePersonalize: React.FC = () => {
     setGenerating(true); setErr(''); setResult('');
     try {
       const r = await api.salePersonalize({ email: sale.email, kind, project, customer, note });
-      setResult((r?.text || '').toString());
+      const text = (r?.text || '').toString();
+      setResult(text);
+      if (text) {
+        const kindLabel = KINDS.find(k => k.id === kind)?.label || 'Nội dung';
+        try {
+          await api.contentSave({
+            feature: FEATURE, sale: sale.email, kind,
+            title: `${kindLabel}${project ? ' · ' + project : ''}`,
+            text, meta: { customer, note, project, saleName: sale.name },
+          });
+        } catch { /* */ }
+        loadHistory(sale.email);
+      }
     } catch {
       setErr('Trợ lý AI đang bận hoặc mất kết nối. Thử lại sau.');
     } finally {
@@ -126,6 +223,19 @@ const SalePersonalize: React.FC = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch { /* */ }
+  };
+
+  const [histCopied, setHistCopied] = useState('');
+  const copyHist = (id: string, text: string) => {
+    try {
+      navigator.clipboard.writeText(text || '');
+      setHistCopied(id);
+      setTimeout(() => setHistCopied(''), 1500);
+    } catch { /* */ }
+  };
+  const deleteHistory = async (id: string) => {
+    setHistory(prev => prev.filter(h => String(h.id) !== String(id)));
+    try { await api.contentDelete(id); } catch { /* */ }
   };
 
   // ==== Load dự án cho video + dọn dẹp poll ====
@@ -152,24 +262,12 @@ const SalePersonalize: React.FC = () => {
       ...projImgs.map((_, i) => ['Vị trí đắc địa', 'Tiện ích đẳng cấp', 'Thiết kế hiện đại', 'Pháp lý minh bạch', 'Chính sách hấp dẫn'][i] || ''),
     ];
     try {
-      const r = await api.videoRender({ title: project?.name || 'Dự án', subtitle: sale.name, images, captions });
+      const projName = project?.name || 'Dự án';
+      const r = await api.videoRender({ title: projName, subtitle: sale.name, images, captions });
       const id = r?.jobId; if (!id) throw new Error('Không tạo được video');
       setVidJob({ id, status: 'queued' });
-      vidPoll.current && clearInterval(vidPoll.current);
-      vidPoll.current = setInterval(async () => {
-        try {
-          const s = await api.videoStatus(id);
-          setVidJob({ id, status: s.status, step: s.step });
-          if (s.status === 'done') {
-            clearInterval(vidPoll.current);
-            const url = await api.videoBlobUrl((s.url || '').split('/').pop());
-            setVideoUrl(url);
-          } else if (s.status === 'failed') {
-            clearInterval(vidPoll.current);
-            setVidErr('Dựng video chưa xong, thử lại sau ít phút.');
-          }
-        } catch { /* */ }
-      }, 3000);
+      saveActiveVid(sale.email, { id, status: 'queued', project: projName, saleName: sale.name });
+      startPoll(id, sale.email, projName, sale.name);
     } catch (e: any) {
       setVidErr(e?.message || 'Không dựng được video. Thử lại.');
     }
@@ -552,6 +650,87 @@ const SalePersonalize: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Lịch sử nội dung đã tạo — bền theo điều hướng */}
+      {sale && (
+        <div className="bg-white rounded-2xl border border-slate-100 p-5">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <HistoryIcon className="w-5 h-5 text-indigo-600" />
+              <span className="font-black text-slate-900">Nội dung đã tạo cho {sale.name}</span>
+              {history.length > 0 && <span className="text-xs font-bold text-slate-400">({history.length})</span>}
+            </div>
+            <button
+              onClick={() => loadHistory(sale.email)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Làm mới
+            </button>
+          </div>
+
+          {history.length === 0 ? (
+            <div className="text-center py-8 text-slate-400">
+              <HistoryIcon className="w-10 h-10 mx-auto mb-2 opacity-40" />
+              <p className="text-sm font-semibold">Chưa có nội dung nào được lưu.</p>
+              <p className="text-xs">Nội dung và video bạn tạo sẽ được lưu tại đây, không mất khi chuyển trang.</p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {history.map(h => {
+                const isVideo = h.kind === 'video';
+                const blob = isVideo ? histBlobs[h.url] : '';
+                return (
+                  <div key={h.id} className="rounded-xl border border-slate-100 hover:border-slate-200 transition p-3">
+                    <div className="flex items-start gap-3">
+                      <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-black ${isVideo ? 'bg-fuchsia-50 text-fuchsia-700' : 'bg-indigo-50 text-indigo-700'}`}>
+                        {isVideo ? <Video className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
+                        {isVideo ? 'Video' : (KINDS.find(k => k.id === h.kind)?.label || 'Nội dung')}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-black text-slate-800 truncate">{h.title || '(không tiêu đề)'}</p>
+                        <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5"><Clock className="w-3 h-3" />{timeAgo(h.ts)}</p>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {!isVideo && (
+                          <button onClick={() => copyHist(String(h.id), h.text)} title="Copy" className="p-1.5 rounded-lg text-slate-400 hover:text-fuchsia-600 hover:bg-fuchsia-50">
+                            {histCopied === String(h.id) ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                          </button>
+                        )}
+                        <button onClick={() => deleteHistory(String(h.id))} title="Xoá" className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {isVideo ? (
+                      <div className="mt-2.5">
+                        {blob ? (
+                          <div className="space-y-2">
+                            <video src={blob} controls className="w-full max-w-sm rounded-xl border border-slate-100 bg-black" />
+                            <a href={blob} download={`video-${(h.meta?.saleName || sale.name || 'sale').replace(/\s+/g, '-')}.mp4`}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-black text-xs hover:bg-emerald-700">
+                              <Download className="w-3.5 h-3.5" /> Tải video
+                            </a>
+                          </div>
+                        ) : (
+                          <button onClick={() => ensureHistBlob(h.url)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-fuchsia-200 text-fuchsia-700 font-black text-xs hover:bg-fuchsia-50">
+                            <Play className="w-3.5 h-3.5" /> Xem video
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      h.text && (
+                        <div className="mt-2 bg-slate-50 rounded-lg p-3 text-sm text-slate-700 whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto">{h.text}</div>
+                      )
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Ảnh card cá nhân hoá */}
       {sale && (
