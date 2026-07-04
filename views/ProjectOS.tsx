@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Rocket, LayoutDashboard, Layers, Loader2, RefreshCw, AlertTriangle,
   CheckCircle2, Circle, Search, Sparkles, TrendingUp,
   BookOpen, GraduationCap, ClipboardList, Megaphone, Users, PlayCircle,
-  FileText, Trophy,
+  FileText, Trophy, ChevronRight,
 } from 'lucide-react';
 import { api } from '../services/apiService';
 import { isAdminRole } from '../services/permissions';
@@ -45,6 +46,7 @@ const OverviewSection: React.FC = () => {
   const [data, setData] = useState<{ items: any[]; total: number; live: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
+  const navigate = useNavigate();
 
   const load = async () => {
     setLoading(true); setErr('');
@@ -80,12 +82,13 @@ const OverviewSection: React.FC = () => {
               const done = num(it.done);
               const totalStages = num(it.total) || 7;
               return (
-                <div key={it.slug || i} className="px-5 py-4 hover:bg-slate-50/60">
+                <div key={it.slug || i} onClick={() => it.slug && navigate('/projects/' + it.slug)} title="Xem trang chi tiết dự án" className="px-5 py-4 hover:bg-slate-50/60 cursor-pointer group">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-black text-slate-800 text-sm flex-1 truncate">{it.name || it.slug || '—'}</span>
+                    <span className="font-black text-slate-800 text-sm flex-1 truncate group-hover:text-indigo-600">{it.name || it.slug || '—'}</span>
                     {progress >= 100
                       ? <span className="inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600"><CheckCircle2 className="w-3 h-3" />Đã ra quân</span>
                       : <span className="inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-amber-50 text-amber-600"><PlayCircle className="w-3 h-3" />{done}/{totalStages} bước</span>}
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 shrink-0" />
                   </div>
                   <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all" style={{ width: `${progress}%` }} />
@@ -112,6 +115,7 @@ const DeploySection: React.FC = () => {
   const [loadingStatus, setLoadingStatus] = useState(false);
   const [err, setErr] = useState('');
   const [autopiloting, setAutopiloting] = useState(false);
+  const navigate = useNavigate();
   const [busyStage, setBusyStage] = useState('');
   const [toast, setToast] = useState('');
 
@@ -219,6 +223,9 @@ const DeploySection: React.FC = () => {
                 {status ? `${status.done}/${status.total || 7} bước · ${status.progress}%` : 'Đang tải tiến độ…'}
               </div>
             </div>
+            <button onClick={() => picked.slug && navigate('/projects/' + picked.slug)} className="inline-flex items-center gap-2 px-3.5 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-black text-sm">
+              <FileText className="w-4 h-4" /> Xem chi tiết
+            </button>
             <button onClick={() => loadStatus(picked)} disabled={loadingStatus} className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl font-black text-sm disabled:opacity-60">
               {loadingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Làm mới
             </button>
