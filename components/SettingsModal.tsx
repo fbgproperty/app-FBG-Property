@@ -333,7 +333,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, initialTab
                   </div>
                   <div>
                     <p className="text-lg font-black text-slate-900">FBG Property</p>
-                    <p className="text-xs font-bold text-indigo-600 tracking-widest">Phiên bản v10.0</p>
+                    <p className="text-xs font-bold text-indigo-600 tracking-widest">Phiên bản v11.0</p>
                   </div>
                 </div>
                 <p className="text-sm text-slate-600 leading-relaxed">

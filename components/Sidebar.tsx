@@ -261,7 +261,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
         </div>
 
         {!isCollapsed && (
-          <p className="text-center text-[10px] font-bold text-indigo-400/60 tracking-widest">v10.0</p>
+          <p className="text-center text-[10px] font-bold text-indigo-400/60 tracking-widest">v11.0</p>
         )}
       </div>
 
