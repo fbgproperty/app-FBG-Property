@@ -5,6 +5,7 @@ import {
   CheckCircle2, Circle, Search, Sparkles, TrendingUp,
   BookOpen, GraduationCap, ClipboardList, Megaphone, Users, PlayCircle,
   FileText, Trophy, ChevronRight, MapPin, Plus, Building2, X,
+  ListChecks, Send, Server, BarChart3, Bot, Zap,
 } from 'lucide-react';
 import { api } from '../services/apiService';
 import { isAdminRole } from '../services/permissions';
@@ -41,6 +42,166 @@ const STAGE_ICONS: Record<string, any> = {
 };
 const stageIcon = (name?: string) => STAGE_ICONS[String(name || '').trim()] || Layers;
 
+// Icon theo phòng ban của công việc triển khai
+const DEPT_ICONS: Record<string, any> = {
+  'Đào tạo': GraduationCap,
+  'Marketing': Megaphone,
+  'Kinh doanh': Users,
+  'Vận hành': Server,
+  'Công nghệ': Bot,
+  'Báo cáo': BarChart3,
+};
+const deptIcon = (name?: string) => DEPT_ICONS[String(name || '').trim()] || ListChecks;
+
+// Trạng thái công việc: todo | doing | done
+type TaskStatus = 'todo' | 'doing' | 'done';
+const TASK_STATES: { id: TaskStatus; label: string }[] = [
+  { id: 'todo', label: 'Chưa làm' },
+  { id: 'doing', label: 'Đang làm' },
+  { id: 'done', label: 'Xong' },
+];
+
+/* ==================== BẢNG CÔNG VIỆC TRIỂN KHAI (v13) ==================== */
+const TaskBoard: React.FC<{ picked: { name: string; slug: string } }> = ({ picked }) => {
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [notifying, setNotifying] = useState(false);
+  const [err, setErr] = useState('');
+  const [toast, setToast] = useState('');
+
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(''), 6000); return () => clearTimeout(t); }, [toast]);
+
+  const load = async () => {
+    setLoading(true); setErr('');
+    try {
+      const r = await api.projectTasks(picked.slug);
+      setTasks(Array.isArray(r?.tasks) ? r.tasks : []);
+    } catch (e: any) { setErr(e?.message || 'Không tải được danh sách việc.'); }
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [picked.slug]);
+
+  const gen = async () => {
+    if (generating) return;
+    setGenerating(true); setErr(''); setToast('');
+    try {
+      const r = await api.projectTasksGen(picked.name, picked.slug);
+      if (r?.ok) { setToast(`AI đã tạo ${num(r.count)} công việc triển khai.`); await load(); }
+      else setErr(r?.error || 'Tạo việc chưa hoàn tất.');
+    } catch (e: any) { setErr(e?.message || 'Tạo việc thất bại.'); }
+    setGenerating(false);
+  };
+
+  const notify = async () => {
+    if (notifying) return;
+    setNotifying(true); setErr(''); setToast('');
+    try {
+      const r = await api.projectTasksNotify(picked.slug);
+      if (r?.ok) setToast(`Đã giao việc cho ${num(r.notified)} nhân sự.`);
+      else setErr(r?.error || 'Giao việc chưa hoàn tất.');
+    } catch (e: any) { setErr(e?.message || 'Giao việc thất bại.'); }
+    setNotifying(false);
+  };
+
+  const setStatus = async (id: string, status: TaskStatus) => {
+    const prev = tasks;
+    setTasks(ts => ts.map(t => (t.id === id ? { ...t, status } : t)));
+    try {
+      const r = await api.projectTasksUpdate(picked.slug, id, status);
+      if (!r?.ok) { setTasks(prev); setErr(r?.error || 'Cập nhật việc thất bại.'); }
+    } catch (e: any) { setTasks(prev); setErr(e?.message || 'Cập nhật việc thất bại.'); }
+  };
+
+  const done = tasks.filter(t => t.status === 'done').length;
+  const total = tasks.length;
+
+  // Gom nhóm theo phòng ban giữ thứ tự xuất hiện
+  const groups: { dept: string; items: any[] }[] = [];
+  for (const t of tasks) {
+    const dept = String(t.dept || 'Khác').trim() || 'Khác';
+    let g = groups.find(x => x.dept === dept);
+    if (!g) { g = { dept, items: [] }; groups.push(g); }
+    g.items.push(t);
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 p-5 space-y-4">
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow"><ListChecks className="w-5 h-5" /></div>
+        <div className="flex-1 min-w-0">
+          <div className="font-black text-slate-900">Bảng công việc triển khai</div>
+          <div className="text-[12px] text-slate-400">{total > 0 ? `Đã xong ${done}/${total}` : 'Chưa có việc'}</div>
+        </div>
+        <button onClick={gen} disabled={generating || notifying} className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-50 whitespace-nowrap">
+          {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Tạo việc bằng AI
+        </button>
+        <button onClick={notify} disabled={notifying || generating || total === 0} className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white rounded-xl font-black text-sm hover:bg-violet-700 disabled:opacity-50 whitespace-nowrap">
+          {notifying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} Giao việc & xin ý kiến
+        </button>
+        <button onClick={load} disabled={loading} title="Làm mới" className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl font-black text-sm disabled:opacity-60">
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+        </button>
+      </div>
+
+      {generating && <p className="text-[12px] text-slate-400 text-center">AI đang phân rã công việc và giao cho nhân sự — mất khoảng 30 giây, vui lòng chờ…</p>}
+      {toast && <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 rounded-xl px-3 py-2 text-sm font-bold"><CheckCircle2 className="w-4 h-4 shrink-0" /> {toast}</div>}
+      {err && <div className="flex items-center gap-2 text-amber-700 bg-amber-50 rounded-xl px-3 py-2 text-sm font-bold"><AlertTriangle className="w-4 h-4 shrink-0" /> {err}</div>}
+
+      {loading && tasks.length === 0 ? (
+        <div className="flex items-center gap-2 text-slate-400 text-sm py-10 justify-center"><Loader2 className="w-4 h-4 animate-spin" /> Đang tải công việc…</div>
+      ) : total === 0 ? (
+        <div className="border border-dashed border-slate-200 rounded-2xl py-10 text-center">
+          <ListChecks className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+          <p className="text-sm text-slate-400 font-semibold">Chưa có việc. Bấm “Tạo việc bằng AI”.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {groups.map((g) => {
+            const DIcon = deptIcon(g.dept);
+            return (
+              <div key={g.dept} className="rounded-2xl border border-slate-100 overflow-hidden">
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+                  <DIcon className="w-4 h-4 text-indigo-500 shrink-0" />
+                  <span className="font-black text-slate-800 text-sm">{g.dept}</span>
+                  <span className="text-[11px] text-slate-400 font-bold">{g.items.filter(t => t.status === 'done').length}/{g.items.length}</span>
+                </div>
+                <div className="divide-y divide-slate-50">
+                  {g.items.map((t, i) => (
+                    <div key={t.id || i} className="px-4 py-3 flex items-center gap-3 flex-wrap">
+                      <div className="min-w-0 flex-1">
+                        <div className={`text-sm font-bold ${t.status === 'done' ? 'text-slate-400 line-through' : 'text-slate-800'}`}>{t.title || '—'}</div>
+                        {(t.assigneeName || t.assignee) && (
+                          <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600">
+                            <Users className="w-3 h-3" /> {t.assigneeName || t.assignee}
+                          </span>
+                        )}
+                      </div>
+                      <div className="inline-flex rounded-lg border border-slate-200 overflow-hidden shrink-0">
+                        {TASK_STATES.map(s => {
+                          const active = (t.status || 'todo') === s.id;
+                          const activeCls = s.id === 'done' ? 'bg-emerald-600 text-white' : s.id === 'doing' ? 'bg-amber-500 text-white' : 'bg-slate-600 text-white';
+                          return (
+                            <button key={s.id} onClick={() => setStatus(t.id, s.id)}
+                              className={`px-2.5 py-1.5 text-[12px] font-black transition ${active ? activeCls : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
+                              {s.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 /* ============================ TỔNG QUAN ============================ */
 // Parse URL ảnh bìa từ imagesJson (cùng logic tryGetFirstImage của danh mục dự án)
 const FALLBACK_IMAGE = '';
@@ -59,6 +220,77 @@ function firstImage(imagesJson?: string | null): string {
   } catch { /* ignore parse errors */ }
   return FALLBACK_IMAGE;
 }
+
+/* ==================== VẬN HÀNH TỰ TRỊ HẰNG NGÀY (v14) ==================== */
+function relTime(ts?: number | string | null): string {
+  if (!ts) return '';
+  let ms = 0;
+  if (typeof ts === 'number') ms = ts < 1e12 ? ts * 1000 : ts;
+  else { const p = Date.parse(ts); if (Number.isNaN(p)) return ''; ms = p; }
+  const diff = Date.now() - ms;
+  if (diff < 0) return 'vừa xong';
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'vừa xong';
+  if (m < 60) return `${m} phút trước`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} giờ trước`;
+  return `${Math.floor(h / 24)} ngày trước`;
+}
+
+const AutopilotCard: React.FC = () => {
+  const [st, setSt] = useState<any>(null);
+  const [sending, setSending] = useState(false);
+  const [toast, setToast] = useState('');
+
+  useEffect(() => { (async () => { try { setSt(await api.autopilotStatus()); } catch { /* */ } })(); }, []);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(''), 6000); return () => clearTimeout(t); }, [toast]);
+
+  const send = async () => {
+    if (sending) return;
+    setSending(true); setToast('');
+    try {
+      const r = await api.autopilotDaily(true);
+      if (r?.ok) { setToast('Đã gửi bản tin vận hành cho quản lý.'); setSt((s: any) => ({ ...(s || {}), ...r, lastRun: Date.now() })); }
+      else setToast('Gửi bản tin chưa hoàn tất.');
+    } catch { setToast('Gửi bản tin thất bại.'); }
+    setSending(false);
+  };
+
+  const chips = [
+    { label: 'Dự án đang bán', value: num(st?.sellingProjects) },
+    { label: 'Đã ra quân', value: num(st?.ready) },
+    { label: 'Đội AI tốt nghiệp', value: num(st?.graduates) },
+    { label: 'Cơ hội', value: num(st?.opps) },
+  ];
+  const rel = relTime(st?.lastRun);
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 p-4">
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow"><Zap className="w-5 h-5" /></div>
+        <div className="flex-1 min-w-0">
+          <div className="font-black text-slate-900">Vận hành tự trị hằng ngày</div>
+          {rel && <div className="text-[12px] text-slate-400">Cập nhật gần nhất: {rel}</div>}
+        </div>
+        <button onClick={send} disabled={sending} className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-50 whitespace-nowrap">
+          {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} Gửi bản tin cho quản lý ngay
+        </button>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {chips.map(c => (
+          <div key={c.label} className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">
+            <div className="text-lg font-black text-slate-900 leading-none">{c.value}</div>
+            <div className="text-[11px] text-slate-500 font-semibold mt-1">{c.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {toast && <div className="mt-3 flex items-center gap-2 text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2 text-[13px] font-bold"><CheckCircle2 className="w-4 h-4 shrink-0" /> {toast}</div>}
+      <p className="mt-2 text-[12px] text-slate-400">Hệ thống tự tổng hợp &amp; gửi bản tin mỗi ngày. Quản lý nhận qua kênh nhắn tin.</p>
+    </div>
+  );
+};
 
 const OverviewSection: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -101,6 +333,9 @@ const OverviewSection: React.FC = () => {
 
   return (
     <div className="space-y-4">
+      {/* Vận hành tự trị hằng ngày */}
+      <AutopilotCard />
+
       {err && <div className="flex items-center gap-2 text-amber-700 bg-amber-50 rounded-xl px-3 py-2 text-sm font-bold"><AlertTriangle className="w-4 h-4 shrink-0" /> {err}</div>}
 
       {/* Thêm dự án */}
@@ -417,6 +652,8 @@ const DeploySection: React.FC = () => {
           )}
         </div>
       )}
+
+      {picked && <TaskBoard picked={picked} />}
 
       {!picked && (
         <div className="bg-white rounded-2xl border border-dashed border-slate-200 py-12 text-center">

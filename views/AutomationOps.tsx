@@ -11,7 +11,7 @@ const AutomationOps: React.FC = () => {
   const [ap, setAp] = useState<any>(null);
   const [running, setRunning] = useState(false);
 
-  const loadAp = async () => { try { setAp(await api.autopilotStatus()); } catch { /* */ } };
+  const loadAp = async () => { try { setAp(await api.opsAutopilotStatus()); } catch { /* */ } };
 
   useEffect(() => {
     (async () => {
@@ -26,7 +26,7 @@ const AutomationOps: React.FC = () => {
   const runNow = async () => {
     if (!window.confirm('Chạy Autopilot ngay? Trợ lý AI sẽ đồng bộ dữ liệu, sinh bản tin và gửi cho 8 quản lý qua kênh thông báo.')) return;
     setRunning(true);
-    try { await api.autopilotRun(); await loadAp(); } catch (e: any) { alert('Lỗi: ' + (e?.message || '')); }
+    try { await api.opsAutopilotRun(); await loadAp(); } catch (e: any) { alert('Lỗi: ' + (e?.message || '')); }
     setRunning(false);
   };
 

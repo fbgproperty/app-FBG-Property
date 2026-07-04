@@ -1006,6 +1006,85 @@ class ApiService {
     }
   }
 
+  /** Sinh danh sách công việc triển khai (AI) giao cho nhân sự theo phòng ban. */
+  public async projectTasksGen(project: string, slug: string): Promise<{ ok: boolean; count?: number; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/tasks/gen`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project, slug }),
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'Tạo việc thất bại.' };
+    }
+  }
+
+  /** Bảng công việc triển khai của một dự án. */
+  public async projectTasks(slug: string): Promise<{ project?: string; tasks: any[]; total: number; done: number; byDept?: Record<string, any> }> {
+    try {
+      const qs = this.buildQuery({ slug });
+      const res = await fetch(`${this.cdpBaseUrl}/project/tasks${qs}`, {
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`tasks ${res.status}`);
+      return await res.json();
+    } catch {
+      return { tasks: [], total: 0, done: 0 };
+    }
+  }
+
+  /** Cập nhật trạng thái một công việc (todo|doing|done). */
+  public async projectTasksUpdate(slug: string, id: string, status: 'todo' | 'doing' | 'done'): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/tasks/update`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, id, status }),
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'Cập nhật việc thất bại.' };
+    }
+  }
+
+  /** Giao việc & xin ý kiến: báo từng nhân sự qua kênh nhắn tin của họ. */
+  public async projectTasksNotify(slug: string): Promise<{ ok: boolean; notified?: number; assignees?: any[]; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/tasks/notify`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug }),
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'Giao việc thất bại.' };
+    }
+  }
+
+  /** Vận hành tự trị hằng ngày: tổng hợp bản tin + báo quản lý. */
+  public async autopilotDaily(notify = true): Promise<{ ok: boolean; sellingProjects?: number; ready?: number; graduates?: number; leads?: number; opps?: number; notified?: number; digest?: string; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/autopilot/daily`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notify }),
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'Gửi bản tin thất bại.' };
+    }
+  }
+
+  /** Trạng thái vận hành tự trị hằng ngày (lần chạy gần nhất + số liệu). */
+  public async autopilotStatus(): Promise<{ lastRun?: number | string | null; sellingProjects?: number; ready?: number; leads?: number; opps?: number; graduates?: number; notified?: number; enabled?: boolean }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/autopilot/status`, {
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`autopilot status ${res.status}`);
+      return await res.json();
+    } catch {
+      return {};
+    }
+  }
+
   public async getProjectDetail(id: string): Promise<ApiProjectDetail> {
     if (!id) throw new Error('Project id is required');
     return this.webGet<ApiProjectDetail>(`/projects/${encodeURIComponent(id)}`);
@@ -1797,13 +1876,13 @@ class ApiService {
     if (!res.ok) throw new Error(`360 ${res.status}`);
     return res.json();
   }
-  /** Autopilot: trạng thái vòng đời tự trị mỗi ngày (đồng bộ → bản tin → nhắc quá hạn). */
-  public async autopilotStatus(): Promise<any> {
+  /** Autopilot (Vận hành): trạng thái vòng đời tự trị mỗi ngày (đồng bộ → bản tin → nhắc quá hạn). */
+  public async opsAutopilotStatus(): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/autopilot/status`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
     if (!res.ok) throw new Error(`autopilot status ${res.status}`);
     return res.json();
   }
-  public async autopilotRun(): Promise<any> {
+  public async opsAutopilotRun(): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/ops/autopilot/run`, {
       method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey },
     });

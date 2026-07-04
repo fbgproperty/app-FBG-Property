@@ -25,7 +25,7 @@ const OpsCommand: React.FC = () => {
     // Tự tải bản tin Trợ lý AI mới nhất (cron sinh mỗi sáng) + task quá hạn + trạng thái autopilot
     api.opsBriefLatest().then((r) => { if (r?.text) { setBrief(r.text); setBriefTs(r.ts || 0); } }).catch(() => { /* */ });
     api.opsOverdue().then((r) => setOverdue(r?.total || 0)).catch(() => { /* */ });
-    api.autopilotStatus().then((r) => setAp(r)).catch(() => { /* */ });
+    api.opsAutopilotStatus().then((r) => setAp(r)).catch(() => { /* */ });
   }, []);
 
   useEffect(() => {
