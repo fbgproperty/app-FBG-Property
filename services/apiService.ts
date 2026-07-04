@@ -1556,6 +1556,17 @@ class ApiService {
       return res.json();
     } catch { return { items: [], total: 0 }; }
   }
+  /** Lịch sử hoạt động (lệnh đã ra + câu hỏi cho trợ lý AI). Admin xem tất cả, người khác chỉ xem của mình. */
+  public async appHistory(kind = '', limit = 100): Promise<{ items: any[]; total: number }> {
+    try {
+      const q = new URLSearchParams();
+      if (kind) q.set('kind', kind);
+      q.set('limit', String(limit));
+      const res = await fetch(`${this.cdpBaseUrl}/history?${q.toString()}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+      if (!res.ok) throw new Error(`history ${res.status}`);
+      return res.json();
+    } catch { return { items: [], total: 0 }; }
+  }
   /** Radar thị trường — các nguồn trang công khai đang theo dõi. */
   public async marketWatches(): Promise<{ items: any[]; total: number }> {
     try {

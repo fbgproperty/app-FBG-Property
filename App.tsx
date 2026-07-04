@@ -20,6 +20,7 @@ import OperationsOS from './views/OperationsOS';
 import AssistantOS from './views/AssistantOS';
 import TechnologyOS from './views/TechnologyOS';
 import ReportOS from './views/ReportOS';
+import History from './views/History';
 import Billing from './views/Billing';
 import Deployment from './views/Deployment';
 import Login from './views/Login';
@@ -120,6 +121,7 @@ const App: React.FC = () => {
               <Route path="/billing" element={<Guard path="/billing"><Billing /></Guard>} />
               <Route path="/cong-nghe" element={<Guard path="/cong-nghe"><TechnologyOS /></Guard>} />
               <Route path="/bao-cao" element={<Guard path="/bao-cao"><ReportOS /></Guard>} />
+              <Route path="/lich-su" element={<History />} />
               {/* Sale */}
               <Route path="/sale-projects" element={<SaleProjects />} />
               <Route path="/my-customers" element={<MyLeads />} />
