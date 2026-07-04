@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, MapPin, Loader2, Info, Image as ImageIcon, GraduationCap, Grid3x3,
   LayoutGrid, Building2, Camera, FileText, Calendar, Newspaper, Sparkles, Save,
-  Plus, Trash2, RefreshCw, ExternalLink, BookOpen, Map as MapIcon, Wand2,
+  Plus, Trash2, RefreshCw, ExternalLink, BookOpen, Map as MapIcon, Wand2, Bell,
 } from 'lucide-react';
 import { api } from '../../../services/apiService';
 import FloorPlanMap from './FloorPlanMap';
@@ -85,6 +85,8 @@ const ProjectDetail: React.FC = () => {
   const [enrichBusy, setEnrichBusy] = useState(false);
   const [sheetUrl, setSheetUrl] = useState('');
   const [sheetBusy, setSheetBusy] = useState(false);
+  const [docSyncBusy, setDocSyncBusy] = useState(false);
+  const [notifyBusy, setNotifyBusy] = useState(false);
   const [toast, setToast] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
   const flash = (kind: 'ok' | 'err', text: string) => {
     setToast({ kind, text });
@@ -226,6 +228,36 @@ const ProjectDetail: React.FC = () => {
     }
   };
 
+  // Đồng bộ tài liệu dự án từ kho tài liệu AI.
+  const syncDocs = async () => {
+    setDocSyncBusy(true);
+    try {
+      const r = await api.projectDocumentsSync(slug, detail?.name || slug);
+      if (r.ok) {
+        await loadContent();
+        flash('ok', 'Đã đồng bộ ' + (r.count || 0) + ' tài liệu');
+      } else flash('err', r.error || 'Chưa có tài liệu');
+    } catch (e: any) {
+      flash('err', e?.message || 'Lỗi');
+    } finally {
+      setDocSyncBusy(false);
+    }
+  };
+
+  // Gửi thông báo & xin ý kiến về dự án tới đội ngũ kinh doanh.
+  const notifyStaff = async () => {
+    if (!window.confirm('Gửi thông báo & xin ý kiến về dự án này tới đội ngũ kinh doanh?')) return;
+    setNotifyBusy(true);
+    try {
+      const r = await api.projectNotify(detail?.name || slug, { ask: true });
+      flash('ok', 'Đã gửi thông báo cho ' + (r.sent || 0) + ' nhân sự');
+    } catch (e: any) {
+      flash('err', e?.message || 'Lỗi');
+    } finally {
+      setNotifyBusy(false);
+    }
+  };
+
   const images: string[] = useMemo(
     () => (detail?.images?.length ? detail.images : [detail?.imageUrl || FALLBACK]),
     [detail]
@@ -273,6 +305,11 @@ const ProjectDetail: React.FC = () => {
               className="px-5 py-2.5 rounded-xl font-black text-sm flex items-center gap-2 shadow-lg transition-all bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-70">
               {enrichBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
               {enrichBusy ? 'Đang đồng bộ…' : 'AI đồng bộ dữ liệu dự án'}
+            </button>
+            <button onClick={notifyStaff} disabled={notifyBusy}
+              className="px-5 py-2.5 rounded-xl font-black text-sm flex items-center gap-2 shadow-lg transition-all bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-70">
+              {notifyBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
+              {notifyBusy ? 'Đang gửi…' : 'Thông báo nhân sự'}
             </button>
             <button onClick={() => save()} disabled={saving || !dirty}
               className={`px-5 py-2.5 rounded-xl font-black text-sm flex items-center gap-2 shadow-lg transition-all ${dirty ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
@@ -642,25 +679,42 @@ const ProjectDetail: React.FC = () => {
         {/* ===== TÀI LIỆU ===== */}
         {tab === 'documents' && (
           <div className="space-y-4">
-            <SectionTitle icon={BookOpen} title="Tài liệu chủ đầu tư" />
-            {isAdmin && (
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input value={content.documents?.driveFolderUrl || ''} onChange={(e) => patch((c) => ({ ...c, documents: { ...c.documents, driveFolderUrl: e.target.value } }))} placeholder="Dán link folder Google Drive (chia sẻ công khai)..." className="flex-1 p-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
-                <button onClick={syncDrive} disabled={aiBusy === 'drive'} className="px-4 py-3 bg-indigo-600 text-white rounded-xl font-black text-sm flex items-center justify-center gap-2 hover:bg-indigo-700 disabled:opacity-60">
-                  {aiBusy === 'drive' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Đồng bộ Drive
+            <SectionTitle icon={BookOpen} title="Tài liệu chủ đầu tư"
+              action={isAdmin && (
+                <button onClick={syncDocs} disabled={docSyncBusy}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-60">
+                  {docSyncBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  {docSyncBusy ? 'Đang đồng bộ…' : 'Đồng bộ tài liệu từ kho AI'}
                 </button>
+              )} />
+            {isAdmin && (
+              <div className="space-y-1.5">
+                <p className="text-[12px] font-bold text-slate-400">Tuỳ chọn — thư mục tài liệu ngoài (không bắt buộc):</p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input value={content.documents?.driveFolderUrl || ''} onChange={(e) => patch((c) => ({ ...c, documents: { ...c.documents, driveFolderUrl: e.target.value } }))} placeholder="Dán link thư mục tài liệu (chia sẻ công khai)…" className="flex-1 p-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
+                  <button onClick={syncDrive} disabled={aiBusy === 'drive'} className="px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-sm flex items-center justify-center gap-2 hover:bg-slate-200 disabled:opacity-60">
+                    {aiBusy === 'drive' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Nạp thư mục ngoài
+                  </button>
+                </div>
               </div>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {(content.documents?.files || []).map((f: any, i: number) => (
-                <a key={i} href={f.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 bg-slate-50/60 border border-slate-100 rounded-xl hover:border-indigo-200 hover:bg-indigo-50/40 transition-all group">
-                  <FileText className="w-5 h-5 text-indigo-500 shrink-0" />
-                  <span className="text-sm font-bold text-slate-700 truncate flex-1">{f.name}</span>
-                  <ExternalLink className="w-4 h-4 text-slate-300 group-hover:text-indigo-500" />
-                </a>
+                f.url ? (
+                  <a key={i} href={f.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 bg-slate-50/60 border border-slate-100 rounded-xl hover:border-indigo-200 hover:bg-indigo-50/40 transition-all group">
+                    <FileText className="w-5 h-5 text-indigo-500 shrink-0" />
+                    <span className="text-sm font-bold text-slate-700 truncate flex-1">{f.name}</span>
+                    <ExternalLink className="w-4 h-4 text-slate-300 group-hover:text-indigo-500" />
+                  </a>
+                ) : (
+                  <div key={i} className="flex items-center gap-3 p-3 bg-slate-50/60 border border-slate-100 rounded-xl">
+                    <FileText className="w-5 h-5 text-indigo-500 shrink-0" />
+                    <span className="text-sm font-bold text-slate-700 truncate flex-1">{f.name}</span>
+                  </div>
+                )
               ))}
             </div>
-            {!(content.documents?.files || []).length && <Empty text="Chưa có tài liệu. Admin dán link Drive và bấm Đồng bộ." />}
+            {!(content.documents?.files || []).length && <Empty text="Chưa có tài liệu. Bấm 'Đồng bộ tài liệu từ kho AI' để lấy tài liệu dự án." />}
           </div>
         )}
 

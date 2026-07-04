@@ -967,6 +967,45 @@ class ApiService {
     }
   }
 
+  /** Đồng bộ tài liệu dự án từ kho tài liệu AI vào content.documents.files. */
+  public async projectDocumentsSync(slug: string, project: string): Promise<{ ok: boolean; count?: number; dataset?: string; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/documents/sync`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, project }),
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'Đồng bộ tài liệu thất bại.' };
+    }
+  }
+
+  /** Gửi thông báo / xin ý kiến về dự án tới đội ngũ kinh doanh qua kênh nhắn tin. */
+  public async projectNotify(project: string, opts?: { ask?: boolean; message?: string }): Promise<{ ok: boolean; sent?: number; failed?: number; total?: number; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/notify`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project, ask: opts?.ask, message: opts?.message }),
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'Gửi thông báo thất bại.' };
+    }
+  }
+
+  /** Triển khai toàn diện dự án: chạy đủ các bước + đồng bộ tài liệu + thông báo nhân sự. */
+  public async projectDeployMaster(project: string, slug: string, notify = true): Promise<{ ok: boolean; done?: number; total?: number; docs?: number; notified?: number; stages?: { stage: string; title: string; ok: boolean; summary?: string; notified?: number }[]; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/deploy/master`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project, slug, notify }),
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'Triển khai toàn diện thất bại.' };
+    }
+  }
+
   public async getProjectDetail(id: string): Promise<ApiProjectDetail> {
     if (!id) throw new Error('Project id is required');
     return this.webGet<ApiProjectDetail>(`/projects/${encodeURIComponent(id)}`);

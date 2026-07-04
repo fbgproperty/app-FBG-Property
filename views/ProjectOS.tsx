@@ -230,6 +230,7 @@ const DeploySection: React.FC = () => {
   const [loadingStatus, setLoadingStatus] = useState(false);
   const [err, setErr] = useState('');
   const [autopiloting, setAutopiloting] = useState(false);
+  const [deployingMaster, setDeployingMaster] = useState(false);
   const navigate = useNavigate();
   const [busyStage, setBusyStage] = useState('');
   const [toast, setToast] = useState('');
@@ -276,6 +277,19 @@ const DeploySection: React.FC = () => {
       await loadStatus(picked);
     } catch (e: any) { setErr(e?.message || 'Triển khai tự trị thất bại.'); }
     setAutopiloting(false);
+  };
+
+  const runMaster = async () => {
+    if (!picked || deployingMaster || autopiloting || !!busyStage) return;
+    if (!window.confirm('Chạy triển khai toàn diện? Hệ thống sẽ chạy đủ các bước và gửi thông báo cho đội ngũ.')) return;
+    setDeployingMaster(true); setErr(''); setToast('');
+    try {
+      const r = await api.projectDeployMaster(picked.name, picked.slug, true);
+      if (r?.ok) setToast(`Đã triển khai toàn diện: ${num(r.done)}/${num(r.total) || 7} bước · ${num(r.docs)} tài liệu · đã báo ${num(r.notified)} nhân sự`);
+      else setToast(r?.error || 'Triển khai toàn diện chưa hoàn tất.');
+      await loadStatus(picked);
+    } catch (e: any) { setErr(e?.message || 'Triển khai toàn diện thất bại.'); }
+    setDeployingMaster(false);
   };
 
   const runStage = async (stageId: string) => {
@@ -344,8 +358,11 @@ const DeploySection: React.FC = () => {
             <button onClick={() => loadStatus(picked)} disabled={loadingStatus} className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl font-black text-sm disabled:opacity-60">
               {loadingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Làm mới
             </button>
-            <button onClick={runAutopilot} disabled={autopiloting || !!busyStage} className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-50 whitespace-nowrap">
+            <button onClick={runAutopilot} disabled={autopiloting || !!busyStage || deployingMaster} className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-50 whitespace-nowrap">
               {autopiloting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />} Triển khai tự trị
+            </button>
+            <button onClick={runMaster} disabled={deployingMaster || autopiloting || !!busyStage} className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white rounded-xl font-black text-sm hover:bg-violet-700 disabled:opacity-50 whitespace-nowrap">
+              {deployingMaster ? <Loader2 className="w-4 h-4 animate-spin" /> : <Megaphone className="w-4 h-4" />} Triển khai toàn diện
             </button>
           </div>
 
@@ -357,6 +374,9 @@ const DeploySection: React.FC = () => {
 
           {autopiloting && (
             <p className="text-[12px] text-slate-400 text-center">AI đang triển khai toàn bộ 7 bước — quá trình này mất khoảng 40–60 giây, vui lòng chờ…</p>
+          )}
+          {deployingMaster && (
+            <p className="text-[12px] text-slate-400 text-center">Đang triển khai toàn diện — chạy đủ các bước, đồng bộ tài liệu &amp; gửi thông báo cho đội ngũ (~60 giây), vui lòng chờ…</p>
           )}
 
           {loadingStatus && !status ? (
