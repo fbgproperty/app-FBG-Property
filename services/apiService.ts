@@ -928,6 +928,45 @@ class ApiService {
     }
   }
 
+  /** Danh sách dự án đang bán (đã triển khai + thêm thủ công) kèm dữ liệu danh mục. */
+  public async projectShowcase(): Promise<{ items: any[]; total: number }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/showcase`, {
+        headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() },
+      });
+      if (!res.ok) throw new Error(`showcase ${res.status}`);
+      return await res.json();
+    } catch {
+      return { items: [], total: 0 };
+    }
+  }
+
+  /** Thêm một dự án đang bán vào danh sách theo tên (tìm trong danh mục). */
+  public async projectShowcaseAdd(name: string): Promise<{ ok?: boolean; slug?: string; name?: string; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/showcase/add`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { error: e?.message || 'Thêm dự án thất bại.' };
+    }
+  }
+
+  /** Gỡ một dự án khỏi danh sách đang bán. */
+  public async projectShowcaseRemove(slug: string): Promise<{ ok?: boolean; error?: string }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/project/showcase/remove`, {
+        method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug }),
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { error: e?.message || 'Gỡ dự án thất bại.' };
+    }
+  }
+
   public async getProjectDetail(id: string): Promise<ApiProjectDetail> {
     if (!id) throw new Error('Project id is required');
     return this.webGet<ApiProjectDetail>(`/projects/${encodeURIComponent(id)}`);

@@ -4,7 +4,7 @@ import {
   Rocket, LayoutDashboard, Layers, Loader2, RefreshCw, AlertTriangle,
   CheckCircle2, Circle, Search, Sparkles, TrendingUp,
   BookOpen, GraduationCap, ClipboardList, Megaphone, Users, PlayCircle,
-  FileText, Trophy, ChevronRight,
+  FileText, Trophy, ChevronRight, MapPin, Plus, Building2, X,
 } from 'lucide-react';
 import { api } from '../services/apiService';
 import { isAdminRole } from '../services/permissions';
@@ -42,64 +42,179 @@ const STAGE_ICONS: Record<string, any> = {
 const stageIcon = (name?: string) => STAGE_ICONS[String(name || '').trim()] || Layers;
 
 /* ============================ TỔNG QUAN ============================ */
+// Parse URL ảnh bìa từ imagesJson (cùng logic tryGetFirstImage của danh mục dự án)
+const FALLBACK_IMAGE = '';
+function firstImage(imagesJson?: string | null): string {
+  if (!imagesJson) return FALLBACK_IMAGE;
+  try {
+    const parsed = JSON.parse(imagesJson);
+    if (Array.isArray(parsed)) {
+      const first = parsed.find((x) => typeof x === 'string' && x.trim() !== '');
+      return first || FALLBACK_IMAGE;
+    }
+    if (parsed && typeof parsed === 'object' && Array.isArray(parsed.images)) {
+      const first = parsed.images.find((x: any) => typeof x === 'string' && x.trim() !== '');
+      return first || FALLBACK_IMAGE;
+    }
+  } catch { /* ignore parse errors */ }
+  return FALLBACK_IMAGE;
+}
+
 const OverviewSection: React.FC = () => {
-  const [data, setData] = useState<{ items: any[]; total: number; live: number } | null>(null);
+  const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
+  const [name, setName] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [msg, setMsg] = useState('');
   const navigate = useNavigate();
 
   const load = async () => {
     setLoading(true); setErr('');
-    try { setData(await api.projectOsList()); }
-    catch (e: any) { setErr(e?.message || 'Không tải được dữ liệu.'); }
+    try {
+      const res = await api.projectShowcase();
+      setItems(Array.isArray(res?.items) ? res.items : []);
+    } catch (e: any) { setErr(e?.message || 'Không tải được dữ liệu.'); }
     setLoading(false);
   };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
 
-  const items = data?.items || [];
+  useEffect(() => { if (!msg) return; const t = setTimeout(() => setMsg(''), 5000); return () => clearTimeout(t); }, [msg]);
+
+  const add = async () => {
+    const term = name.trim();
+    if (!term || adding) return;
+    setAdding(true); setMsg('');
+    try {
+      const r = await api.projectShowcaseAdd(term);
+      if (r?.error) { setMsg(r.error); }
+      else { setName(''); await load(); }
+    } catch (e: any) { setMsg(e?.message || 'Thêm dự án thất bại.'); }
+    setAdding(false);
+  };
+
+  const remove = async (slug: string) => {
+    if (!slug) return;
+    try { await api.projectShowcaseRemove(slug); await load(); }
+    catch (e: any) { setMsg(e?.message || 'Gỡ dự án thất bại.'); }
+  };
 
   return (
     <div className="space-y-4">
       {err && <div className="flex items-center gap-2 text-amber-700 bg-amber-50 rounded-xl px-3 py-2 text-sm font-bold"><AlertTriangle className="w-4 h-4 shrink-0" /> {err}</div>}
 
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-        <div className="flex items-center gap-2 px-5 py-3.5 border-b border-slate-100">
-          <Layers className="w-4 h-4 text-indigo-600" />
-          <span className="font-black text-slate-900 text-sm flex-1">Dự án đang triển khai</span>
-          <span className="text-[11px] font-black px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600">{items.length}</span>
+      {/* Thêm dự án */}
+      <div className="bg-white rounded-2xl border border-slate-100 p-4">
+        <div className="flex flex-col sm:flex-row items-stretch gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <input
+              value={name}
+              onChange={e => setName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') add(); }}
+              placeholder="Gõ tên dự án đang bán…"
+              disabled={adding}
+              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-60"
+            />
+          </div>
+          <button onClick={add} disabled={adding || !name.trim()} className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-50 whitespace-nowrap">
+            {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Thêm
+          </button>
+          <button onClick={load} disabled={loading} title="Làm mới" className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl font-black text-sm disabled:opacity-60">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+          </button>
         </div>
-        {loading && items.length === 0 ? (
-          <div className="flex items-center gap-2 text-slate-400 text-sm py-12 justify-center"><Loader2 className="w-4 h-4 animate-spin" /> Đang tải danh sách…</div>
-        ) : items.length === 0 ? (
-          <div className="text-center py-12 px-4">
-            <Rocket className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-            <p className="text-sm text-slate-400 font-semibold">Chưa có dự án nào được triển khai. Sang tab “Triển khai” để bắt đầu.</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-50">
-            {items.map((it, i) => {
-              const progress = Math.max(0, Math.min(100, num(it.progress)));
-              const done = num(it.done);
-              const totalStages = num(it.total) || 7;
-              return (
-                <div key={it.slug || i} onClick={() => it.slug && navigate('/projects/' + it.slug)} title="Xem trang chi tiết dự án" className="px-5 py-4 hover:bg-slate-50/60 cursor-pointer group">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="font-black text-slate-800 text-sm flex-1 truncate group-hover:text-indigo-600">{it.name || it.slug || '—'}</span>
-                    {progress >= 100
-                      ? <span className="inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600"><CheckCircle2 className="w-3 h-3" />Đã ra quân</span>
-                      : <span className="inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-amber-50 text-amber-600"><PlayCircle className="w-3 h-3" />{done}/{totalStages} bước</span>}
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 shrink-0" />
-                  </div>
-                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all" style={{ width: `${progress}%` }} />
-                  </div>
-                  <div className="text-[11px] text-slate-400 mt-1">{done}/{totalStages} bước · {progress}%</div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {msg && <div className="mt-2 flex items-center gap-2 text-amber-700 bg-amber-50 rounded-lg px-3 py-2 text-[13px] font-bold"><AlertTriangle className="w-4 h-4 shrink-0" /> {msg}</div>}
       </div>
+
+      {/* Lưới dự án đang bán */}
+      {loading && items.length === 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="bg-white rounded-2xl border border-slate-100 overflow-hidden animate-pulse">
+              <div className="aspect-video bg-slate-100" />
+              <div className="p-4 space-y-2">
+                <div className="h-4 bg-slate-100 rounded w-3/4" />
+                <div className="h-3 bg-slate-100 rounded w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : items.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-dashed border-slate-200 py-14 text-center">
+          <Building2 className="w-9 h-9 text-slate-300 mx-auto mb-2" />
+          <p className="text-sm text-slate-400 font-semibold">Chưa có dự án đang bán. Gõ tên dự án và bấm Thêm.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((it, i) => {
+            const img = firstImage(it.imagesJson);
+            const progress = Math.max(0, Math.min(100, num(it.progress)));
+            const statusLabel = String(it.status || '').trim() || 'Đang bán';
+            return (
+              <div
+                key={it.slug || i}
+                onClick={() => it.slug && navigate('/projects/' + it.slug)}
+                title="Xem trang chi tiết dự án"
+                className="group relative bg-white rounded-2xl border border-slate-100 overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 flex flex-col"
+              >
+                {/* Ảnh bìa */}
+                <div className="relative aspect-video overflow-hidden bg-slate-100">
+                  {img ? (
+                    <img
+                      src={img}
+                      alt={it.name || it.slug || ''}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => { const t = e.currentTarget as HTMLImageElement; t.style.display = 'none'; }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 via-slate-100 to-emerald-100">
+                      <Building2 className="w-10 h-10 text-slate-300" />
+                    </div>
+                  )}
+                  {/* Badge trạng thái */}
+                  <span className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-emerald-600/90 text-white shadow backdrop-blur-sm">
+                    <CheckCircle2 className="w-3 h-3" /> {statusLabel}
+                  </span>
+                  {/* Nút gỡ (chỉ dự án thêm thủ công) */}
+                  {it.manual === true && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); remove(it.slug); }}
+                      title="Gỡ khỏi danh sách"
+                      className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-white/90 hover:bg-white text-slate-500 hover:text-red-500 flex items-center justify-center shadow"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Nội dung */}
+                <div className="p-4 flex-1 flex flex-col">
+                  <div className="flex items-start gap-2">
+                    <span className="font-black text-slate-900 text-sm flex-1 truncate group-hover:text-indigo-600">{it.name || it.slug || '—'}</span>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 shrink-0 mt-0.5" />
+                  </div>
+                  {it.location && (
+                    <div className="flex items-center gap-1.5 text-slate-500 mt-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                      <span className="text-[12px] truncate">{it.location}</span>
+                    </div>
+                  )}
+                  {progress > 0 && (
+                    <div className="mt-3">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600">
+                        {progress >= 100
+                          ? <><CheckCircle2 className="w-3 h-3" /> Đã ra quân</>
+                          : <><PlayCircle className="w-3 h-3" /> Ra quân {progress}%</>}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -321,17 +436,13 @@ const ProjectOS: React.FC = () => {
       </div>
 
       <div className="animate-in fade-in duration-300">
-        {sec === 'overview' && (
-          <div className="space-y-6">
-            <OverviewSection />
-            <Deployment />
-          </div>
-        )}
+        {sec === 'overview' && <OverviewSection />}
         {sec === 'deploy' && <DeploySection />}
         {sec === 'docs' && (
           <div className="space-y-6">
             <ProjectDossier />
             <SalePlanner />
+            <Deployment />
           </div>
         )}
         {sec === 'campaign' && admin && (
