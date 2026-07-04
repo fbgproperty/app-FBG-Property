@@ -394,13 +394,9 @@ const ProjectDetail: React.FC = () => {
           <div className="space-y-5">
             <SectionTitle icon={GraduationCap} title="Đào tạo sale"
               action={isAdmin && <AiBtn label="AI tạo Q&A" busy={aiBusy === 'training'} onClick={() => aiDraft('training', (_t, training) => training && patch((c) => ({ ...c, training: { ...c.training, items: training.items || [] } })))} />} />
-            {isAdmin && (
-              <input value={content.training?.notebooklmUrl || ''} onChange={(e) => patch((c) => ({ ...c, training: { ...c.training, notebooklmUrl: e.target.value } }))}
-                placeholder="Dán link chia sẻ NotebookLM (public)..." className="w-full p-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
-            )}
             {content.training?.notebooklmUrl && (
               <a href={content.training.notebooklmUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl font-black text-sm hover:bg-amber-100">
-                <BookOpen className="w-4 h-4" /> Mở tài liệu đào tạo NotebookLM <ExternalLink className="w-3.5 h-3.5" />
+                <BookOpen className="w-4 h-4" /> Mở tài liệu đào tạo <ExternalLink className="w-3.5 h-3.5" />
               </a>
             )}
             <div className="space-y-3">
@@ -411,8 +407,15 @@ const ProjectDetail: React.FC = () => {
                   {isAdmin && <button onClick={() => patch((c) => ({ ...c, training: { ...c.training, items: c.training.items.filter((_: any, j: number) => j !== i) } }))} className="text-rose-400 text-xs font-bold mt-2 hover:text-rose-600">Xoá</button>}
                 </div>
               ))}
-              {!(content.training?.items || []).length && <Empty text="Chưa có nội dung đào tạo. Admin bấm 'AI tạo Q&A' hoặc nhúng NotebookLM." />}
+              {!(content.training?.items || []).length && <Empty text="Chưa có nội dung đào tạo. Bấm 'AI đồng bộ dữ liệu dự án' (trên đầu trang) hoặc 'AI tạo Q&A' để AI tự sinh Q&A từ tài liệu dự án." />}
             </div>
+            {isAdmin && (
+              <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                <p className="text-[12px] font-bold text-slate-400">Tuỳ chọn — nhúng thêm tài liệu đào tạo ngoài (không bắt buộc):</p>
+                <input value={content.training?.notebooklmUrl || ''} onChange={(e) => patch((c) => ({ ...c, training: { ...c.training, notebooklmUrl: e.target.value } }))}
+                  placeholder="Dán link chia sẻ tài liệu (public)..." className="w-full p-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
+              </div>
+            )}
           </div>
         )}
 
