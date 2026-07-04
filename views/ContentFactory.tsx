@@ -1,6 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { FileText, Loader2, Sparkles, Copy, Check, Send, RefreshCw } from 'lucide-react';
+import { FileText, Loader2, Sparkles, Copy, Check, Send, RefreshCw, History as HistoryIcon, Trash2, Clock, RotateCcw } from 'lucide-react';
 import { api } from '../services/apiService';
+
+const timeAgo = (ts: any): string => {
+  if (!ts) return '';
+  const ms = typeof ts === 'number' ? (ts < 1e12 ? ts * 1000 : ts) : Date.parse(String(ts));
+  if (Number.isNaN(ms)) return '';
+  const m = Math.floor((Date.now() - ms) / 60000);
+  if (m < 1) return 'vừa xong';
+  if (m < 60) return `${m} phút trước`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} giờ trước`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d} ngày trước`;
+  return new Date(ms).toLocaleDateString('vi-VN');
+};
 
 type CType = 'campaign_plan' | 'facebook_post' | 'zalo_broadcast' | 'caption' | 'video_script' | 'ad_copy';
 const TYPES: { id: CType; label: string }[] = [
@@ -22,8 +36,16 @@ const ContentFactory: React.FC = () => {
   const [err, setErr] = useState('');
   const [copied, setCopied] = useState(false);
 
+  const FEATURE = 'content-factory';
+  const [history, setHistory] = useState<any[]>([]);
+  const [histCopied, setHistCopied] = useState('');
+  const loadHistory = async () => {
+    try { const r = await api.contentHistory(FEATURE, { limit: 40 }); setHistory(Array.isArray(r?.items) ? r.items : []); } catch { /* */ }
+  };
+
   useEffect(() => {
     api.ragProjects().then(ps => { setProjects(ps); setProject(ps[0] || ''); }).catch(() => setErr('Không tải được danh sách dự án.'));
+    loadHistory();
   }, []);
 
   const gen = async () => {
@@ -31,10 +53,18 @@ const ContentFactory: React.FC = () => {
     setLoading(true); setErr(''); setOut('');
     try {
       const r = await api.contentDraft(project, type, note);
-      setOut((r?.text || r?.answer || '').toString());
+      const text = (r?.text || r?.answer || '').toString();
+      setOut(text);
+      if (text) {
+        const label = TYPES.find(t => t.id === type)?.label || 'Nội dung';
+        try { await api.contentSave({ feature: FEATURE, kind: type, title: `${label} · ${project}`, text, meta: { project, note } }); } catch { /* */ }
+        loadHistory();
+      }
     } catch (e: any) { setErr(e?.message || 'Lỗi sinh nội dung'); } finally { setLoading(false); }
   };
   const copy = () => { navigator.clipboard.writeText(out); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+  const copyHist = (id: string, text: string) => { try { navigator.clipboard.writeText(text || ''); setHistCopied(id); setTimeout(() => setHistCopied(''), 1500); } catch { /* */ } };
+  const deleteHistory = async (id: string) => { setHistory(prev => prev.filter(h => String(h.id) !== String(id))); try { await api.contentDelete(id); } catch { /* */ } };
 
   // ===== Phân phối nội dung qua Zalo (gửi hàng loạt) =====
   const [zaloAccounts, setZaloAccounts] = useState<any[]>([]);
@@ -105,6 +135,45 @@ const ContentFactory: React.FC = () => {
           {sentMsg && <p className={`text-[12px] font-bold mt-2 ${sentMsg.startsWith('✓') ? 'text-emerald-600' : 'text-amber-600'}`}>{sentMsg}</p>}
         </div>
       )}
+
+      {/* Lịch sử nội dung đã tạo — bền theo điều hướng */}
+      <div className="bg-white rounded-2xl border border-slate-100 p-5">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <HistoryIcon className="w-5 h-5 text-indigo-600" />
+            <span className="font-black text-slate-900">Nội dung đã tạo</span>
+            {history.length > 0 && <span className="text-xs font-bold text-slate-400">({history.length})</span>}
+          </div>
+          <button onClick={loadHistory} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50"><RefreshCw className="w-3.5 h-3.5" /> Làm mới</button>
+        </div>
+        {history.length === 0 ? (
+          <div className="text-center py-8 text-slate-400">
+            <HistoryIcon className="w-10 h-10 mx-auto mb-2 opacity-40" />
+            <p className="text-sm font-semibold">Chưa có nội dung nào được lưu.</p>
+            <p className="text-xs">Nội dung bạn sinh ra sẽ được lưu tại đây, không mất khi chuyển trang.</p>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {history.map(h => (
+              <div key={h.id} className="rounded-xl border border-slate-100 hover:border-slate-200 transition p-3">
+                <div className="flex items-start gap-3">
+                  <span className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-black bg-indigo-50 text-indigo-700"><FileText className="w-3.5 h-3.5" />{TYPES.find(t => t.id === h.kind)?.label?.split(' (')[0] || 'Nội dung'}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-black text-slate-800 truncate">{h.title || '(không tiêu đề)'}</p>
+                    <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5"><Clock className="w-3 h-3" />{timeAgo(h.ts)}</p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={() => { setOut(h.text || ''); if (h.meta?.project) setProject(h.meta.project); window.scrollTo({ top: 0, behavior: 'smooth' }); }} title="Dùng lại" className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"><RotateCcw className="w-4 h-4" /></button>
+                    <button onClick={() => copyHist(String(h.id), h.text)} title="Copy" className="p-1.5 rounded-lg text-slate-400 hover:text-fuchsia-600 hover:bg-fuchsia-50">{histCopied === String(h.id) ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}</button>
+                    <button onClick={() => deleteHistory(String(h.id))} title="Xoá" className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+                {h.text && <div className="mt-2 bg-slate-50 rounded-lg p-3 text-sm text-slate-700 whitespace-pre-wrap leading-relaxed max-h-32 overflow-y-auto">{h.text}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {sendOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setSendOpen(false)}>
