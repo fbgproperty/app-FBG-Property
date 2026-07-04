@@ -55,47 +55,10 @@ const OverviewSection: React.FC = () => {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
 
   const items = data?.items || [];
-  const total = data?.total ?? 0;
-  const live = data?.live ?? 0;
-
-  const cards = [
-    { label: 'Đang triển khai', value: total, icon: PlayCircle, color: 'amber' },
-    { label: 'Đã ra quân', value: live, icon: Rocket, color: 'emerald' },
-  ];
-  const tone: Record<string, string> = {
-    emerald: 'text-emerald-600 bg-emerald-50',
-    amber: 'text-amber-600 bg-amber-50',
-    indigo: 'text-indigo-600 bg-indigo-50',
-  };
 
   return (
     <div className="space-y-4">
-      <div className="bg-gradient-to-br from-indigo-700 to-slate-900 rounded-3xl p-6 text-white">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div>
-            <div className="flex items-center gap-2 mb-1"><Rocket className="w-5 h-5" /><span className="font-black">Trung tâm triển khai dự án</span></div>
-            <p className="text-sm opacity-90 max-w-2xl">Triển khai từng dự án tự trị bằng AI — từ nạp hồ sơ đến ra quân bán hàng.</p>
-          </div>
-          <button onClick={load} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 hover:bg-white/25 rounded-xl font-black text-sm disabled:opacity-60 shrink-0">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Làm mới
-          </button>
-        </div>
-      </div>
-
       {err && <div className="flex items-center gap-2 text-amber-700 bg-amber-50 rounded-xl px-3 py-2 text-sm font-bold"><AlertTriangle className="w-4 h-4 shrink-0" /> {err}</div>}
-
-      <div className="grid grid-cols-2 gap-3">
-        {cards.map(c => {
-          const Icon = c.icon;
-          return (
-            <div key={c.label} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${tone[c.color]}`}><Icon className="w-5 h-5" /></div>
-              <div className="text-3xl font-black text-slate-900 leading-none">{loading && !data ? '…' : c.value}</div>
-              <div className="text-[12px] font-bold text-slate-400 mt-1">{c.label}</div>
-            </div>
-          );
-        })}
-      </div>
 
       <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
         <div className="flex items-center gap-2 px-5 py-3.5 border-b border-slate-100">
