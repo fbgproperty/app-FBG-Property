@@ -39,16 +39,16 @@ const EstateAgency: React.FC<{ onOpen: (s: string) => void }> = ({ onOpen }) => 
   }, []);
 
   const AGENTS: { n: string; role: string; icon: any; status: St; sec?: string; metric: string }[] = [
-    { n: 'Giám đốc sàn', role: 'Tổng hợp rổ hàng, xếp ưu tiên đẩy bán', icon: Crown, status: 'live', sec: 'saleplan', metric: 'Chiến lược danh mục' },
-    { n: 'Sales planner', role: 'Lập kế hoạch bán từng dự án', icon: ClipboardList, status: 'live', sec: 'saleplan', metric: 'Kế hoạch bán (AI)' },
+    { n: 'Giám đốc sàn', role: 'Tổng hợp rổ hàng, xếp ưu tiên đẩy bán', icon: Crown, status: 'live', sec: 'data', metric: 'Chiến lược danh mục' },
+    { n: 'Sales planner', role: 'Lập kế hoạch bán từng dự án', icon: ClipboardList, status: 'live', metric: 'Kế hoạch bán (AI)' },
     { n: 'Market researcher', role: 'Nghiên cứu thị trường đa nguồn', icon: TrendingUp, status: 'live', sec: 'market', metric: 'Báo cáo thị trường' },
     { n: 'Pricing analyst', role: 'Định vị & khuyến nghị giá', icon: DollarSign, status: 'live', sec: 'market', metric: 'Benchmark giá' },
     { n: 'Auto-poster', role: 'Sinh + đăng tin đa kênh', icon: Newspaper, status: 'live', sec: 'listing', metric: 'Tin đăng (web/FB/Zalo)' },
     { n: 'Project content', role: 'Biên tập hồ sơ dự án bám tài liệu', icon: FileText, status: 'live', sec: 'listing', metric: 'Hồ sơ dự án AI' },
     { n: 'Listing manager', role: 'Soi chất lượng rổ hàng', icon: Boxes, status: 'live', sec: 'data', metric: 'Dữ liệu BĐS' },
-    { n: 'Inventory tracker', role: 'Theo dõi giỏ hàng & hấp thụ', icon: Database, status: 'live', sec: 'deploy', metric: 'Triển khai dự án' },
+    { n: 'Inventory tracker', role: 'Theo dõi giỏ hàng & hấp thụ', icon: Database, status: 'live', sec: 'data', metric: 'Dữ liệu rổ hàng' },
     { n: 'Investor matcher', role: 'Khớp nhà đầu tư ↔ dự án', icon: Briefcase, status: 'live', metric: 'Cần data NĐT' },
-    { n: 'Deal coordinator', role: 'Phân khách → sale → ERP', icon: Users, status: 'live', sec: 'deploy', metric: 'Đã có khớp sale' },
+    { n: 'Deal coordinator', role: 'Phân khách → sale → ERP', icon: Users, status: 'live', metric: 'Đã có khớp sale' },
   ];
   const liveCount = AGENTS.filter(a => a.status === 'live').length;
 

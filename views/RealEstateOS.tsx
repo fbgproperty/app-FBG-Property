@@ -1,29 +1,16 @@
 import React, { useState } from 'react';
-import { Building2, LayoutDashboard, ClipboardList, TrendingUp, Newspaper, Boxes, Rocket, Layers, Home, FileSearch, CalendarClock, Trophy } from 'lucide-react';
+import { Building2, LayoutDashboard, TrendingUp, Newspaper, Boxes, Layers, Home } from 'lucide-react';
 import EstateAgency from './EstateAgency';
-import SalePlanner from './SalePlanner';
-import ProjectDossier from './ProjectDossier';
 import MarketResearch from './MarketResearch';
 import ListingPublisher from './ListingPublisher';
 import Projects from './Property/Project/Projects';
 import HousesApartments from './Property/Properties/HousesApartments';
-import Deployment from './Deployment';
-import DeployLaunch from './DeployLaunch';
-import CampaignSchedule from './CampaignSchedule';
-import ProjectRanking from './ProjectRanking';
 import MarketRadar from './MarketRadar';
-import { isAdminRole } from '../services/permissions';
 
-type Sec = 'overview' | 'data' | 'trienkhai' | 'lichchiendich' | 'xephang' | 'deploy' | 'dossier' | 'saleplan' | 'market' | 'listing';
+type Sec = 'overview' | 'data' | 'market' | 'listing';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'data', label: 'Dữ liệu BĐS', icon: Boxes },
-  { id: 'trienkhai', label: 'Triển khai', icon: Rocket, admin: true },
-  { id: 'lichchiendich', label: 'Lịch chiến dịch', icon: CalendarClock, admin: true },
-  { id: 'xephang', label: 'Xếp hạng', icon: Trophy },
-  { id: 'deploy', label: 'Triển khai hạ tầng', icon: Rocket, admin: true },
-  { id: 'dossier', label: 'Hồ sơ dự án', icon: FileSearch },
-  { id: 'saleplan', label: 'Kế hoạch bán', icon: ClipboardList },
   { id: 'market', label: 'Nghiên cứu thị trường', icon: TrendingUp },
   { id: 'listing', label: 'Đăng tin', icon: Newspaper },
 ];
@@ -53,16 +40,14 @@ const DataSection: React.FC = () => {
 
 const RealEstateOS: React.FC = () => {
   const [sec, setSec] = useState<Sec>('overview');
-  const role = (typeof localStorage !== 'undefined' && localStorage.getItem('fbg_role')) || 'ctv';
-  const admin = isAdminRole(role);
-  const sections = SECTIONS.filter(s => !s.admin || admin);
+  const sections = SECTIONS;
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg"><Building2 className="w-6 h-6" /></div>
         <div>
           <h2 className="text-2xl font-black text-slate-900 leading-none">Sàn BĐS AI</h2>
-          <p className="text-sm text-slate-400 font-semibold mt-1">Dữ liệu BĐS · Triển khai · Kế hoạch bán · Nghiên cứu thị trường · Đăng tin — tự trị bằng AI</p>
+          <p className="text-sm text-slate-400 font-semibold mt-1">Dữ liệu BĐS · Nghiên cứu thị trường · Đăng tin — tự trị bằng AI</p>
         </div>
       </header>
 
@@ -80,12 +65,6 @@ const RealEstateOS: React.FC = () => {
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <EstateAgency onOpen={(s) => setSec(s as Sec)} />}
         {sec === 'data' && <DataSection />}
-        {sec === 'trienkhai' && admin && <DeployLaunch />}
-        {sec === 'lichchiendich' && admin && <CampaignSchedule />}
-        {sec === 'xephang' && <ProjectRanking />}
-        {sec === 'deploy' && admin && <Deployment />}
-        {sec === 'dossier' && <ProjectDossier />}
-        {sec === 'saleplan' && <SalePlanner />}
         {sec === 'market' && (
           <div className="space-y-6">
             <MarketResearch />

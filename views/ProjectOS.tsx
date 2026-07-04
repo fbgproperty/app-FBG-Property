@@ -3,13 +3,25 @@ import {
   Rocket, LayoutDashboard, Layers, Loader2, RefreshCw, AlertTriangle,
   CheckCircle2, Circle, Search, Sparkles, TrendingUp,
   BookOpen, GraduationCap, ClipboardList, Megaphone, Users, PlayCircle,
+  FileText, Trophy, Server,
 } from 'lucide-react';
 import { api } from '../services/apiService';
+import { isAdminRole } from '../services/permissions';
+import ProjectDossier from './ProjectDossier';
+import SalePlanner from './SalePlanner';
+import DeployLaunch from './DeployLaunch';
+import CampaignSchedule from './CampaignSchedule';
+import ProjectRanking from './ProjectRanking';
+import Deployment from './Deployment';
 
-type Sec = 'overview' | 'deploy';
-const SECTIONS: { id: Sec; label: string; icon: any }[] = [
+type Sec = 'overview' | 'deploy' | 'docs' | 'campaign' | 'ranking' | 'infra';
+const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
-  { id: 'deploy', label: 'Triển khai', icon: Rocket },
+  { id: 'deploy', label: 'Triển khai tự trị', icon: Rocket },
+  { id: 'docs', label: 'Hồ sơ & Kế hoạch bán', icon: FileText },
+  { id: 'campaign', label: 'Chiến dịch', icon: Megaphone, admin: true },
+  { id: 'ranking', label: 'Xếp hạng ưu tiên', icon: Trophy },
+  { id: 'infra', label: 'Triển khai hạ tầng', icon: Server, admin: true },
 ];
 
 const num = (x: any): number => (typeof x === 'number' && !Number.isNaN(x) ? x : 0);
@@ -312,6 +324,9 @@ const DeploySection: React.FC = () => {
 /* ============================ HUB ============================ */
 const ProjectOS: React.FC = () => {
   const [sec, setSec] = useState<Sec>('overview');
+  const role = (typeof localStorage !== 'undefined' && localStorage.getItem('fbg_role')) || 'ctv';
+  const admin = isAdminRole(role);
+  const sections = SECTIONS.filter(s => !s.admin || admin);
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
@@ -323,7 +338,7 @@ const ProjectOS: React.FC = () => {
       </header>
 
       <div className="flex items-center gap-1.5 bg-white rounded-2xl border border-slate-100 p-1.5 shadow-sm overflow-x-auto">
-        {SECTIONS.map(s => {
+        {sections.map(s => {
           const active = sec === s.id; const Icon = s.icon;
           return (
             <button key={s.id} onClick={() => setSec(s.id)} className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black text-sm whitespace-nowrap transition ${active ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:bg-slate-50'}`}>
@@ -336,6 +351,20 @@ const ProjectOS: React.FC = () => {
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <OverviewSection />}
         {sec === 'deploy' && <DeploySection />}
+        {sec === 'docs' && (
+          <div className="space-y-6">
+            <ProjectDossier />
+            <SalePlanner />
+          </div>
+        )}
+        {sec === 'campaign' && admin && (
+          <div className="space-y-6">
+            <DeployLaunch />
+            <CampaignSchedule />
+          </div>
+        )}
+        {sec === 'ranking' && <ProjectRanking />}
+        {sec === 'infra' && admin && <Deployment />}
       </div>
     </div>
   );
