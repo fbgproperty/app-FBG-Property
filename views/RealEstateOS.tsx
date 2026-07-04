@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
-import { Building2, LayoutDashboard, TrendingUp, Newspaper, Boxes, Layers, Home } from 'lucide-react';
+import { Building2, LayoutDashboard, Newspaper, Boxes, Layers, Home } from 'lucide-react';
 import EstateAgency from './EstateAgency';
-import MarketResearch from './MarketResearch';
 import ListingPublisher from './ListingPublisher';
 import Projects from './Property/Project/Projects';
 import HousesApartments from './Property/Properties/HousesApartments';
-import MarketRadar from './MarketRadar';
 
-type Sec = 'overview' | 'data' | 'market' | 'listing';
+type Sec = 'overview' | 'data' | 'listing';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'data', label: 'Dữ liệu BĐS', icon: Boxes },
-  { id: 'market', label: 'Nghiên cứu thị trường', icon: TrendingUp },
   { id: 'listing', label: 'Đăng tin', icon: Newspaper },
 ];
 
@@ -47,7 +44,7 @@ const RealEstateOS: React.FC = () => {
         <div className="w-11 h-11 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg"><Building2 className="w-6 h-6" /></div>
         <div>
           <h2 className="text-2xl font-black text-slate-900 leading-none">Sàn BĐS AI</h2>
-          <p className="text-sm text-slate-400 font-semibold mt-1">Dữ liệu BĐS · Nghiên cứu thị trường · Đăng tin — tự trị bằng AI</p>
+          <p className="text-sm text-slate-400 font-semibold mt-1">Dữ liệu BĐS · Đăng tin — tự trị bằng AI</p>
         </div>
       </header>
 
@@ -65,12 +62,6 @@ const RealEstateOS: React.FC = () => {
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <EstateAgency onOpen={(s) => setSec(s as Sec)} />}
         {sec === 'data' && <DataSection />}
-        {sec === 'market' && (
-          <div className="space-y-6">
-            <MarketResearch />
-            <MarketRadar />
-          </div>
-        )}
         {sec === 'listing' && <ListingPublisher />}
       </div>
     </div>

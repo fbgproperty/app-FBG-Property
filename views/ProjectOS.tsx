@@ -3,7 +3,7 @@ import {
   Rocket, LayoutDashboard, Layers, Loader2, RefreshCw, AlertTriangle,
   CheckCircle2, Circle, Search, Sparkles, TrendingUp,
   BookOpen, GraduationCap, ClipboardList, Megaphone, Users, PlayCircle,
-  FileText, Trophy, Server,
+  FileText, Trophy,
 } from 'lucide-react';
 import { api } from '../services/apiService';
 import { isAdminRole } from '../services/permissions';
@@ -13,15 +13,17 @@ import DeployLaunch from './DeployLaunch';
 import CampaignSchedule from './CampaignSchedule';
 import ProjectRanking from './ProjectRanking';
 import Deployment from './Deployment';
+import MarketResearch from './MarketResearch';
+import MarketRadar from './MarketRadar';
 
-type Sec = 'overview' | 'deploy' | 'docs' | 'campaign' | 'ranking' | 'infra';
+type Sec = 'overview' | 'deploy' | 'docs' | 'campaign' | 'ranking' | 'market';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'deploy', label: 'Triển khai tự trị', icon: Rocket },
   { id: 'docs', label: 'Hồ sơ & Kế hoạch bán', icon: FileText },
   { id: 'campaign', label: 'Chiến dịch', icon: Megaphone, admin: true },
   { id: 'ranking', label: 'Xếp hạng ưu tiên', icon: Trophy },
-  { id: 'infra', label: 'Triển khai hạ tầng', icon: Server, admin: true },
+  { id: 'market', label: 'Nghiên cứu thị trường', icon: TrendingUp },
 ];
 
 const num = (x: any): number => (typeof x === 'number' && !Number.isNaN(x) ? x : 0);
@@ -349,7 +351,12 @@ const ProjectOS: React.FC = () => {
       </div>
 
       <div className="animate-in fade-in duration-300">
-        {sec === 'overview' && <OverviewSection />}
+        {sec === 'overview' && (
+          <div className="space-y-6">
+            <OverviewSection />
+            <Deployment />
+          </div>
+        )}
         {sec === 'deploy' && <DeploySection />}
         {sec === 'docs' && (
           <div className="space-y-6">
@@ -364,7 +371,12 @@ const ProjectOS: React.FC = () => {
           </div>
         )}
         {sec === 'ranking' && <ProjectRanking />}
-        {sec === 'infra' && admin && <Deployment />}
+        {sec === 'market' && (
+          <div className="space-y-6">
+            <MarketResearch />
+            <MarketRadar />
+          </div>
+        )}
       </div>
     </div>
   );
