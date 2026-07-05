@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   Megaphone, LayoutDashboard, FileText, Target, Share2, Workflow, BarChart3,
-  Bot, Radar, CalendarDays, UserSquare
+  Bot, Radar, CalendarDays, UserSquare, Filter
 } from 'lucide-react';
+import MarketingFunnel from './MarketingFunnel';
 import Marketing from './Marketing';
 import QuangCaoDaKenh from './QuangCaoDaKenh';
 import ContentFactory from './ContentFactory';
@@ -16,9 +17,10 @@ import WebTracking from './WebTracking';
 import ContentCalendar from './ContentCalendar';
 import SalePersonalize from './SalePersonalize';
 
-type Sec = 'overview' | 'content' | 'persona' | 'calendar' | 'ads' | 'channels' | 'community' | 'tracking' | 'automation' | 'roi';
+type Sec = 'overview' | 'content' | 'persona' | 'funnel' | 'calendar' | 'ads' | 'channels' | 'community' | 'tracking' | 'automation' | 'roi';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
+  { id: 'funnel', label: 'Phễu Marketing', icon: Filter },
   { id: 'content', label: 'Sản xuất nội dung', icon: FileText },
   { id: 'calendar', label: 'Lịch nội dung', icon: CalendarDays },
   { id: 'ads', label: 'Quảng cáo', icon: Target },
@@ -58,6 +60,7 @@ const MarketingOS: React.FC = () => {
 
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <AgencyDashboard onOpen={openSec} />}
+        {sec === 'funnel' && <MarketingFunnel />}
         {sec === 'ads' && <QuangCaoDaKenh />}
         {sec === 'channels' && <Marketing />}
         {sec === 'community' && <CommunityInbox />}

@@ -1556,6 +1556,23 @@ class ApiService {
       return res.json();
     } catch { return { items: [], total: 0 }; }
   }
+  /** Sinh phễu marketing chuẩn ngành (5 giai đoạn) cho một dự án. */
+  public async marketingFunnelGen(project: string, brief?: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/marketing/funnel`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project, brief }),
+    });
+    if (!res.ok) throw new Error(`funnel ${res.status}`);
+    return res.json();
+  }
+  /** Lấy phễu marketing đã lưu của một dự án (rỗng nếu chưa tạo). */
+  public async marketingFunnelGet(project: string): Promise<any> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/marketing/funnel?project=${encodeURIComponent(project)}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+      if (!res.ok) throw new Error(`funnel ${res.status}`);
+      return res.json();
+    } catch { return {}; }
+  }
   /** Lưu một nội dung đã sinh (video/ảnh/bài viết cá nhân hoá) để bền theo điều hướng. */
   public async contentSave(rec: { feature: string; sale?: string; kind?: string; title?: string; text?: string; url?: string; meta?: any }): Promise<{ ok: boolean; id?: string }> {
     try {
