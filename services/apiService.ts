@@ -1556,6 +1556,43 @@ class ApiService {
       return res.json();
     } catch { return { items: [], total: 0 }; }
   }
+  /** Quỹ căn: tổng hợp số căn theo dự án. */
+  public async inventorySummary(): Promise<any> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/inventory/summary`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+      if (!res.ok) throw new Error(`inv ${res.status}`);
+      return res.json();
+    } catch { return { items: [], totalUnits: 0, totalProjects: 0 }; }
+  }
+  /** Quỹ căn: danh sách căn của một dự án (lọc theo trạng thái/tìm kiếm). */
+  public async inventoryList(project: string, opts: { status?: string; q?: string } = {}): Promise<any> {
+    try {
+      const p = new URLSearchParams({ project });
+      if (opts.status) p.set('status', opts.status);
+      if (opts.q) p.set('q', opts.q);
+      const res = await fetch(`${this.cdpBaseUrl}/inventory?${p.toString()}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+      if (!res.ok) throw new Error(`inv ${res.status}`);
+      return res.json();
+    } catch { return { units: [], total: 0 }; }
+  }
+  /** Tạo tin đăng bán cho một mã căn (AI bám tài liệu + thông số căn). */
+  public async inventoryListing(project: string, code: string, brief?: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/inventory/listing`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project, code, brief }),
+    });
+    if (!res.ok) throw new Error(`listing ${res.status}`);
+    return res.json();
+  }
+  /** Tạo landing page chạy quảng cáo cho một mã căn. */
+  public async inventoryLanding(project: string, code: string, brief?: string): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/inventory/landing`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project, code, brief }),
+    });
+    if (!res.ok) throw new Error(`landing ${res.status}`);
+    return res.json();
+  }
   /** Khởi động tự trị Go-to-Market cho TẤT CẢ dự án có tài liệu kho AI. */
   public async autonomyRun(): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/autonomy/gtm-all`, {

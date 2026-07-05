@@ -4,10 +4,12 @@ import EstateAgency from './EstateAgency';
 import ListingPublisher from './ListingPublisher';
 import Projects from './Property/Project/Projects';
 import HousesApartments from './Property/Properties/HousesApartments';
+import Inventory from './Inventory';
 
-type Sec = 'overview' | 'data' | 'listing';
+type Sec = 'overview' | 'inventory' | 'data' | 'listing';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
+  { id: 'inventory', label: 'Quỹ căn (Bảng hàng)', icon: Building2 },
   { id: 'data', label: 'Dữ liệu BĐS', icon: Boxes },
   { id: 'listing', label: 'Đăng tin', icon: Newspaper },
 ];
@@ -61,6 +63,7 @@ const RealEstateOS: React.FC = () => {
 
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <EstateAgency onOpen={(s) => setSec(s as Sec)} />}
+        {sec === 'inventory' && <Inventory />}
         {sec === 'data' && <DataSection />}
         {sec === 'listing' && <ListingPublisher />}
       </div>
