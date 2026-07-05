@@ -106,8 +106,16 @@ const VideoFactory: React.FC = () => {
     setErr(''); setVideoUrl('');
     try {
       const projTitle = title.trim() || 'Dự án';
-      const r = await api.videoRender({ title: projTitle, subtitle: subtitle.trim(), images, captions });
-      const id = r?.jobId; if (!id) throw new Error('Không tạo được job');
+      // Trợ lý AI tự viết kịch bản (bám kho tài liệu) + giọng đọc thuyết minh
+      let r: any;
+      try {
+        r = await api.videoPromo({ project: projTitle, images });
+        if (r?.error) throw new Error(r.error);
+      } catch {
+        // dự phòng: dựng bản không thuyết minh
+        r = await api.videoRender({ title: projTitle, subtitle: subtitle.trim(), images, captions });
+      }
+      const id = r?.jobId; if (!id) throw new Error(r?.error || 'Không tạo được video');
       setJob({ id, status: 'queued' });
       try { localStorage.setItem(LSKEY, JSON.stringify({ id, status: 'queued', title: projTitle })); } catch { /* */ }
       startPoll(id, projTitle);
@@ -168,7 +176,7 @@ const VideoFactory: React.FC = () => {
         </div>
       )}
 
-      <p className="text-[11px] text-slate-400 flex items-start gap-1"><Sparkles className="w-3 h-3 mt-0.5 shrink-0" /> Video dựng từ ảnh THẬT của dự án (Ken Burns) + tiêu đề + nhạc — không tốn phí AI. Duyệt trước khi đăng.</p>
+      <p className="text-[11px] text-slate-400 flex items-start gap-1"><Sparkles className="w-3 h-3 mt-0.5 shrink-0" /> Trợ lý AI tự viết kịch bản bám tài liệu dự án + <b>giọng đọc thuyết minh tiếng Việt</b>, dựng trên ảnh thật. Duyệt trước khi đăng.</p>
     </div>
 
     {/* Lịch sử video đã tạo — bền theo điều hướng */}

@@ -2010,6 +2010,15 @@ class ApiService {
     if (!res.ok) throw new Error(`video ${res.status}`);
     return res.json();
   }
+  /** Dựng video "hay": trợ lý AI tự viết kịch bản (bám kho tài liệu) + giọng đọc thuyết minh tiếng Việt. */
+  public async videoPromo(payload: { project: string; saleName?: string; images?: string[]; music?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/video-promo`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`video-promo ${res.status}`);
+    return res.json();
+  }
   public async videoStatus(jobId: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/video/status/${jobId}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
     if (!res.ok) throw new Error(`video ${res.status}`);

@@ -263,8 +263,15 @@ const SalePersonalize: React.FC = () => {
     ];
     try {
       const projName = project?.name || 'Dự án';
-      const r = await api.videoRender({ title: projName, subtitle: sale.name, images, captions });
-      const id = r?.jobId; if (!id) throw new Error('Không tạo được video');
+      // Trợ lý AI viết kịch bản (bám tài liệu) + giọng đọc, mở đầu bằng ảnh + lời chào của sale
+      let r: any;
+      try {
+        r = await api.videoPromo({ project: projName, saleName: sale.name, images });
+        if (r?.error) throw new Error(r.error);
+      } catch {
+        r = await api.videoRender({ title: projName, subtitle: sale.name, images, captions });
+      }
+      const id = r?.jobId; if (!id) throw new Error(r?.error || 'Không tạo được video');
       setVidJob({ id, status: 'queued' });
       saveActiveVid(sale.email, { id, status: 'queued', project: projName, saleName: sale.name });
       startPoll(id, sale.email, projName, sale.name);
