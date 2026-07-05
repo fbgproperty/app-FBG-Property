@@ -32,6 +32,7 @@ const VideoFactory: React.FC = () => {
   const [err, setErr] = useState('');
   const [job, setJob] = useState<{ id: string; status: string; step?: string } | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
+  const [cinematic, setCinematic] = useState(false);
   const poll = useRef<any>(null);
 
   const FEATURE = 'video-factory';
@@ -130,7 +131,7 @@ const VideoFactory: React.FC = () => {
       // Trợ lý AI tự viết kịch bản (bám kho tài liệu) + giọng đọc thuyết minh
       let r: any;
       try {
-        r = await api.videoPromo({ project: projTitle, images });
+        r = await api.videoPromo({ project: projTitle, images, mode: cinematic ? 'cinematic' : undefined });
         if (r?.error) throw new Error(r.error);
       } catch {
         // dự phòng: dựng bản không thuyết minh
@@ -178,8 +179,20 @@ const VideoFactory: React.FC = () => {
         </div>
       )}
 
+      {/* Chọn kiểu video */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <button onClick={() => setCinematic(false)} className={`text-left p-3 rounded-xl border-2 transition ${!cinematic ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
+          <p className="font-black text-sm text-slate-800">Nhanh (miễn phí)</p>
+          <p className="text-[11px] text-slate-500">Lia ảnh + giọng đọc. Render lâu hơn, không tốn phí.</p>
+        </button>
+        <button onClick={() => setCinematic(true)} className={`text-left p-3 rounded-xl border-2 transition ${cinematic ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
+          <p className="font-black text-sm text-slate-800 flex items-center gap-1">Điện ảnh AI <Sparkles className="w-3.5 h-3.5 text-fuchsia-600" /></p>
+          <p className="text-[11px] text-slate-500">Cảnh chuyển động như phim. Nhanh (~2-3 phút), <b>tính phí mỗi video</b>.</p>
+        </button>
+      </div>
+
       <button onClick={create} disabled={!images.length || !!busy} className="inline-flex items-center gap-2 px-5 py-2.5 bg-fuchsia-600 text-white rounded-xl font-black text-sm hover:bg-fuchsia-700 disabled:opacity-60">
-        {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Film className="w-4 h-4" />} Tạo video
+        {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Film className="w-4 h-4" />} {cinematic ? 'Tạo video điện ảnh' : 'Tạo video'}
       </button>
 
       {busy && (
