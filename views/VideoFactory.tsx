@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Video, Loader2, Film, Download, Sparkles, AlertTriangle, Clock, History as HistoryIcon, Trash2, Play, RefreshCw } from 'lucide-react';
+import { Video, Loader2, Film, Download, Sparkles, AlertTriangle, Clock, History as HistoryIcon, Trash2, Play, RefreshCw, BarChart3 } from 'lucide-react';
 import { api } from '../services/apiService';
 
 const timeAgo = (ts: any): string => {
@@ -32,7 +32,7 @@ const VideoFactory: React.FC = () => {
   const [err, setErr] = useState('');
   const [job, setJob] = useState<{ id: string; status: string; step?: string } | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
-  const [cinematic, setCinematic] = useState(false);
+  const [videoType, setVideoType] = useState<'fast' | 'cinematic' | 'explainer'>('fast');
   const [brief, setBrief] = useState('');
   const poll = useRef<any>(null);
 
@@ -123,19 +123,23 @@ const VideoFactory: React.FC = () => {
   };
 
   const create = async () => {
-    if (!images.length) { setErr('Dự án chưa có ảnh để tạo video.'); return; }
+    if (videoType !== 'explainer' && !images.length) { setErr('Dự án chưa có ảnh để tạo video.'); return; }
     setErr(''); setVideoUrl('');
-    // Báo đang xử lý NGAY (trợ lý AI viết kịch bản mất ~30-60s)
-    setJob({ id: 'pending', status: 'queued', step: 'Trợ lý AI đang viết kịch bản…' });
+    // Báo đang xử lý NGAY (trợ lý AI mất ~30-60s)
+    setJob({ id: 'pending', status: 'queued', step: 'Trợ lý AI đang chuẩn bị nội dung…' });
     try {
       const projTitle = title.trim() || 'Dự án';
-      // Trợ lý AI tự viết kịch bản (bám kho tài liệu) + giọng đọc thuyết minh
       let r: any;
       try {
-        r = await api.videoPromo({ project: projTitle, images, mode: cinematic ? 'cinematic' : undefined, brief: brief.trim() || undefined });
+        if (videoType === 'explainer') {
+          r = await api.videoExplainer({ project: projTitle, brief: brief.trim() || undefined });
+        } else {
+          r = await api.videoPromo({ project: projTitle, images, mode: videoType === 'cinematic' ? 'cinematic' : undefined, brief: brief.trim() || undefined });
+        }
         if (r?.error) throw new Error(r.error);
-      } catch {
-        // dự phòng: dựng bản không thuyết minh
+      } catch (e: any) {
+        if (videoType === 'explainer') throw e;
+        // dự phòng cho video ảnh: dựng bản không thuyết minh
         r = await api.videoRender({ title: projTitle, subtitle: subtitle.trim(), images, captions });
       }
       const id = r?.jobId; if (!id) throw new Error(r?.error || 'Không tạo được video');
@@ -190,19 +194,23 @@ const VideoFactory: React.FC = () => {
       </div>
 
       {/* Chọn kiểu video */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <button onClick={() => setCinematic(false)} className={`text-left p-3 rounded-xl border-2 transition ${!cinematic ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <button onClick={() => setVideoType('fast')} className={`text-left p-3 rounded-xl border-2 transition ${videoType === 'fast' ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
           <p className="font-black text-sm text-slate-800">Nhanh (miễn phí)</p>
-          <p className="text-[11px] text-slate-500">Lia ảnh + giọng đọc. Render lâu hơn, không tốn phí.</p>
+          <p className="text-[11px] text-slate-500">Lia ảnh + giọng đọc. Không tốn phí.</p>
         </button>
-        <button onClick={() => setCinematic(true)} className={`text-left p-3 rounded-xl border-2 transition ${cinematic ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
+        <button onClick={() => setVideoType('cinematic')} className={`text-left p-3 rounded-xl border-2 transition ${videoType === 'cinematic' ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
           <p className="font-black text-sm text-slate-800 flex items-center gap-1">Điện ảnh AI <Sparkles className="w-3.5 h-3.5 text-fuchsia-600" /></p>
-          <p className="text-[11px] text-slate-500">Cảnh chuyển động như phim. Nhanh (~2-3 phút), <b>tính phí mỗi video</b>.</p>
+          <p className="text-[11px] text-slate-500">Cảnh động như phim (~2-3 phút), <b>tính phí</b>.</p>
+        </button>
+        <button onClick={() => setVideoType('explainer')} className={`text-left p-3 rounded-xl border-2 transition ${videoType === 'explainer' ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
+          <p className="font-black text-sm text-slate-800 flex items-center gap-1">Phân tích <BarChart3 className="w-3.5 h-3.5 text-fuchsia-600" /></p>
+          <p className="text-[11px] text-slate-500">Biểu đồ giá/tiến độ/pháp lý. Miễn phí, không cần ảnh.</p>
         </button>
       </div>
 
-      <button onClick={create} disabled={!images.length || !!busy} className="inline-flex items-center gap-2 px-5 py-2.5 bg-fuchsia-600 text-white rounded-xl font-black text-sm hover:bg-fuchsia-700 disabled:opacity-60">
-        {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Film className="w-4 h-4" />} {cinematic ? 'Tạo video điện ảnh' : 'Tạo video'}
+      <button onClick={create} disabled={(videoType === 'explainer' ? !title.trim() : !images.length) || !!busy} className="inline-flex items-center gap-2 px-5 py-2.5 bg-fuchsia-600 text-white rounded-xl font-black text-sm hover:bg-fuchsia-700 disabled:opacity-60">
+        {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Film className="w-4 h-4" />} {videoType === 'explainer' ? 'Tạo video phân tích' : videoType === 'cinematic' ? 'Tạo video điện ảnh' : 'Tạo video'}
       </button>
 
       {busy && (

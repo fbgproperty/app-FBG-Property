@@ -1580,6 +1580,15 @@ class ApiService {
       return res.json();
     } catch { return { items: [], total: 0 }; }
   }
+  /** Video phân tích dự án bằng biểu đồ động (trợ lý AI tự rút số liệu + giọng đọc). */
+  public async videoExplainer(payload: { project: string; brief?: string; music?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/video-explainer`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`video-explainer ${res.status}`);
+    return res.json();
+  }
   /** Xoá một mục lịch sử nội dung. */
   public async contentDelete(id: string): Promise<{ ok: boolean }> {
     try {
