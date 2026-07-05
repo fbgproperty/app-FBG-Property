@@ -19,8 +19,7 @@ import SalePersonalize from './SalePersonalize';
 type Sec = 'overview' | 'content' | 'persona' | 'calendar' | 'ads' | 'channels' | 'community' | 'tracking' | 'automation' | 'roi';
 const SECTIONS: { id: Sec; label: string; icon: any }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
-  { id: 'content', label: 'Content AI', icon: FileText },
-  { id: 'persona', label: 'Cá nhân hoá Sale', icon: UserSquare },
+  { id: 'content', label: 'Sản xuất nội dung', icon: FileText },
   { id: 'calendar', label: 'Lịch nội dung', icon: CalendarDays },
   { id: 'ads', label: 'Quảng cáo', icon: Target },
   { id: 'channels', label: 'Kênh (FB/Zalo)', icon: Share2 },
@@ -31,6 +30,11 @@ const SECTIONS: { id: Sec; label: string; icon: any }[] = [
 ];
 const MarketingOS: React.FC = () => {
   const [sec, setSec] = useState<Sec>('overview');
+  const [contentTab, setContentTab] = useState<'general' | 'persona'>('general');
+  const openSec = (s: string) => {
+    if (s === 'persona') { setSec('content'); setContentTab('persona'); }
+    else setSec(s as Sec);
+  };
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
@@ -53,12 +57,27 @@ const MarketingOS: React.FC = () => {
       </div>
 
       <div className="animate-in fade-in duration-300">
-        {sec === 'overview' && <AgencyDashboard onOpen={(s) => setSec(s as Sec)} />}
+        {sec === 'overview' && <AgencyDashboard onOpen={openSec} />}
         {sec === 'ads' && <QuangCaoDaKenh />}
         {sec === 'channels' && <Marketing />}
         {sec === 'community' && <CommunityInbox />}
-        {sec === 'content' && <div className="space-y-5"><ContentFactory /><ImageFactory /><VideoFactory /></div>}
-        {sec === 'persona' && <SalePersonalize />}
+        {(sec === 'content' || sec === 'persona') && (
+          <div className="space-y-5">
+            <div className="flex gap-1.5 bg-white rounded-2xl border border-slate-100 p-1.5 shadow-sm w-fit">
+              <button onClick={() => setContentTab('general')} className={`flex items-center gap-2 px-4 py-2 rounded-xl font-black text-sm transition ${contentTab === 'general' ? 'bg-fuchsia-600 text-white shadow' : 'text-slate-500 hover:bg-slate-50'}`}>
+                <FileText className="w-4 h-4" /> Nội dung & Video
+              </button>
+              <button onClick={() => setContentTab('persona')} className={`flex items-center gap-2 px-4 py-2 rounded-xl font-black text-sm transition ${contentTab === 'persona' ? 'bg-fuchsia-600 text-white shadow' : 'text-slate-500 hover:bg-slate-50'}`}>
+                <UserSquare className="w-4 h-4" /> Cá nhân hoá theo Sale
+              </button>
+            </div>
+            {contentTab === 'general' ? (
+              <div className="space-y-5"><ContentFactory /><ImageFactory /><VideoFactory /></div>
+            ) : (
+              <SalePersonalize />
+            )}
+          </div>
+        )}
         {sec === 'calendar' && <ContentCalendar />}
         {sec === 'tracking' && <WebTracking />}
         {sec === 'automation' && <AutomationHub />}
