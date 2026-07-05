@@ -49,9 +49,28 @@ const VideoFactory: React.FC = () => {
 
   const startPoll = (id: string, projTitle: string) => {
     poll.current && clearInterval(poll.current);
+    let unknownCount = 0;
     poll.current = setInterval(async () => {
       try {
         const s = await api.videoStatus(id);
+        // Job mất khỏi máy dựng (máy chủ khởi động lại) → thử phục hồi file nếu đã render xong
+        if (s.status === 'unknown' || !s.status) {
+          if (++unknownCount >= 2) {
+            clearInterval(poll.current);
+            try { localStorage.removeItem(LSKEY); } catch { /* */ }
+            try {
+              const url = await api.videoBlobUrl(`${id}.mp4`);
+              setVideoUrl(url); setJob({ id, status: 'done' });
+              try { await api.contentSave({ feature: FEATURE, kind: 'video', title: projTitle || 'Video dự án', url: `${id}.mp4`, meta: {} }); } catch { /* */ }
+              loadHistory();
+            } catch {
+              setJob(null);
+              setErr('Phiên dựng đã kết thúc trên máy chủ. Bấm "Làm mới" ở mục Video đã tạo, hoặc tạo lại.');
+            }
+          }
+          return;
+        }
+        unknownCount = 0;
         setJob({ id, status: s.status, step: s.step });
         try { localStorage.setItem(LSKEY, JSON.stringify({ id, status: s.status, title: projTitle })); } catch { /* */ }
         if (s.status === 'done') {
@@ -104,6 +123,8 @@ const VideoFactory: React.FC = () => {
   const create = async () => {
     if (!images.length) { setErr('Dự án chưa có ảnh để tạo video.'); return; }
     setErr(''); setVideoUrl('');
+    // Báo đang xử lý NGAY (trợ lý AI viết kịch bản mất ~30-60s)
+    setJob({ id: 'pending', status: 'queued', step: 'Trợ lý AI đang viết kịch bản…' });
     try {
       const projTitle = title.trim() || 'Dự án';
       // Trợ lý AI tự viết kịch bản (bám kho tài liệu) + giọng đọc thuyết minh
@@ -116,10 +137,10 @@ const VideoFactory: React.FC = () => {
         r = await api.videoRender({ title: projTitle, subtitle: subtitle.trim(), images, captions });
       }
       const id = r?.jobId; if (!id) throw new Error(r?.error || 'Không tạo được video');
-      setJob({ id, status: 'queued' });
+      setJob({ id, status: 'queued', step: 'Đã nhận, bắt đầu dựng…' });
       try { localStorage.setItem(LSKEY, JSON.stringify({ id, status: 'queued', title: projTitle })); } catch { /* */ }
       startPoll(id, projTitle);
-    } catch (e: any) { setErr(e?.message || 'Lỗi'); }
+    } catch (e: any) { setJob(null); setErr(e?.message || 'Lỗi'); }
   };
   const busy = job && job.status !== 'done' && job.status !== 'failed';
 
@@ -162,10 +183,10 @@ const VideoFactory: React.FC = () => {
       </button>
 
       {busy && (
-        <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 rounded-xl px-3 py-2.5">
+        <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 rounded-xl px-3 py-2.5 flex-wrap">
           <Loader2 className="w-4 h-4 animate-spin text-fuchsia-600" />
           <span className="font-bold">{job?.step || 'Đang xử lý'}...</span>
-          <span className="text-[11px] text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3" /> render CPU ~3-5 phút, cứ để chạy</span>
+          <span className="text-[11px] text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3" /> render mất vài phút — cứ rời trang, video tự lưu vào "Video đã tạo" khi xong</span>
         </div>
       )}
 

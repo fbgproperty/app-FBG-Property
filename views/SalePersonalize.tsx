@@ -92,9 +92,28 @@ const SalePersonalize: React.FC = () => {
   // Poll trạng thái dựng video; khi xong lưu vào lịch sử để không mất khi rời trang
   const startPoll = (id: string, email: string, projName: string, saleName?: string) => {
     vidPoll.current && clearInterval(vidPoll.current);
+    let unknownCount = 0;
     vidPoll.current = setInterval(async () => {
       try {
         const s = await api.videoStatus(id);
+        // Job mất khỏi máy dựng (máy chủ khởi động lại) → thử phục hồi file nếu đã render xong
+        if (s.status === 'unknown' || !s.status) {
+          if (++unknownCount >= 2) {
+            clearInterval(vidPoll.current);
+            clearActiveVid(email);
+            try {
+              const url = await api.videoBlobUrl(`${id}.mp4`);
+              setVideoUrl(url); setVidJob({ id, status: 'done' });
+              try { await api.contentSave({ feature: FEATURE, sale: email, kind: 'video', title: projName || 'Video cá nhân hoá', url: `${id}.mp4`, meta: { saleName } }); } catch { /* */ }
+              loadHistory(email);
+            } catch {
+              setVidJob(null);
+              setVidErr('Phiên dựng đã kết thúc trên máy chủ. Bấm "Làm mới" ở mục Nội dung đã tạo, hoặc tạo lại.');
+            }
+          }
+          return;
+        }
+        unknownCount = 0;
         setVidJob({ id, status: s.status, step: s.step });
         saveActiveVid(email, { id, status: s.status, project: projName, saleName });
         if (s.status === 'done') {
@@ -252,6 +271,8 @@ const SalePersonalize: React.FC = () => {
   const createVideo = async () => {
     if (!sale) return;
     setVidErr(''); setVideoUrl('');
+    // Báo đang xử lý NGAY (trợ lý AI viết kịch bản mất ~30-60s)
+    setVidJob({ id: 'pending', status: 'queued', step: 'Trợ lý AI đang viết kịch bản…' });
     const project = vidProjects.find((x: any) => (x?.id || x?.slug || x?.name) === vidPid) || null;
     const projImgs = parseImgs(project).slice(0, 5);
     const salePhoto = api.salePhotoUrl(sale.email);
@@ -272,10 +293,11 @@ const SalePersonalize: React.FC = () => {
         r = await api.videoRender({ title: projName, subtitle: sale.name, images, captions });
       }
       const id = r?.jobId; if (!id) throw new Error(r?.error || 'Không tạo được video');
-      setVidJob({ id, status: 'queued' });
+      setVidJob({ id, status: 'queued', step: 'Đã nhận, bắt đầu dựng…' });
       saveActiveVid(sale.email, { id, status: 'queued', project: projName, saleName: sale.name });
       startPoll(id, sale.email, projName, sale.name);
     } catch (e: any) {
+      setVidJob(null);
       setVidErr(e?.message || 'Không dựng được video. Thử lại.');
     }
   };
@@ -632,9 +654,10 @@ const SalePersonalize: React.FC = () => {
             </button>
 
             {vidBusy && (
-              <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 rounded-xl px-3 py-2.5">
+              <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 rounded-xl px-3 py-2.5 flex-wrap">
                 <Loader2 className="w-4 h-4 animate-spin text-fuchsia-600" />
-                <span className="font-bold">Đang dựng video… (có thể mất 1–2 phút)</span>
+                <span className="font-bold">{vidJob?.step || 'Đang dựng video…'}</span>
+                <span className="text-[11px] text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3" /> render mất vài phút — cứ rời trang, video tự lưu vào "Nội dung đã tạo" khi xong</span>
               </div>
             )}
 
