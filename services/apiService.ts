@@ -1556,6 +1556,23 @@ class ApiService {
       return res.json();
     } catch { return { items: [], total: 0 }; }
   }
+  /** Khởi động tự trị Go-to-Market cho TẤT CẢ dự án có tài liệu kho AI. */
+  public async autonomyRun(): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/autonomy/gtm-all`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) throw new Error(`autonomy ${res.status}`);
+    return res.json();
+  }
+  /** Trạng thái tự trị Go-to-Market. */
+  public async autonomyStatus(): Promise<any> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/autonomy/status`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+      if (!res.ok) throw new Error(`status ${res.status}`);
+      return res.json();
+    } catch { return { status: 'idle' }; }
+  }
   /** Sinh phễu marketing chuẩn ngành (5 giai đoạn) cho một dự án. */
   public async marketingFunnelGen(project: string, brief?: string): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/marketing/funnel`, {

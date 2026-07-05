@@ -17,6 +17,7 @@ import ProjectRanking from './ProjectRanking';
 import Deployment from './Deployment';
 import MarketResearch from './MarketResearch';
 import MarketRadar from './MarketRadar';
+import AutonomyPanel from './AutonomyPanel';
 
 type Sec = 'overview' | 'deploy' | 'docs' | 'campaign' | 'ranking' | 'market';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
@@ -694,7 +695,7 @@ const ProjectOS: React.FC = () => {
 
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <OverviewSection />}
-        {sec === 'deploy' && <DeploySection />}
+        {sec === 'deploy' && <div className="space-y-5"><AutonomyPanel /><DeploySection /></div>}
         {sec === 'docs' && (
           <div className="space-y-6">
             <ProjectDossier />
