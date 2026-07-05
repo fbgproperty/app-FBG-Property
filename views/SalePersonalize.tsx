@@ -68,6 +68,7 @@ const SalePersonalize: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState('');
   const [vidErr, setVidErr] = useState('');
   const [vidCinematic, setVidCinematic] = useState(false);
+  const [vidBrief, setVidBrief] = useState('');
   const vidPoll = useRef<any>(null);
 
   // ==== Lịch sử nội dung đã tạo (bền theo điều hướng, lưu ở database) ====
@@ -288,7 +289,7 @@ const SalePersonalize: React.FC = () => {
       // Trợ lý AI viết kịch bản (bám tài liệu) + giọng đọc, mở đầu bằng ảnh + lời chào của sale
       let r: any;
       try {
-        r = await api.videoPromo({ project: projName, saleName: sale.name, images, mode: vidCinematic ? 'cinematic' : undefined });
+        r = await api.videoPromo({ project: projName, saleName: sale.name, images, mode: vidCinematic ? 'cinematic' : undefined, brief: vidBrief.trim() || undefined });
         if (r?.error) throw new Error(r.error);
       } catch {
         r = await api.videoRender({ title: projName, subtitle: sale.name, images, captions });
@@ -644,6 +645,14 @@ const SalePersonalize: React.FC = () => {
                   <option key={p?.id || p?.slug || p?.name} value={p?.id || p?.slug || p?.name}>{p?.name}</option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-black text-slate-500">Yêu cầu cho video (tuỳ chọn)</label>
+              <textarea value={vidBrief} onChange={e => setVidBrief(e.target.value)} rows={2}
+                placeholder="vd: nhấn view sông + chính sách chiết khấu, giọng thân thiện, kết bằng lời mời xem nhà…"
+                className="w-full mt-1 p-2.5 rounded-xl border border-slate-200 text-sm" />
+              <p className="text-[11px] text-slate-400 mt-1">Trợ lý AI bám yêu cầu này khi viết kịch bản + dựng cảnh. Để trống thì AI tự quyết.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

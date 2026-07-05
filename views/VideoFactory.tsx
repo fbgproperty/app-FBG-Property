@@ -33,6 +33,7 @@ const VideoFactory: React.FC = () => {
   const [job, setJob] = useState<{ id: string; status: string; step?: string } | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
   const [cinematic, setCinematic] = useState(false);
+  const [brief, setBrief] = useState('');
   const poll = useRef<any>(null);
 
   const FEATURE = 'video-factory';
@@ -131,7 +132,7 @@ const VideoFactory: React.FC = () => {
       // Trợ lý AI tự viết kịch bản (bám kho tài liệu) + giọng đọc thuyết minh
       let r: any;
       try {
-        r = await api.videoPromo({ project: projTitle, images, mode: cinematic ? 'cinematic' : undefined });
+        r = await api.videoPromo({ project: projTitle, images, mode: cinematic ? 'cinematic' : undefined, brief: brief.trim() || undefined });
         if (r?.error) throw new Error(r.error);
       } catch {
         // dự phòng: dựng bản không thuyết minh
@@ -178,6 +179,15 @@ const VideoFactory: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Câu lệnh / yêu cầu cho video (định hướng cho trợ lý AI) */}
+      <div>
+        <label className="text-xs font-black text-slate-500">Yêu cầu cho video (tuỳ chọn)</label>
+        <textarea value={brief} onChange={e => setBrief(e.target.value)} rows={2}
+          placeholder="vd: nhấn mạnh view sông + tiện ích hồ bơi, giọng trẻ trung, kết bằng ưu đãi chiết khấu 5%…"
+          className="w-full mt-1 p-2.5 rounded-xl border border-slate-200 text-sm" />
+        <p className="text-[11px] text-slate-400 mt-1">Trợ lý AI sẽ bám yêu cầu này khi viết kịch bản + dựng cảnh. Để trống thì AI tự quyết theo tài liệu dự án.</p>
+      </div>
 
       {/* Chọn kiểu video */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
