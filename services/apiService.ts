@@ -1580,6 +1580,15 @@ class ApiService {
       return res.json();
     } catch { return { items: [], total: 0 }; }
   }
+  /** Người dẫn AI / ghép mặt sale biết nói (talking-head). sourceImage = URL ảnh chân dung công khai. */
+  public async videoAvatar(payload: { project: string; saleName?: string; sourceImage: string; brief?: string; voice?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/video-avatar`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`video-avatar ${res.status}`);
+    return res.json();
+  }
   /** Video phân tích dự án bằng biểu đồ động (trợ lý AI tự rút số liệu + giọng đọc). */
   public async videoExplainer(payload: { project: string; brief?: string; music?: string }): Promise<any> {
     const res = await fetch(`${this.cdpBaseUrl}/video-explainer`, {

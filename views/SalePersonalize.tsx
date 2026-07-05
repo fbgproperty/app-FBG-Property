@@ -67,7 +67,7 @@ const SalePersonalize: React.FC = () => {
   const [vidJob, setVidJob] = useState<{ id: string; status: string; step?: string } | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
   const [vidErr, setVidErr] = useState('');
-  const [vidCinematic, setVidCinematic] = useState(false);
+  const [vidType, setVidType] = useState<'fast' | 'cinematic' | 'avatar'>('fast');
   const [vidBrief, setVidBrief] = useState('');
   const vidPoll = useRef<any>(null);
 
@@ -286,13 +286,19 @@ const SalePersonalize: React.FC = () => {
     ];
     try {
       const projName = project?.name || 'Dự án';
-      // Trợ lý AI viết kịch bản (bám tài liệu) + giọng đọc, mở đầu bằng ảnh + lời chào của sale
       let r: any;
-      try {
-        r = await api.videoPromo({ project: projName, saleName: sale.name, images, mode: vidCinematic ? 'cinematic' : undefined, brief: vidBrief.trim() || undefined });
+      if (vidType === 'avatar') {
+        // Ghép mặt sale biết nói (talking-head) — cần ảnh chân dung của sale
+        r = await api.videoAvatar({ project: projName, saleName: sale.name, sourceImage: api.salePhotoUrl(sale.email), brief: vidBrief.trim() || undefined });
         if (r?.error) throw new Error(r.error);
-      } catch {
-        r = await api.videoRender({ title: projName, subtitle: sale.name, images, captions });
+      } else {
+        // Trợ lý AI viết kịch bản (bám tài liệu) + giọng đọc, mở đầu bằng ảnh + lời chào của sale
+        try {
+          r = await api.videoPromo({ project: projName, saleName: sale.name, images, mode: vidType === 'cinematic' ? 'cinematic' : undefined, brief: vidBrief.trim() || undefined });
+          if (r?.error) throw new Error(r.error);
+        } catch {
+          r = await api.videoRender({ title: projName, subtitle: sale.name, images, captions });
+        }
       }
       const id = r?.jobId; if (!id) throw new Error(r?.error || 'Không tạo được video');
       setVidJob({ id, status: 'queued', step: 'Đã nhận, bắt đầu dựng…' });
@@ -655,23 +661,30 @@ const SalePersonalize: React.FC = () => {
               <p className="text-[11px] text-slate-400 mt-1">Trợ lý AI bám yêu cầu này khi viết kịch bản + dựng cảnh. Để trống thì AI tự quyết.</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button onClick={() => setVidCinematic(false)} className={`text-left p-3 rounded-xl border-2 transition ${!vidCinematic ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button onClick={() => setVidType('fast')} className={`text-left p-3 rounded-xl border-2 transition ${vidType === 'fast' ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
                 <p className="font-black text-sm text-slate-800">Nhanh (miễn phí)</p>
                 <p className="text-[11px] text-slate-500">Lia ảnh + giọng đọc. Không tốn phí.</p>
               </button>
-              <button onClick={() => setVidCinematic(true)} className={`text-left p-3 rounded-xl border-2 transition ${vidCinematic ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
+              <button onClick={() => setVidType('cinematic')} className={`text-left p-3 rounded-xl border-2 transition ${vidType === 'cinematic' ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
                 <p className="font-black text-sm text-slate-800 flex items-center gap-1">Điện ảnh AI <Sparkles className="w-3.5 h-3.5 text-fuchsia-600" /></p>
-                <p className="text-[11px] text-slate-500">Cảnh động như phim (~2-3 phút), <b>tính phí mỗi video</b>.</p>
+                <p className="text-[11px] text-slate-500">Cảnh động như phim, <b>tính phí</b>.</p>
+              </button>
+              <button onClick={() => setVidType('avatar')} disabled={!sale.hasPhoto} title={sale.hasPhoto ? '' : 'Cần ảnh chân dung của sale'} className={`text-left p-3 rounded-xl border-2 transition disabled:opacity-50 ${vidType === 'avatar' ? 'border-fuchsia-600 bg-fuchsia-50' : 'border-slate-100 hover:border-slate-200'}`}>
+                <p className="font-black text-sm text-slate-800 flex items-center gap-1">Mặt sale nói <UserSquare className="w-3.5 h-3.5 text-fuchsia-600" /></p>
+                <p className="text-[11px] text-slate-500">Ghép mặt sale thật nói (talking-head), <b>tính phí</b>.</p>
               </button>
             </div>
+            {vidType === 'avatar' && !sale.hasPhoto && (
+              <p className="text-[12px] font-bold text-amber-600">Sale này chưa có ảnh chân dung — hãy tải ảnh mặt rõ nét để dùng chế độ "Mặt sale nói".</p>
+            )}
 
             <button
               onClick={createVideo}
               disabled={vidBusy}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-fuchsia-600 text-white rounded-xl font-black text-sm hover:bg-fuchsia-700 disabled:opacity-60"
             >
-              {vidBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Film className="w-4 h-4" />} {vidCinematic ? 'Tạo video điện ảnh' : 'Tạo video cá nhân hoá'}
+              {vidBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Film className="w-4 h-4" />} {vidType === 'avatar' ? 'Tạo video mặt sale nói' : vidType === 'cinematic' ? 'Tạo video điện ảnh' : 'Tạo video cá nhân hoá'}
             </button>
 
             {vidBusy && (
