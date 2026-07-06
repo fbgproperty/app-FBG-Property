@@ -4,6 +4,7 @@ import {
   CheckCircle2, XCircle, RefreshCw, Handshake, Phone, ClipboardList, Zap
 } from 'lucide-react';
 import { api } from '../services/apiService';
+import ProjectWorkspace from './ProjectWorkspace';
 
 const timeAgo = (ts: any): string => {
   if (!ts) return '';
@@ -35,6 +36,8 @@ const parseUnits = (text: string): any[] => {
 
 const SaaSAdmin: React.FC = () => {
   const [tab, setTab] = useState<'tower' | 'wizard'>('tower');
+  const [wsProject, setWsProject] = useState('');
+  if (wsProject) return <ProjectWorkspace project={wsProject} onBack={() => setWsProject('')} />;
   return (
     <div className="space-y-5">
       <div className="flex gap-1.5 bg-white rounded-2xl border border-slate-100 p-1.5 shadow-sm w-fit">
@@ -45,7 +48,7 @@ const SaaSAdmin: React.FC = () => {
           <Plus className="w-4 h-4" /> Khởi tạo dự án
         </button>
       </div>
-      {tab === 'tower' ? <ControlTower /> : <Wizard onDone={() => setTab('tower')} />}
+      {tab === 'tower' ? <ControlTower onOpen={setWsProject} /> : <Wizard onDone={() => setTab('tower')} />}
     </div>
   );
 };
@@ -205,7 +208,7 @@ const Wizard: React.FC<{ onDone: () => void }> = ({ onDone }) => {
 };
 
 // ============ A2. CONTROL TOWER (sổ đăng ký hợp nhất — mọi nguồn về một mối) ============
-const ControlTower: React.FC = () => {
+const ControlTower: React.FC<{ onOpen?: (p: string) => void }> = ({ onOpen }) => {
   const [d, setD] = useState<any>(null);
   const [registry, setRegistry] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -269,7 +272,10 @@ const ControlTower: React.FC = () => {
                     <td className="py-2 pr-3 text-right tabular-nums">{r.landings || '—'}</td>
                     <td className="py-2 pr-3 text-right tabular-nums font-black text-emerald-700">{r.leads || 0}</td>
                     <td className="py-2 pr-3 text-slate-500 text-xs">{r.sales.length} sale · {r.partners.length} G2</td>
-                    <td className="py-2"><button onClick={() => setAssignFor(r)} className="text-xs font-black text-indigo-600 hover:underline whitespace-nowrap">Gán →</button></td>
+                    <td className="py-2 whitespace-nowrap">
+                      <button onClick={() => onOpen && onOpen(r.project)} className="text-xs font-black text-indigo-600 hover:underline mr-3">Bảng điều khiển →</button>
+                      <button onClick={() => setAssignFor(r)} className="text-xs font-black text-slate-400 hover:text-indigo-600 hover:underline">Gán</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

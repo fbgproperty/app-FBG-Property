@@ -13,22 +13,17 @@ import ProjectDossier from './ProjectDossier';
 import SalePlanner from './SalePlanner';
 import DeployLaunch from './DeployLaunch';
 import CampaignSchedule from './CampaignSchedule';
-import ProjectRanking from './ProjectRanking';
 import Deployment from './Deployment';
-import MarketResearch from './MarketResearch';
-import MarketRadar from './MarketRadar';
 import AutonomyPanel from './AutonomyPanel';
 import SaaSAdmin from './SaaSAdmin';
 
-type Sec = 'overview' | 'saas' | 'deploy' | 'docs' | 'campaign' | 'ranking' | 'market';
+type Sec = 'overview' | 'saas' | 'deploy' | 'docs' | 'campaign';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
-  { id: 'saas', label: 'SaaS & Admin', icon: Server, admin: true },
+  { id: 'saas', label: 'Dự án SaaS', icon: Server, admin: true },
   { id: 'deploy', label: 'Triển khai tự trị', icon: Rocket },
   { id: 'docs', label: 'Hồ sơ & Kế hoạch bán', icon: FileText },
   { id: 'campaign', label: 'Chiến dịch', icon: Megaphone, admin: true },
-  { id: 'ranking', label: 'Xếp hạng ưu tiên', icon: Trophy },
-  { id: 'market', label: 'Nghiên cứu thị trường', icon: TrendingUp },
 ];
 
 const num = (x: any): number => (typeof x === 'number' && !Number.isNaN(x) ? x : 0);
@@ -710,13 +705,6 @@ const ProjectOS: React.FC = () => {
           <div className="space-y-6">
             <DeployLaunch />
             <CampaignSchedule />
-          </div>
-        )}
-        {sec === 'ranking' && <ProjectRanking />}
-        {sec === 'market' && (
-          <div className="space-y-6">
-            <MarketResearch />
-            <MarketRadar />
           </div>
         )}
       </div>
