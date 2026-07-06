@@ -19,7 +19,14 @@ const PortalSale: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState('');
 
-  const load = async () => { setLoading(true); setD(await api.saasSaleOverview()); setLoading(false); };
+  const load = async () => {
+    setLoading(true);
+    const [ov, rg] = await Promise.all([api.saasSaleOverview(), api.saasRegistry()]);
+    // hợp nhất danh sách dự án từ sổ đăng ký (đủ mọi nguồn ERP/RAG/wizard)
+    const regNames = (rg?.items || []).map((r: any) => r.project);
+    setD({ ...ov, allProjects: Array.from(new Set([...(ov?.allProjects || []), ...regNames])).sort() });
+    setLoading(false);
+  };
   useEffect(() => { load(); }, []);
 
   const base = window.location.origin + window.location.pathname;

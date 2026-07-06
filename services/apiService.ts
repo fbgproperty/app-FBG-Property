@@ -1571,6 +1571,16 @@ class ApiService {
   public async saasProjects(): Promise<any> {
     try { const r = await fetch(`${this.cdpBaseUrl}/saas/projects`, { headers: this.saasHeaders() }); return r.ok ? r.json() : { items: [] }; } catch { return { items: [] }; }
   }
+  /** Sổ đăng ký hợp nhất: mọi dự án từ mọi nguồn (triển khai/phễu/quỹ căn/landing/lead/gán). */
+  public async saasRegistry(): Promise<any> {
+    try { const r = await fetch(`${this.cdpBaseUrl}/saas/registry`, { headers: this.saasHeaders() }); return r.ok ? r.json() : { items: [] }; } catch { return { items: [] }; }
+  }
+  /** Gán sale/G2 cho bất kỳ dự án nào (kể cả dự án đã triển khai từ ERP/RAG). */
+  public async saasAssign(project: string, sales: string[], partners: string[]): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/saas/assign`, { method: 'POST', headers: this.saasHeaders(true), body: JSON.stringify({ project, sales, partners }) });
+    if (!res.ok) throw new Error(`assign ${res.status}`);
+    return res.json();
+  }
   /** A. Admin control tower. */
   public async saasAdminOverview(): Promise<any> {
     try { const r = await fetch(`${this.cdpBaseUrl}/saas/admin/overview`, { headers: this.saasHeaders() }); return r.ok ? r.json() : {}; } catch { return {}; }

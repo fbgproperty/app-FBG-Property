@@ -204,16 +204,17 @@ const Wizard: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   );
 };
 
-// ============ A2. CONTROL TOWER ============
+// ============ A2. CONTROL TOWER (sổ đăng ký hợp nhất — mọi nguồn về một mối) ============
 const ControlTower: React.FC = () => {
   const [d, setD] = useState<any>(null);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [registry, setRegistry] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [assignFor, setAssignFor] = useState<any>(null);
 
   const load = async () => {
     setLoading(true);
-    const [ov, pj] = await Promise.all([api.saasAdminOverview(), api.saasProjects()]);
-    setD(ov); setProjects(pj?.items || []);
+    const [ov, rg] = await Promise.all([api.saasAdminOverview(), api.saasRegistry()]);
+    setD(ov); setRegistry(rg?.items || []);
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
@@ -231,7 +232,7 @@ const ControlTower: React.FC = () => {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        <Stat icon={<Building2 className="w-3.5 h-3.5" />} label="Dự án SaaS" value={t.projects} />
+        <Stat icon={<Building2 className="w-3.5 h-3.5" />} label="Dự án (hợp nhất)" value={registry.length} />
         <Stat icon={<ClipboardList className="w-3.5 h-3.5" />} label="Quỹ căn" value={t.units} />
         <Stat icon={<LayoutTemplate className="w-3.5 h-3.5" />} label="Landing" value={t.landings} />
         <Stat icon={<Users className="w-3.5 h-3.5" />} label="Khách (lead)" value={t.leads} />
@@ -241,26 +242,38 @@ const ControlTower: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Dự án SaaS */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-4">
+        {/* Sổ đăng ký hợp nhất — TẤT CẢ dự án từ mọi nguồn (ERP/RAG/wizard) */}
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 lg:col-span-2">
           <div className="flex items-center justify-between mb-3">
-            <span className="font-black text-slate-800">Dự án đã khởi tạo</span>
+            <span className="font-black text-slate-800">Toàn bộ dự án (hợp nhất từ triển khai · phễu · quỹ căn · landing · lead)</span>
             <button onClick={load} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-50"><RefreshCw className="w-4 h-4" /></button>
           </div>
-          <div className="space-y-2 max-h-72 overflow-y-auto">
-            {projects.map((p: any) => (
-              <div key={p.key} className="flex items-center justify-between gap-2 bg-slate-50 rounded-xl px-3 py-2.5">
-                <div className="min-w-0">
-                  <p className="text-sm font-black text-slate-800 truncate">{p.project}</p>
-                  <p className="text-[11px] text-slate-400">{(p.sales || []).length} sale · {(p.partners || []).length} G2 · {timeAgo(p.ts)}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-black text-indigo-700 tabular-nums">{p.units} căn</p>
-                  <p className="text-[11px] font-bold text-emerald-600 tabular-nums">{p.leads} lead</p>
-                </div>
-              </div>
-            ))}
-            {projects.length === 0 && <p className="text-sm text-slate-400 text-center py-6">Chưa có dự án SaaS — bấm "Khởi tạo dự án".</p>}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[760px]">
+              <thead><tr className="text-left text-[11px] font-black text-slate-400 uppercase border-b border-slate-100">
+                <th className="py-2 pr-3">Dự án</th><th className="py-2 pr-3">Triển khai</th><th className="py-2 pr-3">Phễu</th>
+                <th className="py-2 pr-3 text-right">Quỹ căn</th><th className="py-2 pr-3 text-right">Landing</th>
+                <th className="py-2 pr-3 text-right">Lead</th><th className="py-2 pr-3">Sale/G2</th><th className="py-2"></th>
+              </tr></thead>
+              <tbody>
+                {registry.map((r: any, i: number) => (
+                  <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/60">
+                    <td className="py-2 pr-3 font-black text-slate-800">{r.project}</td>
+                    <td className="py-2 pr-3">
+                      <span className={`text-[11px] font-bold rounded-full px-2 py-0.5 ${r.deployDone >= 7 ? 'bg-emerald-50 text-emerald-700' : r.deployDone > 0 ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-400'}`}>
+                        {r.deployDone}/{r.deployTotal}
+                      </span>
+                    </td>
+                    <td className="py-2 pr-3">{r.funnelStages > 0 ? <span className="text-[11px] font-bold bg-fuchsia-50 text-fuchsia-700 rounded-full px-2 py-0.5">{r.funnelStages} GĐ</span> : <span className="text-slate-300">—</span>}</td>
+                    <td className="py-2 pr-3 text-right tabular-nums font-bold">{r.units || '—'}</td>
+                    <td className="py-2 pr-3 text-right tabular-nums">{r.landings || '—'}</td>
+                    <td className="py-2 pr-3 text-right tabular-nums font-black text-emerald-700">{r.leads || 0}</td>
+                    <td className="py-2 pr-3 text-slate-500 text-xs">{r.sales.length} sale · {r.partners.length} G2</td>
+                    <td className="py-2"><button onClick={() => setAssignFor(r)} className="text-xs font-black text-indigo-600 hover:underline whitespace-nowrap">Gán →</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -292,6 +305,8 @@ const ControlTower: React.FC = () => {
           </div>
         </div>
 
+        {assignFor && <AssignModal proj={assignFor} onClose={(changed: boolean) => { setAssignFor(null); if (changed) load(); }} />}
+
         {/* Khách mới nhất */}
         <div className="bg-white rounded-2xl border border-slate-100 p-4">
           <span className="font-black text-slate-800">Khách mới nhất</span>
@@ -306,6 +321,65 @@ const ControlTower: React.FC = () => {
             ))}
             {(d?.recentLeads || []).length === 0 && <p className="text-sm text-slate-400 text-center py-6">Chưa có khách.</p>}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modal gán sale/G2 cho một dự án (kể cả dự án đã triển khai từ ERP/RAG)
+const AssignModal: React.FC<{ proj: any; onClose: (changed: boolean) => void }> = ({ proj, onClose }) => {
+  const [roster, setRoster] = useState<{ email: string; name: string }[]>([]);
+  const [partners, setPartners] = useState<any[]>([]);
+  const [sales, setSales] = useState<string[]>(proj.sales || []);
+  const [picked, setPicked] = useState<string[]>(proj.partners || []);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    api.saasAdminOverview().then((d: any) => setRoster((d?.sales || []).map((s: any) => ({ email: s.email, name: s.name }))));
+    api.saasPartners().then((d: any) => setPartners(d?.items || []));
+  }, []);
+
+  const save = async () => {
+    setBusy(true);
+    try { await api.saasAssign(proj.project, sales, picked); onClose(true); return; } catch { /* */ }
+    setBusy(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => onClose(false)}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-4 max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <h3 className="text-lg font-black text-slate-900">Gán sale & sàn G2 — {proj.project}</h3>
+        <div>
+          <p className="text-xs font-black text-slate-500 uppercase mb-2">Sale phụ trách ({sales.length})</p>
+          <div className="flex flex-wrap gap-2 max-h-44 overflow-y-auto">
+            {roster.map(r => {
+              const on = sales.includes(r.email);
+              return (
+                <button key={r.email} onClick={() => setSales(p => on ? p.filter(x => x !== r.email) : [...p, r.email])}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 ${on ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-100 text-slate-500'}`}>{r.name}</button>
+              );
+            })}
+          </div>
+        </div>
+        <div>
+          <p className="text-xs font-black text-slate-500 uppercase mb-2">Sàn G2 phân phối ({picked.length})</p>
+          <div className="flex flex-wrap gap-2">
+            {partners.map((p: any) => {
+              const on = picked.includes(p.id);
+              return (
+                <button key={p.id} onClick={() => setPicked(prev => on ? prev.filter(x => x !== p.id) : [...prev, p.id])}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 ${on ? 'border-fuchsia-600 bg-fuchsia-50 text-fuchsia-700' : 'border-slate-100 text-slate-500'}`}>{p.name}</button>
+              );
+            })}
+            {partners.length === 0 && <span className="text-sm text-slate-400">Chưa có sàn G2 (đăng ký ở trang Sàn G2).</span>}
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <button onClick={() => onClose(false)} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-black text-sm">Huỷ</button>
+          <button onClick={save} disabled={busy} className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm disabled:opacity-60">
+            {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />} Lưu gán
+          </button>
         </div>
       </div>
     </div>
