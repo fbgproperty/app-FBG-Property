@@ -122,10 +122,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     try { return JSON.parse(localStorage.getItem('fbg_user') || '{}'); } catch { return {}; }
   })();
   // Phân quyền theo vai trò (role) — chỉ hiện route được phép
-  // Ẩn 2 mục dành riêng cho sale ("Dự án triển khai", "Khách của tôi") với tài khoản admin
-  const SALE_ONLY = ['/sale-projects', '/my-customers'];
+  // Ẩn các mục dành riêng cho sale/đối tác với tài khoản admin (chức năng đã có trong Bảng điều khiển dự án)
+  const SALE_ONLY = ['/sale-projects', '/my-customers', '/cong-sale'];
   const visibleByLevel = (item: any) => {
     if (SALE_ONLY.includes(item.to) && isAdminRole(myRole)) return false;
+    if (item.to === '/g2' && myRole !== 'ctv') return false; // Sàn G2: chỉ tài khoản đối tác thấy menu
     return canAccess(item.to, myRole);
   };
 
