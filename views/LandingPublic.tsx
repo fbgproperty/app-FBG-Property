@@ -22,12 +22,14 @@ const LandingPublic: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [err, setErr] = useState('');
 
-  const projName = decodeURIComponent(project);
+  const rawProj = decodeURIComponent(project);
   const unitCode = decodeURIComponent(code);
+  // Tên dự án chuẩn từ backend (khi vào bằng tên miền riêng, param là slug)
+  const projName = data?.project || rawProj;
 
   useEffect(() => {
-    api.lpGet(projName, unitCode).then((d: any) => setData(d)).finally(() => setLoading(false));
-  }, [projName, unitCode]);
+    api.lpGet(rawProj, unitCode).then((d: any) => setData(d)).finally(() => setLoading(false));
+  }, [rawProj, unitCode]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();

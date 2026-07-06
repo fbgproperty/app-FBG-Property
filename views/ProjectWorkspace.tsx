@@ -266,27 +266,37 @@ const SaleBoard: React.FC<any> = ({ d, project, lpUrl, copy, copied }) => (
   </div>
 );
 
+// Slug tên miền — khớp chuẩn hoá backend (_inv_pkey)
+const domainSlug = (name: string): string =>
+  (name || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd')
+    .toLowerCase().trim().replace(/\s+/g, '-').slice(0, 60);
+
 // ================= KHÁCH =================
 const KhachBoard: React.FC<any> = ({ d, project, lpUrl, copy, copied, base }) => {
+  const domain = `https://${domainSlug(project)}.fbgproperty.vn`;
   return (
     <div className="space-y-4">
       {/* Kênh công khai */}
       <div className="bg-white rounded-2xl border border-slate-100 p-4 space-y-3">
         <span className="font-black text-slate-800 flex items-center gap-2"><Globe className="w-4 h-4 text-indigo-600" /> Kênh công khai của dự án</span>
         {[
+          { label: 'Tên miền riêng của dự án', url: domain, id: 'k0', icon: <Globe className="w-4 h-4 text-indigo-500" />, hint: 'ngắn gọn để chạy ads/in ấn — thêm ?ref=email để gắn sale' },
           { label: 'Trang giới thiệu dự án (landing)', url: lpUrl(), id: 'k1', icon: <LayoutTemplate className="w-4 h-4 text-fuchsia-500" /> },
           { label: 'Cổng khách — tra cứu căn quan tâm theo SĐT', url: `${base}#/khach`, id: 'k2', icon: <Users className="w-4 h-4 text-emerald-500" /> },
-        ].map(x => (
-          <div key={x.id} className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2.5">
-            {x.icon}
-            <span className="text-sm font-bold text-slate-700 flex-1 truncate">{x.label}</span>
-            <button onClick={() => copy(x.id, x.url)} className="inline-flex items-center gap-1 text-xs font-black text-indigo-600 hover:underline shrink-0">
-              {copied === x.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} Copy
-            </button>
-            <a href={x.url} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-indigo-600 shrink-0"><ExternalLink className="w-3.5 h-3.5" /></a>
+        ].map((x: any) => (
+          <div key={x.id} className="bg-slate-50 rounded-xl px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              {x.icon}
+              <span className="text-sm font-bold text-slate-700 flex-1 truncate">{x.label}</span>
+              <button onClick={() => copy(x.id, x.url)} className="inline-flex items-center gap-1 text-xs font-black text-indigo-600 hover:underline shrink-0">
+                {copied === x.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} Copy
+              </button>
+              <a href={x.url} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-indigo-600 shrink-0"><ExternalLink className="w-3.5 h-3.5" /></a>
+            </div>
+            {x.hint && <p className="text-[11px] text-slate-400 mt-1 ml-6 truncate">{x.url.replace('https://', '')} — {x.hint}</p>}
           </div>
         ))}
-        <p className="text-[11px] text-slate-400">Muốn <b>tên miền riêng</b> cho dự án (vd du-an.fbgproperty.vn)? Cần thêm 1 bản ghi DNS — báo trợ lý AI cấu hình khi anh sẵn sàng.</p>
+        <p className="text-[11px] text-slate-400">Tên miền riêng hoạt động khi DNS wildcard (<b>*</b> → máy chủ) được thêm ở Cloudflare. Máy chủ đã cấu hình sẵn: SSL tự cấp, chỉ chấp nhận dự án có thật.</p>
       </div>
 
       {/* Tính vay — port từ ELC LoanCalculator */}
