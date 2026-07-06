@@ -24,6 +24,7 @@ import Billing from './views/Billing';
 import Deployment from './views/Deployment';
 import Login from './views/Login';
 import LandingPage from './views/LandingPage';
+import LandingPublic from './views/LandingPublic';
 import { api } from './services/apiService'; // <-- sửa path đúng
 import { fbAuth } from './services/firebase';
 import { signOut } from 'firebase/auth';
@@ -82,6 +83,9 @@ const App: React.FC = () => {
     <HashRouter>
       {!isAuthenticated ? (
         <Routes>
+          {/* Landing công khai từng mã căn / dự án — chạy ads, không cần đăng nhập */}
+          <Route path="/lp/:project/:code" element={<LandingPublic />} />
+          <Route path="/lp/:project" element={<LandingPublic />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/" element={<LandingPage />} />
           {/* Chưa đăng nhập → trang giới thiệu công khai */}
@@ -92,6 +96,9 @@ const App: React.FC = () => {
           <Sidebar onLogout={handleLogout} />
           <main className="flex-1 overflow-y-auto p-4 md:p-8">
             <Routes>
+              {/* Landing công khai (xem trước khi đã đăng nhập) */}
+              <Route path="/lp/:project/:code" element={<LandingPublic />} />
+              <Route path="/lp/:project" element={<LandingPublic />} />
               {/* Identity Management Routes (admin only, riêng hồ sơ cho mọi người) */}
               <Route path="/identity/tai-khoan" element={<Guard path="/identity"><UsersPage /></Guard>} />
               <Route path="/identity/vai-tro" element={<Guard path="/identity"><RolesPage/></Guard>} />

@@ -1556,6 +1556,42 @@ class ApiService {
       return res.json();
     } catch { return { items: [], total: 0 }; }
   }
+  /** Landing công khai: lấy nội dung landing đã xuất bản + thông tin căn. */
+  public async lpGet(project: string, code?: string): Promise<any> {
+    try {
+      const p = new URLSearchParams({ project });
+      if (code) p.set('code', code);
+      const res = await fetch(`${this.cdpBaseUrl}/lp/get?${p.toString()}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } });
+      if (!res.ok) throw new Error(`lp ${res.status}`);
+      return res.json();
+    } catch { return { published: false }; }
+  }
+  /** Xuất bản landing cho một mã căn (để lấy link chạy ads). */
+  public async lpPublish(project: string, code: string, landing: any): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/lp/publish`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project, code, landing }),
+    });
+    if (!res.ok) throw new Error(`publish ${res.status}`);
+    return res.json();
+  }
+  /** Khách để lại thông tin từ landing → CDP + gán sale/G2 theo referral. */
+  public async lpLead(payload: { project: string; code?: string; name: string; phone: string; ref?: string; note?: string }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/lp/lead`, {
+      method: 'POST', headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`lead ${res.status}`);
+    return res.json();
+  }
+  /** Danh sách khách thu từ landing (admin xem tất cả, sale xem của mình). */
+  public async lpLeads(limit = 100): Promise<{ items: any[]; total: number }> {
+    try {
+      const res = await fetch(`${this.cdpBaseUrl}/lp/leads?limit=${limit}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() } });
+      if (!res.ok) throw new Error(`leads ${res.status}`);
+      return res.json();
+    } catch { return { items: [], total: 0 }; }
+  }
   /** Quỹ căn: tổng hợp số căn theo dự án. */
   public async inventorySummary(): Promise<any> {
     try {

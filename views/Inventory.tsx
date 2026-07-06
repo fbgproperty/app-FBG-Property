@@ -122,6 +122,22 @@ const UnitModal: React.FC<{ project: string; unit: any; onClose: () => void }> =
   const [landing, setLanding] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState('');
+  const [pubUrl, setPubUrl] = useState('');
+  const [publishing, setPublishing] = useState(false);
+
+  const myEmail = (() => { try { return (JSON.parse(localStorage.getItem('fbg_user') || '{}').email || '').toLowerCase(); } catch { return ''; } })();
+
+  const publish = async () => {
+    if (!landing) return;
+    setPublishing(true);
+    try {
+      await api.lpPublish(project, unit.code, landing);
+      const base = window.location.origin + window.location.pathname;
+      const url = `${base}#/lp/${encodeURIComponent(project)}/${encodeURIComponent(unit.code)}${myEmail ? `?ref=${encodeURIComponent(myEmail)}` : ''}`;
+      setPubUrl(url);
+    } catch { /* */ }
+    setPublishing(false);
+  };
 
   const copy = (id: string, text: string) => { try { navigator.clipboard.writeText(text || ''); setCopied(id); setTimeout(() => setCopied(''), 1500); } catch { /* */ } };
 
@@ -212,9 +228,24 @@ const UnitModal: React.FC<{ project: string; unit: any; onClose: () => void }> =
                 <div key={i} className="bg-slate-50 rounded-lg p-2.5"><p className="text-sm font-black text-slate-800">{f.q}</p><p className="text-sm text-slate-600">{f.a}</p></div>
               ))}
               {landing.finalCta && <div className="text-center bg-fuchsia-50 rounded-xl p-3"><p className="font-black text-fuchsia-800">{landing.finalCta}</p></div>}
-              <button onClick={() => copy('l', JSON.stringify(landing, null, 2))} className="inline-flex items-center gap-1 text-xs font-black text-fuchsia-600 hover:underline">
-                {copied === 'l' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} Copy toàn bộ landing
-              </button>
+              <div className="flex items-center gap-3 flex-wrap">
+                <button onClick={publish} disabled={publishing} className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white rounded-xl font-black text-sm hover:bg-emerald-700 disabled:opacity-60">
+                  {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <LayoutTemplate className="w-4 h-4" />} Xuất bản &amp; lấy link chạy ads
+                </button>
+                <button onClick={() => copy('l', JSON.stringify(landing, null, 2))} className="inline-flex items-center gap-1 text-xs font-black text-fuchsia-600 hover:underline">
+                  {copied === 'l' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} Copy toàn bộ
+                </button>
+              </div>
+              {pubUrl && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+                  <p className="text-[11px] font-black text-emerald-600 uppercase mb-1">Link landing công khai (dán vào quảng cáo — lead tự về bạn)</p>
+                  <div className="flex items-center gap-2">
+                    <input readOnly value={pubUrl} className="flex-1 bg-white border border-emerald-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700" onFocus={e => e.currentTarget.select()} />
+                    <button onClick={() => copy('u', pubUrl)} className="inline-flex items-center gap-1 text-xs font-black text-emerald-700 hover:underline shrink-0">{copied === 'u' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} Copy</button>
+                    <a href={pubUrl} target="_blank" rel="noreferrer" className="text-xs font-black text-emerald-700 hover:underline shrink-0">Mở ↗</a>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
