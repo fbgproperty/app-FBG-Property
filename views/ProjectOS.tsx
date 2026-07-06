@@ -18,10 +18,12 @@ import Deployment from './Deployment';
 import MarketResearch from './MarketResearch';
 import MarketRadar from './MarketRadar';
 import AutonomyPanel from './AutonomyPanel';
+import SaaSAdmin from './SaaSAdmin';
 
-type Sec = 'overview' | 'deploy' | 'docs' | 'campaign' | 'ranking' | 'market';
+type Sec = 'overview' | 'saas' | 'deploy' | 'docs' | 'campaign' | 'ranking' | 'market';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
+  { id: 'saas', label: 'SaaS & Admin', icon: Server, admin: true },
   { id: 'deploy', label: 'Triển khai tự trị', icon: Rocket },
   { id: 'docs', label: 'Hồ sơ & Kế hoạch bán', icon: FileText },
   { id: 'campaign', label: 'Chiến dịch', icon: Megaphone, admin: true },
@@ -695,6 +697,7 @@ const ProjectOS: React.FC = () => {
 
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <OverviewSection />}
+        {sec === 'saas' && admin && <SaaSAdmin />}
         {sec === 'deploy' && <div className="space-y-5"><AutonomyPanel /><DeploySection /></div>}
         {sec === 'docs' && (
           <div className="space-y-6">

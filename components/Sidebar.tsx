@@ -35,6 +35,8 @@ import {
   Settings,
   RefreshCw,
   HelpCircle,
+  Link2,
+  Handshake,
   Info
 } from 'lucide-react';
 
@@ -110,6 +112,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { to: '/bao-cao', label: 'Báo cáo', icon: BarChart3 },
     { to: '/sale-projects', label: 'Dự án triển khai', icon: Rocket },
     { to: '/my-customers', label: 'Khách của tôi', icon: Target },
+    { to: '/cong-sale', label: 'Kênh bán của tôi', icon: Link2 },
+    { to: '/g2', label: 'Sàn G2', icon: Handshake },
   ];
 
   const myRole = (typeof localStorage !== 'undefined' && localStorage.getItem('fbg_role')) || 'ctv';

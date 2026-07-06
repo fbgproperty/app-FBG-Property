@@ -25,6 +25,9 @@ import Deployment from './views/Deployment';
 import Login from './views/Login';
 import LandingPage from './views/LandingPage';
 import LandingPublic from './views/LandingPublic';
+import PortalCustomer from './views/PortalCustomer';
+import PortalSale from './views/PortalSale';
+import PortalG2 from './views/PortalG2';
 import { api } from './services/apiService'; // <-- sửa path đúng
 import { fbAuth } from './services/firebase';
 import { signOut } from 'firebase/auth';
@@ -86,6 +89,8 @@ const App: React.FC = () => {
           {/* Landing công khai từng mã căn / dự án — chạy ads, không cần đăng nhập */}
           <Route path="/lp/:project/:code" element={<LandingPublic />} />
           <Route path="/lp/:project" element={<LandingPublic />} />
+          {/* Cổng khách: tra cứu căn quan tâm theo SĐT (công khai) */}
+          <Route path="/khach" element={<PortalCustomer />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/" element={<LandingPage />} />
           {/* Chưa đăng nhập → trang giới thiệu công khai */}
@@ -99,6 +104,10 @@ const App: React.FC = () => {
               {/* Landing công khai (xem trước khi đã đăng nhập) */}
               <Route path="/lp/:project/:code" element={<LandingPublic />} />
               <Route path="/lp/:project" element={<LandingPublic />} />
+              <Route path="/khach" element={<PortalCustomer />} />
+              {/* SaaS portals */}
+              <Route path="/cong-sale" element={<PortalSale />} />
+              <Route path="/g2" element={<Guard path="/g2"><PortalG2 /></Guard>} />
               {/* Identity Management Routes (admin only, riêng hồ sơ cho mọi người) */}
               <Route path="/identity/tai-khoan" element={<Guard path="/identity"><UsersPage /></Guard>} />
               <Route path="/identity/vai-tro" element={<Guard path="/identity"><RolesPage/></Guard>} />

@@ -1556,6 +1556,45 @@ class ApiService {
       return res.json();
     } catch { return { items: [], total: 0 }; }
   }
+  // ===== SaaS Dự Án =====
+  private saasHeaders(json = false): Record<string, string> {
+    const h: Record<string, string> = { 'X-Bridge-Key': this.cdpBridgeKey, 'X-User-Email': this.userEmail() };
+    if (json) h['Content-Type'] = 'application/json';
+    return h;
+  }
+  /** A. Wizard khởi tạo dự án: danh mục + quỹ căn + gán sale/G2 + (tuỳ chọn) triển khai tự trị. */
+  public async saasProjectInit(payload: { name: string; location?: string; description?: string; units?: any[]; sales?: string[]; partners?: string[]; deploy?: boolean }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/saas/project/init`, { method: 'POST', headers: this.saasHeaders(true), body: JSON.stringify(payload) });
+    if (!res.ok) throw new Error(`saas init ${res.status}`);
+    return res.json();
+  }
+  public async saasProjects(): Promise<any> {
+    try { const r = await fetch(`${this.cdpBaseUrl}/saas/projects`, { headers: this.saasHeaders() }); return r.ok ? r.json() : { items: [] }; } catch { return { items: [] }; }
+  }
+  /** A. Admin control tower. */
+  public async saasAdminOverview(): Promise<any> {
+    try { const r = await fetch(`${this.cdpBaseUrl}/saas/admin/overview`, { headers: this.saasHeaders() }); return r.ok ? r.json() : {}; } catch { return {}; }
+  }
+  /** C. Cổng Sale: dự án của tôi + khách của tôi + link giới thiệu. */
+  public async saasSaleOverview(): Promise<any> {
+    try { const r = await fetch(`${this.cdpBaseUrl}/saas/sale/overview`, { headers: this.saasHeaders() }); return r.ok ? r.json() : {}; } catch { return {}; }
+  }
+  /** D. Đăng ký sàn G2 (đối tác phân phối). */
+  public async saasPartnerRegister(payload: { name: string; phone?: string; email?: string; company?: string; commissionPct?: number }): Promise<any> {
+    const res = await fetch(`${this.cdpBaseUrl}/saas/partner/register`, { method: 'POST', headers: this.saasHeaders(true), body: JSON.stringify(payload) });
+    if (!res.ok) throw new Error(`partner ${res.status}`);
+    return res.json();
+  }
+  public async saasPartners(): Promise<any> {
+    try { const r = await fetch(`${this.cdpBaseUrl}/saas/partners`, { headers: this.saasHeaders() }); return r.ok ? r.json() : { items: [] }; } catch { return { items: [] }; }
+  }
+  public async saasPartnerOverview(id: string): Promise<any> {
+    try { const r = await fetch(`${this.cdpBaseUrl}/saas/partner/overview?id=${encodeURIComponent(id)}`, { headers: this.saasHeaders() }); return r.ok ? r.json() : {}; } catch { return {}; }
+  }
+  /** E. Cổng khách: tra cứu đăng ký theo số điện thoại. */
+  public async saasCustomerPortal(phone: string): Promise<any> {
+    try { const r = await fetch(`${this.cdpBaseUrl}/saas/customer/portal?phone=${encodeURIComponent(phone)}`, { headers: { 'X-Bridge-Key': this.cdpBridgeKey } }); return r.ok ? r.json() : {}; } catch { return {}; }
+  }
   /** Landing công khai: lấy nội dung landing đã xuất bản + thông tin căn. */
   public async lpGet(project: string, code?: string): Promise<any> {
     try {
