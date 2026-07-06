@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../../services/apiService';
 import FloorPlanMap from './FloorPlanMap';
+import { UnitModal } from '../../Inventory';
 
 const FALLBACK = 'https://placehold.co/800x500/eef2ff/6366f1?text=FBG+Property';
 
@@ -99,6 +100,9 @@ const ProjectDetail: React.FC = () => {
     catch (e: any) { setRagA({ answer: '⚠️ ' + (e?.message || 'lỗi') }); }
     finally { setRagBusy(false); }
   };
+
+  // Bán căn: mở tạo tin đăng / landing cho một mã căn
+  const [sellUnit, setSellUnit] = useState<any>(null);
 
   // Nạp lại nội dung dự án (project-content) — dùng chung cho lần đầu và sau khi AI đồng bộ.
   const loadContent = useCallback(async () => {
@@ -604,7 +608,10 @@ const ProjectDetail: React.FC = () => {
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-2.5">{isAdmin && <button onClick={() => patch((c) => ({ ...c, units: c.units.filter((_: any, j: number) => j !== i) }))} className="text-rose-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>}</td>
+                          <td className="px-4 py-2.5 whitespace-nowrap">
+                            <button onClick={() => setSellUnit(u)} className="text-xs font-black text-fuchsia-600 hover:underline mr-3">Bán căn →</button>
+                            {isAdmin && <button onClick={() => patch((c) => ({ ...c, units: c.units.filter((_: any, j: number) => j !== i) }))} className="text-rose-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>}
+                          </td>
                         </tr>
                       );
                     })}
@@ -612,6 +619,8 @@ const ProjectDetail: React.FC = () => {
                 </table>
                 {!allUnits.length && <Empty text="Chưa có quỹ căn." />}
               </div>
+
+              {sellUnit && <UnitModal project={detail?.name || slug} unit={sellUnit} onClose={() => setSellUnit(null)} />}
             </div>
           );
         })()}

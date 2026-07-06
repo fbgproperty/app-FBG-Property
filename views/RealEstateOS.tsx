@@ -4,15 +4,13 @@ import EstateAgency from './EstateAgency';
 import ListingPublisher from './ListingPublisher';
 import Projects from './Property/Project/Projects';
 import HousesApartments from './Property/Properties/HousesApartments';
-import Inventory from './Inventory';
 import ProjectRanking from './ProjectRanking';
 import MarketResearch from './MarketResearch';
 import MarketRadar from './MarketRadar';
 
-type Sec = 'overview' | 'inventory' | 'ranking' | 'market' | 'data' | 'listing';
+type Sec = 'overview' | 'ranking' | 'market' | 'data' | 'listing';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
-  { id: 'inventory', label: 'Quỹ căn (Bảng hàng)', icon: Building2 },
   { id: 'ranking', label: 'Xếp hạng ưu tiên', icon: Trophy },
   { id: 'market', label: 'Nghiên cứu thị trường', icon: TrendingUp },
   { id: 'data', label: 'Dữ liệu BĐS', icon: Boxes },
@@ -68,7 +66,6 @@ const RealEstateOS: React.FC = () => {
 
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <EstateAgency onOpen={(s) => setSec(s as Sec)} />}
-        {sec === 'inventory' && <Inventory />}
         {sec === 'ranking' && <ProjectRanking />}
         {sec === 'market' && (
           <div className="space-y-6">

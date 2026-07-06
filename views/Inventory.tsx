@@ -115,7 +115,7 @@ const Inventory: React.FC = () => {
   );
 };
 
-const UnitModal: React.FC<{ project: string; unit: any; onClose: () => void }> = ({ project, unit, onClose }) => {
+export const UnitModal: React.FC<{ project: string; unit: any; onClose: () => void }> = ({ project, unit, onClose }) => {
   const [tab, setTab] = useState<'listing' | 'landing'>('listing');
   const [brief, setBrief] = useState('');
   const [listing, setListing] = useState<any>(null);
@@ -172,7 +172,7 @@ const UnitModal: React.FC<{ project: string; unit: any; onClose: () => void }> =
             {spec(<Compass className="w-4 h-4" />, 'Hướng', unit.direction)}
             {spec(<Layers className="w-4 h-4" />, 'Tầng', unit.floor)}
             {spec(<Building2 className="w-4 h-4" />, 'Toà', unit.block)}
-            {spec(<Tag className="w-4 h-4" />, 'Giá', fmtVnd(unit.price))}
+            {spec(<Tag className="w-4 h-4" />, 'Giá', fmtVnd(unit.price) !== '—' ? fmtVnd(unit.price) : (unit.price || '—'))}
           </div>
 
           <div className="flex gap-1.5 bg-slate-100 rounded-xl p-1 w-fit">
