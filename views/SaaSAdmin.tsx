@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { api } from '../services/apiService';
 import ProjectWorkspace from './ProjectWorkspace';
+import AutonomyPanel from './AutonomyPanel';
 
 const timeAgo = (ts: any): string => {
   if (!ts) return '';
@@ -234,6 +235,9 @@ const ControlTower: React.FC<{ onOpen?: (p: string) => void }> = ({ onOpen }) =>
 
   return (
     <div className="space-y-5">
+      {/* Tự trị Go-to-Market toàn hệ (chuyển từ tab Triển khai tự trị cũ) */}
+      <AutonomyPanel />
+
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         <Stat icon={<Building2 className="w-3.5 h-3.5" />} label="Dự án (hợp nhất)" value={registry.length} />
         <Stat icon={<ClipboardList className="w-3.5 h-3.5" />} label="Quỹ căn" value={t.units} />

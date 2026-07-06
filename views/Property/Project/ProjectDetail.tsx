@@ -8,6 +8,12 @@ import {
 import { api } from '../../../services/apiService';
 import FloorPlanMap from './FloorPlanMap';
 import { UnitModal } from '../../Inventory';
+import { TaskBoard } from '../../ProjectOS';
+import ProjectWorkspace from '../../ProjectWorkspace';
+import ProjectDossier from '../../ProjectDossier';
+import SalePlanner from '../../SalePlanner';
+import DeployLaunch from '../../DeployLaunch';
+import CampaignSchedule from '../../CampaignSchedule';
 
 const FALLBACK = 'https://placehold.co/800x500/eef2ff/6366f1?text=FBG+Property';
 
@@ -29,10 +35,15 @@ const normUnitStatus = (raw?: string): UnitStatusKey => {
 
 type TabId =
   | 'overview' | 'location' | 'training' | 'subdivision' | 'floorplan'
-  | 'units' | 'photos360' | 'salesPolicy' | 'progress' | 'documents' | 'news';
+  | 'units' | 'photos360' | 'salesPolicy' | 'progress' | 'documents' | 'news'
+  | 'deploy' | 'saleplan' | 'campaign' | 'dashboard';
 
-const TABS: { id: TabId; label: string; icon: any }[] = [
+const TABS: { id: TabId; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: Info },
+  { id: 'dashboard', label: 'Bảng điều khiển (SaaS)', icon: LayoutGrid },
+  { id: 'deploy', label: 'Triển khai tự trị', icon: Sparkles },
+  { id: 'saleplan', label: 'Hồ sơ & Kế hoạch bán', icon: BookOpen, admin: true },
+  { id: 'campaign', label: 'Chiến dịch', icon: Bell, admin: true },
   { id: 'location', label: 'Vị trí', icon: MapIcon },
   { id: 'training', label: 'Đào tạo', icon: GraduationCap },
   { id: 'subdivision', label: 'Phân khu', icon: Grid3x3 },
@@ -362,7 +373,7 @@ const ProjectDetail: React.FC = () => {
 
       {/* Tabs */}
       <div className="flex items-center gap-1 bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
-        {TABS.map((t) => (
+        {TABS.filter((t) => !t.admin || isAdmin).map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all whitespace-nowrap ${tab === t.id ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}>
             <t.icon className="w-4 h-4" /> {t.label}
@@ -742,7 +753,66 @@ const ProjectDetail: React.FC = () => {
               </a>
             )} />
         )}
+
+        {/* ===== Chức năng dự án (gộp từ Dự Án OS) ===== */}
+        {tab === 'deploy' && <DeployMini name={detail?.name || slug} slug={slug} isAdmin={isAdmin} />}
+        {tab === 'saleplan' && isAdmin && (
+          <div className="space-y-6"><ProjectDossier /><SalePlanner /></div>
+        )}
+        {tab === 'campaign' && isAdmin && (
+          <div className="space-y-6"><DeployLaunch /><CampaignSchedule /></div>
+        )}
+        {tab === 'dashboard' && (
+          <ProjectWorkspace project={detail?.name || slug} onBack={() => setTab('overview')} />
+        )}
       </div>
+    </div>
+  );
+};
+
+/* ===== Triển khai tự trị cho RIÊNG dự án này ===== */
+const DeployMini: React.FC<{ name: string; slug: string; isAdmin: boolean }> = ({ name, slug, isAdmin }) => {
+  const [d, setD] = useState<any>(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
+  const STAGE_VN: Record<string, string> = {
+    onboard: 'Hồ sơ dự án', train: 'Huấn luyện AI', exam: 'Sát hạch', match: 'Ghép sale',
+    campaign: 'Chiến dịch', launch: 'Ra quân', report: 'Báo cáo',
+  };
+  const load = useCallback(async () => { setD(await api.saasProjectDetail(name).catch(() => null)); }, [name]);
+  useEffect(() => { load(); }, [load]);
+  const run = async () => {
+    setBusy(true); setMsg('Đang triển khai toàn diện (7 bước + tài liệu)… có thể mất vài phút.');
+    try {
+      const r = await api.projectDeployMaster(name, slug, true);
+      setMsg(r?.ok ? `✓ Hoàn tất ${r.done}/${r.total} bước, ${r.docs ?? 0} tài liệu.` : (r?.error || 'Chưa hoàn tất.'));
+      await load();
+    } catch (e: any) { setMsg(e?.message || 'Lỗi triển khai.'); }
+    setBusy(false);
+  };
+  const stages = d?.deploy?.stages || [];
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <SectionTitle icon={Sparkles} title={`Triển khai tự trị — ${name}`} />
+        {isAdmin && (
+          <button onClick={run} disabled={busy} className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 disabled:opacity-60">
+            {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Triển khai toàn diện
+          </button>
+        )}
+      </div>
+      {msg && <p className="text-sm font-bold text-indigo-600">{msg}</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        {stages.length > 0 ? stages.map((st: any, i: number) => (
+          <div key={i} className={`rounded-xl border px-3 py-2.5 text-sm font-bold flex items-center gap-2 ${st.done ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-slate-50 text-slate-400'}`}>
+            <span>{st.done ? '✓' : '○'}</span>{STAGE_VN[st.key] || st.key}
+          </div>
+        )) : <p className="text-sm text-slate-400 col-span-full">Chưa triển khai — bấm "Triển khai toàn diện" để AI tự chạy 7 bước.</p>}
+      </div>
+      {d?.funnel && (
+        <p className="text-xs text-slate-500">Phễu marketing: <b>{(d.funnel.stages || []).length} giai đoạn</b> · Quỹ căn: <b>{d.units ?? 0}</b> · Khách: <b>{d.totalLeads ?? 0}</b></p>
+      )}
+      <TaskBoard picked={{ name, slug }} />
     </div>
   );
 };

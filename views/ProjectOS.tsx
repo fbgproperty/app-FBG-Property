@@ -17,13 +17,10 @@ import Deployment from './Deployment';
 import AutonomyPanel from './AutonomyPanel';
 import SaaSAdmin from './SaaSAdmin';
 
-type Sec = 'overview' | 'saas' | 'deploy' | 'docs' | 'campaign';
+type Sec = 'overview' | 'saas';
 const SECTIONS: { id: Sec; label: string; icon: any; admin?: boolean }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'saas', label: 'Dự án SaaS', icon: Server, admin: true },
-  { id: 'deploy', label: 'Triển khai tự trị', icon: Rocket },
-  { id: 'docs', label: 'Hồ sơ & Kế hoạch bán', icon: FileText },
-  { id: 'campaign', label: 'Chiến dịch', icon: Megaphone, admin: true },
 ];
 
 const num = (x: any): number => (typeof x === 'number' && !Number.isNaN(x) ? x : 0);
@@ -60,7 +57,7 @@ const TASK_STATES: { id: TaskStatus; label: string }[] = [
 ];
 
 /* ==================== BẢNG CÔNG VIỆC TRIỂN KHAI (v13) ==================== */
-const TaskBoard: React.FC<{ picked: { name: string; slug: string } }> = ({ picked }) => {
+export const TaskBoard: React.FC<{ picked: { name: string; slug: string } }> = ({ picked }) => {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -693,20 +690,7 @@ const ProjectOS: React.FC = () => {
       <div className="animate-in fade-in duration-300">
         {sec === 'overview' && <OverviewSection />}
         {sec === 'saas' && admin && <SaaSAdmin />}
-        {sec === 'deploy' && <div className="space-y-5"><AutonomyPanel /><DeploySection /></div>}
-        {sec === 'docs' && (
-          <div className="space-y-6">
-            <ProjectDossier />
-            <SalePlanner />
-            <Deployment />
-          </div>
-        )}
-        {sec === 'campaign' && admin && (
-          <div className="space-y-6">
-            <DeployLaunch />
-            <CampaignSchedule />
-          </div>
-        )}
+
       </div>
     </div>
   );
