@@ -22,36 +22,15 @@ import {
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-type DashboardData = {
-  stats: {
-    activeProjects: number;
-    totalLeads: number;
-    activeAgents: number;
-    revenue: number;
-  };
-  chartData: Array<{ name: string; leads: number }>;
-};
-
 const Dashboard: React.FC = () => {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [simulating, setSimulating] = useState(false);
   const [simLog, setSimLog] = useState<string[]>([]);
   const [simProgress, setSimProgress] = useState(0);
 
-  const loadData = async () => {
-    try {
-      const res = await api.getAIDashboardData();
-      setData(res);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Trang này chỉ hiển thị văn phòng 3D + dòng thời gian công việc, cả hai tự nạp
+  // dữ liệu riêng. Trước đây nó chặn màn hình chờ một dịch vụ ngoài đã ngừng chạy
+  // nên quay vô hạn — đã bỏ hẳn.
+  const loadData = async () => {};
 
   const handleSimulateLeads = async () => {
     try {
@@ -99,14 +78,6 @@ const Dashboard: React.FC = () => {
       setSimProgress(0);
     }
   };
-
-  if (loading || !data)
-    return (
-      <div className="h-full flex flex-col items-center justify-center text-indigo-600">
-        <Loader2 className="w-12 h-12 animate-spin mb-4" />
-        <p className="font-bold uppercase tracking-widest text-xs">Đang đồng bộ hạ tầng...</p>
-      </div>
-    );
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500">

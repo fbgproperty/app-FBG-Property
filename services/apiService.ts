@@ -384,9 +384,14 @@ export type DashboardData = {
     activeProjects: number;
     totalLeads: number;
     activeAgents: number;
-    revenue: number;
+    inPipeline: number;
+    closed: number;
+    units: number;
+    unitsAvailable: number;
   };
   chartData: Array<{ name: string; leads: number }>;
+  sources?: Record<string, string>;
+  generated_at?: string;
 };
 
 export type LeadSimulatedDto = {
@@ -2540,8 +2545,16 @@ class ApiService {
   // DASHBOARD
   // =====================
 
-  public async getAIDashboardData() {
-    return this.request<DashboardData>(`/dashboard/ai`, { method: 'GET' });
+  /**
+   * Số liệu tổng quan lấy trực tiếp từ hệ thống nội bộ (kho khách hàng, phễu,
+   * quỹ căn, đội trợ lý). Không còn phụ thuộc dịch vụ ngoài đã ngừng hoạt động.
+   */
+  public async getAIDashboardData(): Promise<DashboardData> {
+    const res = await fetch(`${this.cdpBaseUrl}/dash/overview`, {
+      headers: { 'X-Bridge-Key': this.cdpBridgeKey },
+    });
+    if (!res.ok) throw new Error(`Không lấy được số liệu tổng quan (${res.status})`);
+    return res.json();
   }
 
   public async simulateIncomingLeads(count: number) {
