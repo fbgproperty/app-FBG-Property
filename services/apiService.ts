@@ -831,6 +831,25 @@ class ApiService {
   // =====================
 
   // Bất động sản lấy từ website fbgproperty.vn qua bridge (/web/*). Dự án = chỉ nổi bật.
+  /**
+   * Mở phiên xem Văn phòng 3D. Gửi mã đăng nhập của tài khoản công việc để máy chủ
+   * xác thực chữ ký rồi cấp phiên riêng cho tên miền văn phòng. Người ngoài không
+   * có phiên này sẽ bị chặn ngay ở cổng vào.
+   */
+  public async openOfficeSession(idToken: string): Promise<{ ok: boolean; email: string }> {
+    const res = await fetch(`${this.cdpBaseUrl}/office/session`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error((j as any)?.detail || `Không mở được phiên văn phòng (${res.status})`);
+    }
+    return res.json();
+  }
+
   private async webGet<T>(path: string): Promise<T> {
     const res = await fetch(`${this.cdpBaseUrl}/web${path}`, {
       headers: { 'X-Bridge-Key': this.cdpBridgeKey },
