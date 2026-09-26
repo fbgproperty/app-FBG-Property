@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Giỏ hàng dự án — FBG Property</title>
+  <meta name="description" content="Giỏ hàng dự án FBG Property: quỹ căn cập nhật liên tục, bảng hàng trực quan theo toà và tầng, giá và tình trạng từng căn, nhận báo giá nhanh.">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="color-scheme" content="light">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FBG Property">
+  <meta property="og:title" content="Giỏ hàng dự án — FBG Property">
+  <meta property="og:description" content="Quỹ căn cập nhật liên tục: giá, diện tích, hướng và tình trạng từng căn. Nhận báo giá và giữ căn nhanh cùng FBG Property.">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <script src="projects.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Bỏ qua, tới nội dung chính</a>
+
+  <!-- Bộ biểu tượng (nét kiểu lucide) -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-building" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+      <symbol id="i-search-x" viewBox="0 0 24 24"><path d="m13.5 8.5-5 5"/><path d="m8.5 8.5 5 5"/><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+      <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+      <symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+      <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+      <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+      <symbol id="i-arrow-up-down" viewBox="0 0 24 24"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+      <symbol id="i-pie" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></symbol>
+      <symbol id="i-map" viewBox="0 0 24 24"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15"/><path d="M15 6v15"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+      <symbol id="i-message" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+      <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98"/><path d="m15.41 6.51-6.82 3.98"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+      <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M21 4h-7"/><path d="M10 4H3"/><path d="M21 12h-9"/><path d="M8 12H3"/><path d="M21 20h-5"/><path d="M12 20H3"/><path d="M14 2v4"/><path d="M8 10v4"/><path d="M16 18v4"/></symbol>
+      <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></symbol>
+      <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></symbol>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></symbol>
+      <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.59 2.59A2 2 0 0 0 11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></symbol>
+      <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.91 5.81a2 2 0 0 1-1.28 1.28L3 12l5.81 1.91a2 2 0 0 1 1.28 1.28L12 21l1.91-5.81a2 2 0 0 1 1.28-1.28L21 12l-5.81-1.91a2 2 0 0 1-1.28-1.28z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></symbol>
+      <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+      <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+      <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+      <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="m2 2 20 20"/><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.19"/><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 10 5.07"/></symbol>
+      <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+      <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></symbol>
+      <symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></symbol>
+      <symbol id="i-scale" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></symbol>
+      <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+      <symbol id="i-grad" viewBox="0 0 24 24"><path d="M21.42 10.92a1 1 0 0 0-.02-1.84l-8.57-3.9a2 2 0 0 0-1.66 0l-8.57 3.9a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+      <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></symbol>
+      <symbol id="i-handshake" viewBox="0 0 24 24"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></symbol>
+      <symbol id="i-loader" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></symbol>
+    </defs>
+  </svg>
+
+  <header class="site-header" id="siteHeader">
+    <div class="topbar">
+      <div class="container topbar-in">
+        <a class="brand" href="#tong-quan" aria-label="FBG Property — Giỏ hàng dự án, về đầu trang">
+          <img class="brand-logo" src="icon.svg" alt="" width="36" height="36">
+          <span class="brand-text">
+            <span class="brand-name">FBG Property</span>
+            <span class="brand-sub">Giỏ hàng dự án</span>
+          </span>
+        </a>
+
+        <div class="switcher" id="switcher">
+          <button type="button" class="proj-btn" id="projBtn" data-action="proj-toggle" aria-haspopup="listbox" aria-expanded="false" aria-controls="projMenu" disabled>
+            <span class="proj-ico"><svg class="ic" aria-hidden="true"><use href="#i-building"/></svg></span>
+            <span class="proj-txt">
+              <span class="proj-label">Dự án</span>
+              <span class="proj-name" id="projName">Đang tải…</span>
+            </span>
+            <span class="proj-hot" id="projHot" hidden>🔥 Hot</span>
+            <span class="proj-count" id="projCount" hidden></span>
+            <svg class="ic proj-caret" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          </button>
+          <div class="proj-menu" id="projMenu" hidden>
+            <div class="proj-search" id="projSearchWrap" hidden>
+              <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="text" id="projSearch" placeholder="Tìm dự án…" autocomplete="off" aria-label="Tìm dự án">
+            </div>
+            <ul class="proj-list" id="projList" role="listbox" aria-label="Chọn dự án"></ul>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <a class="btn btn-ghost btn-sm only-lg" id="topHotline" hidden></a>
+          <a class="btn btn-grad btn-sm only-md" href="#lien-he">
+            <svg class="ic" aria-hidden="true"><use href="#i-send"/></svg>Nhận báo giá
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <nav class="subnav" id="subnav" aria-label="Các mục trong trang">
+      <div class="container">
+        <div class="tabs" id="tabs">
+          <a class="tab" href="#tong-quan" data-tab="tong-quan"><svg class="ic" aria-hidden="true"><use href="#i-pie"/></svg>Tổng quan</a>
+          <a class="tab" href="#gio-hang" data-tab="gio-hang"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>Giỏ hàng</a>
+          <a class="tab" href="#bang-hang" data-tab="bang-hang"><svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg>Bảng hàng</a>
+          <a class="tab" href="#chinh-sach" data-tab="chinh-sach" hidden><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg>Chính sách</a>
+          <a class="tab" href="#tien-do" data-tab="tien-do" hidden><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>Tiến độ</a>
+          <a class="tab" href="#mat-bang" data-tab="mat-bang" hidden><svg class="ic" aria-hidden="true"><use href="#i-map"/></svg>Mặt bằng</a>
+          <a class="tab" href="#tai-lieu" data-tab="tai-lieu" hidden><svg class="ic" aria-hidden="true"><use href="#i-folder"/></svg>Tài liệu</a>
+          <a class="tab" href="#lien-he" data-tab="lien-he"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Liên hệ</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <div class="container">
+      <div class="demo-banner" id="demoBanner" role="note" hidden>
+        <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+        <span><b>Đang xem dữ liệu minh hoạ</b> — số liệu chỉ dùng để trình diễn giao diện, không phải giỏ hàng thực tế.</span>
+        <a id="demoExit" href="./">Xem dữ liệu thật</a>
+      </div>
+
+      <div id="pageState" hidden></div>
+
+      <!-- TỔNG QUAN -->
+      <section id="tong-quan" class="section section-first" aria-labelledby="heroTitle">
+        <div id="heroMount"></div>
+        <div id="overviewMount" class="ov-grid"></div>
+      </section>
+
+      <!-- GIỎ HÀNG + BẢNG HÀNG -->
+      <section id="gio-hang" class="section" aria-labelledby="invTitle">
+        <div class="card inv">
+          <div class="inv-head">
+            <div class="sec-title">
+              <span class="sec-ico"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg></span>
+              <div>
+                <p class="kicker">Giỏ hàng trực tuyến</p>
+                <h2 class="h2" id="invTitle">Giỏ hàng <span class="grad-text" id="invProj"></span> <span class="pill" id="invCount" hidden></span></h2>
+                <p class="sec-sub" id="invSub">Nhấn vào một căn để xem chi tiết và nhận báo giá.</p>
+              </div>
+            </div>
+            <div class="seg" role="group" aria-label="Chế độ xem giỏ hàng">
+              <button type="button" data-action="view" data-view="list" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>Danh sách</button>
+              <button type="button" data-action="view" data-view="matrix" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg>Bảng hàng</button>
+            </div>
+          </div>
+
+          <div class="chips" id="statusChips" role="group" aria-label="Lọc theo tình trạng"></div>
+
+          <div class="toolbar">
+            <div class="search">
+              <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+              <label class="sr-only" for="q">Tìm căn</label>
+              <input id="q" type="search" placeholder="Tìm mã căn, toà, loại căn, hướng…" autocomplete="off" enterkeyhint="search" spellcheck="false">
+              <button type="button" class="search-clear" data-action="clear-q" aria-label="Xoá từ khoá tìm kiếm" hidden><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+            </div>
+            <button type="button" class="btn btn-ghost filter-toggle" data-action="toggle-filters" aria-expanded="false" aria-controls="filterSelects">
+              <svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg>Bộ lọc<span class="count-dot" id="filterN" hidden></span>
+            </button>
+            <div class="filters" id="filterSelects">
+              <select id="fBlock" data-f="block" aria-label="Lọc theo toà"></select>
+              <select id="fType" data-f="type" aria-label="Lọc theo loại căn"></select>
+              <select id="fDir" data-f="dir" aria-label="Lọc theo hướng"></select>
+              <select id="fPrice" data-f="price" aria-label="Lọc theo khoảng giá"></select>
+              <select id="fSort" data-f="sort" aria-label="Sắp xếp danh sách"></select>
+            </div>
+          </div>
+
+          <div class="result-bar" id="resultBar" aria-live="polite"></div>
+          <div id="invBody" class="inv-body"></div>
+        </div>
+      </section>
+
+      <!-- CHÍNH SÁCH + TIẾN ĐỘ -->
+      <div class="duo" id="duo">
+        <section id="chinh-sach" class="section" aria-labelledby="policyTitle" hidden>
+          <div class="card pad">
+            <div class="sec-title">
+              <span class="sec-ico"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg></span>
+              <div><p class="kicker">Ưu đãi</p><h2 class="h2" id="policyTitle">Chính sách bán hàng</h2><p class="sec-sub">Ưu đãi, phương thức thanh toán và hỗ trợ tài chính.</p></div>
+            </div>
+            <div id="policyBody" class="prose"></div>
+          </div>
+        </section>
+        <section id="tien-do" class="section" aria-labelledby="progressTitle" hidden>
+          <div class="card pad">
+            <div class="sec-title">
+              <span class="sec-ico"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg></span>
+              <div><p class="kicker">Cập nhật</p><h2 class="h2" id="progressTitle">Tiến độ dự án</h2><p class="sec-sub">Các mốc xây dựng và mở bán.</p></div>
+            </div>
+            <ol id="progressBody" class="timeline"></ol>
+          </div>
+        </section>
+      </div>
+
+      <!-- MẶT BẰNG -->
+      <section id="mat-bang" class="section" aria-labelledby="planTitle" hidden>
+        <div class="card pad">
+          <div class="sec-title">
+            <span class="sec-ico"><svg class="ic" aria-hidden="true"><use href="#i-map"/></svg></span>
+            <div><p class="kicker">Thiết kế</p><h2 class="h2" id="planTitle">Mặt bằng</h2><p class="sec-sub">Mặt bằng tầng điển hình và thiết kế căn hộ.</p></div>
+          </div>
+          <div id="planBody" class="plans"></div>
+        </div>
+      </section>
+
+      <!-- TÀI LIỆU BÁN HÀNG (projects.js) + TÀI LIỆU & TIN TỨC (API) -->
+      <section id="tai-lieu" class="section" aria-labelledby="docTitle" hidden>
+        <div class="card pad docs-card">
+          <div class="docs-head">
+            <div class="sec-title">
+              <span class="sec-ico"><svg class="ic" aria-hidden="true"><use href="#i-folder"/></svg></span>
+              <div><p class="kicker">Dành cho đại lý</p><h2 class="h2" id="docTitle">Tài liệu bán hàng</h2><p class="sec-sub" id="docSub"></p></div>
+            </div>
+            <button type="button" class="btn btn-grad" id="docCopyAll" data-action="copy-all-docs" hidden>
+              <svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg>Sao chép toàn bộ
+            </button>
+          </div>
+          <div id="curatedDocs" class="curated"></div>
+          <div id="docBody" class="docs"></div>
+          <div class="slogan" id="docSlogan" hidden>
+            <svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>
+            <p id="docSloganText"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIÊN HỆ -->
+      <section id="lien-he" class="section" aria-labelledby="contactTitle">
+        <div class="card contact">
+          <div class="contact-aside">
+            <span class="eyebrow"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>Tư vấn 1:1 miễn phí</span>
+            <h2 class="h2 contact-title" id="contactTitle">Nhận báo giá &amp; giữ căn</h2>
+            <p class="contact-lead">Để lại thông tin, chuyên viên FBG Property sẽ gửi bảng giá, chính sách mới nhất và hỗ trợ giữ căn bạn quan tâm.</p>
+            <ul class="checks">
+              <li><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg>Bảng giá và chính sách cập nhật theo ngày</li>
+              <li><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg>Tư vấn chọn căn theo nhu cầu và tài chính</li>
+              <li><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg>Hỗ trợ giữ chỗ, đặt cọc nhanh gọn, minh bạch</li>
+            </ul>
+            <div class="contact-links" id="contactLinks"></div>
+          </div>
+
+          <div class="contact-main">
+            <form id="leadForm" class="lead-form" novalidate>
+              <div class="form-grid">
+                <div class="fld">
+                  <label for="lfName">Họ và tên <span class="req" aria-hidden="true">*</span></label>
+                  <input id="lfName" name="name" type="text" autocomplete="name" required maxlength="80" placeholder="Nguyễn Văn A" aria-describedby="lfNameErr">
+                  <p class="fld-err" id="lfNameErr" hidden></p>
+                </div>
+                <div class="fld">
+                  <label for="lfPhone">Số điện thoại <span class="req" aria-hidden="true">*</span></label>
+                  <input id="lfPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20" placeholder="09xx xxx xxx" aria-describedby="lfPhoneErr">
+                  <p class="fld-err" id="lfPhoneErr" hidden></p>
+                </div>
+                <div class="fld">
+                  <label for="lfProject">Dự án</label>
+                  <select id="lfProject" name="project"></select>
+                </div>
+                <div class="fld">
+                  <label for="lfCode">Mã căn quan tâm</label>
+                  <input id="lfCode" name="code" type="text" maxlength="40" list="unitCodes" placeholder="VD: A-12.03 (không bắt buộc)" autocomplete="off">
+                  <datalist id="unitCodes"></datalist>
+                </div>
+                <div class="fld span-2">
+                  <label for="lfNote">Ghi chú</label>
+                  <textarea id="lfNote" name="note" rows="3" maxlength="600" placeholder="Nhu cầu, ngân sách, thời gian thuận tiện để liên hệ…"></textarea>
+                </div>
+              </div>
+              <p class="form-err" id="formErr" role="alert" hidden></p>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-grad btn-lg" id="leadSubmit">
+                  <svg class="ic" aria-hidden="true"><use href="#i-send"/></svg><span>Gửi yêu cầu báo giá</span>
+                </button>
+                <p class="fine"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>Thông tin chỉ dùng để FBG Property liên hệ tư vấn, không chia sẻ cho bên thứ ba.</p>
+              </div>
+            </form>
+            <div class="lead-success" id="leadSuccess" tabindex="-1" hidden>
+              <span class="success-ico"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span>
+              <h3>Đã nhận thông tin của bạn!</h3>
+              <p id="leadSuccessText">Chuyên viên FBG Property sẽ liên hệ trong thời gian sớm nhất.</p>
+              <button type="button" class="btn btn-ghost" data-action="lead-reset">Gửi yêu cầu khác</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer" id="siteFooter">
+    <div class="container foot">
+      <div class="foot-brand">
+        <img src="icon.svg" alt="" width="28" height="28">
+        <span><b>FBG Property</b> · Giỏ hàng dự án</span>
+      </div>
+      <p class="foot-note">Giá và tình trạng căn mang tính tham khảo tại thời điểm cập nhật, có thể thay đổi theo chính sách của chủ đầu tư.</p>
+      <p class="foot-copy">© 2026 FBG Property · <a href="mailto:info@fbgproperty.vn">info@fbgproperty.vn</a></p>
+    </div>
+  </footer>
+
+  <div class="mcta" id="mcta">
+    <div class="mcta-extra" id="mctaExtra"></div>
+    <a class="btn btn-grad btn-block" href="#lien-he"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg>Nhận báo giá &amp; giữ căn</a>
+  </div>
+
+  <div class="drawer" id="drawer" hidden>
+    <div class="drawer-backdrop" data-action="close-drawer"></div>
+    <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" id="drawerPanel"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript><p class="noscript">Vui lòng bật JavaScript để xem giỏ hàng dự án.</p></noscript>
+</body>
+</html>
