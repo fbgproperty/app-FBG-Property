@@ -159,6 +159,11 @@ const CONFIG = {
         aliases: arr(c.aliases),
         location: str(c.location),
         distributor: str(c.distributor),
+        investor: str(c.investor),
+        type: str(c.type),
+        scale: str(c.scale),
+        legal: str(c.legal),
+        overview: str(c.overview),
         blocks: arr(c.blocks),
         hot: c.hot === true,
         notice: str(c.notice),
@@ -649,8 +654,25 @@ const CONFIG = {
   }
 
   function enrichInfo() {
+    // Dữ liệu từ hệ thống ưu tiên; thiếu trường nào thì lấy từ projects.js (thông tin FBG tự khai báo).
+    const api = apiEnrichInfo();
+    const cur = curCurated();
+    if (!cur) return api;
+    return {
+      location: api.location || cur.location,
+      type: api.type || cur.type,
+      investor: api.investor || cur.investor,
+      priceRange: api.priceRange || '',
+      productCount: api.productCount || 0,
+      scale: cur.scale,
+      legal: cur.legal,
+      image: api.image || '',
+      overview: api.overview || cur.overview,
+    };
+  }
+  function apiEnrichInfo() {
     const e = state.enrich;
-    if (!e) return {};
+    if (!e) return { location: '', type: '', investor: '', priceRange: '', productCount: 0, image: '', overview: '' };
     const d = e.detail || {}, h = e.hit || {}, c = e.content || {};
     let location = str(d.location || h.location);
     const prov = str(d.province);
@@ -918,7 +940,8 @@ const CONFIG = {
       ['Loại hình', en.type],
       ['Vị trí', en.location],
       ['Khoảng giá', en.priceRange],
-      ['Quy mô', en.productCount ? `${en.productCount} căn` : ''],
+      ['Quy mô', en.productCount ? `${en.productCount} căn` : (en.scale || '')],
+      ['Pháp lý', en.legal],
     ].filter((f) => f[1]);
     const long = en.overview.length > 360;
     const media = en.image
@@ -941,7 +964,7 @@ const CONFIG = {
     if (s.summaryStatus !== 'ready' || !s.projects.length || s.unitsStatus === 'error' || s.unitsStatus === 'none') {
       const en = enrichInfo();
       // Dự án chưa có bảng hàng: vẫn giới thiệu dự án nếu có dữ liệu thật từ hệ thống.
-      m.innerHTML = s.summaryStatus === 'ready' && (en.overview || en.image) ? introCard(en) : '';
+      m.innerHTML = s.summaryStatus === 'ready' && (en.overview || en.image || en.investor) ? introCard(en) : '';
       return;
     }
     if (s.unitsStatus !== 'ready') {

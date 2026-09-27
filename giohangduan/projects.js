@@ -23,4 +23,20 @@ window.FBG_PROJECTS = [
       { type: 'training', label: 'Tài liệu đào tạo', desc: 'Tài liệu đào tạo đại lý', url: 'https://drive.google.com/drive/folders/1O9OP81vBVIWc7eLyGSVgGzMAq6Ba4_wX' },
     ],
   },
+  {
+    id: 'capital-square',
+    name: 'Capital Square',
+    aliases: ['Capital Square Đà Nẵng', 'Capital Square 2', 'Capital Square 3', 'Khu đô thị Capital Square 2', 'Khu đô thị Capital Square 3'],
+    location: 'P. An Hải, Đà Nẵng',
+    investor: 'Công ty TNHH Mega Assets (Capital Square 2) · Công ty TNHH BĐS SIH (Capital Square 3)',
+    type: 'Căn hộ chung cư',
+    scale: '1.116 căn (Capital Square 2: 530 căn · Capital Square 3: 586 căn)',
+    legal: 'Đủ điều kiện mở bán (Sở Xây dựng Đà Nẵng, 10/2025)',
+    blocks: ['A2.4', 'A2.6'],
+    hot: true,
+    overview: 'Khu đô thị căn hộ cao cấp ven biển An Hải. Capital Square 2 gồm toà A2.4 và A2.6 với 530 căn; Capital Square 3 có 586 căn. Cả hai phân khu đã đủ điều kiện mở bán theo danh sách của Sở Xây dựng Đà Nẵng (10/2025).',
+    docs: [
+      { type: 'all', label: 'Link tổng', desc: 'Toàn bộ tài liệu dự án Capital Square', url: 'https://drive.google.com/drive/folders/1XQ0FkFu7IjM_-TgEBLOej_41HdulXA2n' },
+    ],
+  },
 ];

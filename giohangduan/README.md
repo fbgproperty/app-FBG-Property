@@ -81,9 +81,9 @@ Ví dụ thêm một dự án mới (chép vào mảng trong `projects.js`):
 
 ```js
 {
-  id: 'capital-square',
-  name: 'Capital Square',
-  aliases: ['Capital Square Đà Nẵng', 'Capital Square 3'],
+  id: 'ten-du-an',
+  name: 'Tên dự án',
+  aliases: ['Tên gọi khác'],
   location: 'Đà Nẵng',
   distributor: 'FUTALand',
   blocks: ['CS1', 'CS2'],
@@ -97,6 +97,8 @@ Ví dụ thêm một dự án mới (chép vào mảng trong `projects.js`):
   ],
 },
 ```
+
+Các trường giới thiệu (không bắt buộc) hiện ở phần Tổng quan khi hệ thống chưa có dữ liệu tương ứng: `investor` (chủ đầu tư), `type` (loại hình), `scale` (quy mô, dạng chữ), `legal` (pháp lý), `overview` (đoạn giới thiệu). Xem mục Capital Square trong `projects.js` làm mẫu.
 
 Mọi trường đều không bắt buộc, trừ `name`. Muốn trang tự ghép với bảng hàng trên hệ thống, hãy để `name` hoặc một phần tử `aliases` trùng với tên dự án trong `/inventory/summary`.
 
